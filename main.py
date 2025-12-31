@@ -26,32 +26,24 @@ class PDF(FPDF):
         self.ln(10)
 # ------------------------------------------
 
-# --- MOTOR DE CÁLCULO (TIPO PVSYST) ---
-# Copia esto y pégalo justo debajo de la class PDF
-def simulacion_pvsyst(potencia_pico_kw, hsp, temp_ambiente):
-    """
-    Calcula la energía real considerando pérdidas físicas.
-    """
-    # 1. Pérdida por Temperatura (Los paneles odian el calor)
-    # Se asume que la celda está 25°C más caliente que el aire
-    temp_celda = temp_ambiente + 25 
-    # Coeficiente de pérdida: 0.4% por cada grado extra
-    perdida_termica = (temp_celda - 25) * 0.004 
-    if perdida_termica < 0: perdida_termica = 0
+# --- FUNCIÓN MOTOR DE CÁLCULO (PVSYST LITE) ---
+def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
+    # 1. Pérdidas por Temperatura
+    # Los paneles pierden eficiencia si hace mucho calor (aprox -0.4% por cada grado arriba de 25°C)
+    perdida_temp = 0.004 * (temp_amb_grados - 25)
+    if perdida_temp < 0: perdida_temp = 0 # Si hace frío, ganan un poco o se quedan igual (simplificado)
     
-    # 2. Pérdidas del Sistema (Eficiencia del Inversor y Cables)
-    eficiencia_inversor = 0.96 # 96%
-    perdida_suciedad = 0.03    # 3% por polvo
-    perdida_cables = 0.02      # 2% por resistencia
+    # 2. Pérdidas del Sistema (Cables, suciedad, inversor)
+    # Un estándar de la industria es 14% de pérdidas totales (Performance Ratio base 0.86)
+    perdidas_sistema = 0.14 
     
-    # Factor de Rendimiento Global (Performance Ratio)
-    pr_sistema = (1 - perdida_termica) * (1 - perdida_suciedad) * (1 - perdida_cables) * eficiencia_inversor
+    # 3. Eficiencia Total (Performance Ratio - PR)
+    eficiencia_global = 1 - (perdidas_sistema + perdida_temp)
     
-    # 3. Cálculo Final
-    generacion_diaria = potencia_pico_kw * hsp * pr_sistema
+    # 4. Cálculo de Energía: Potencia * Sol * Eficiencia
+    generacion_diaria = potencia_dc_kw * hsp_sitio * eficiencia_global
     
-    return generacion_diaria, pr_sistema
-# ------------------------------------------
+    return generacion_diaria, eficiencia_global
     
     def footer(self):
         # Pie de página
@@ -143,25 +135,38 @@ with tab1:
     col1, col2 = st.columns(2)
     with col1:
         consumo = st.number_input("Consumo (kWh/mes)", value=500)
-        # Pide la temperatura para calcular pérdidas por calor
-            temp = st.number_input("🌡️ Temperatura Ambiente (°C)", value=28.0)
-      st.success(f"✅ Paneles requeridos: {n_paneles}")
-            
-            # --- CÁLCULO EXACTO TIPO PVSYST ---
-            # 1. Calculamos la potencia total de los paneles en kW
-            potencia_sistema_kw = (n_paneles * dato_panel["Potencia"]) / 1000
-            
-            # 2. Llamamos al motor físico (simulacion_pvsyst)
-            # Nota: 'hsp' ya lo tienes definido arriba en tu código
-            gen_diaria_real, eficiencia_real = simulacion_pvsyst(potencia_sistema_kw, hsp, temp)
-            
-            # 3. Convertimos a Mensual (x 30 días)
-            gen_mensual_real = gen_diaria_real * 30
-            
-            # 4. Mostrar Resultados Profesionales
-            st.metric("⚡ Generación Real Promedio", f"{gen_mensual_real:.0f} kWh/mes")
-            st.caption(f"📉 Eficiencia del Sistema (PR): {eficiencia_real*100:.1f}% (Considerando pérdidas por calor)")
+       # Entrada de Consumo
+consumo = st.number_input("Consumo (kWh/mes)", value=500)
 
+# Entrada de Temperatura (NUEVO)
+temp = st.number_input("🌡️ Temperatura Ambiente (°C)", value=28.0)
+
+# --- CÁLCULOS ---
+if consumo > 0:
+    # Definir HSP manualmente si no existe la variable arriba (valor promedio Colombia)
+    hsp = 4.5 
+    
+    # Calculamos paneles necesarios (cálculo simple inicial)
+    # Asumiendo generación promedio simple para saber cuántos pedir
+    generacion_panel_mensual_simple = (dato_panel["Potencia"] / 1000) * hsp * 30 * 0.80
+    n_paneles = int(consumo / generacion_panel_mensual_simple) + 1
+
+    st.success(f"✅ Paneles requeridos: {n_paneles}")
+
+    # --- CÁLCULO EXACTO TIPO PVSYST ---
+    # 1. Potencia total instalada en kW
+    potencia_sistema_kw = (n_paneles * dato_panel["Potencia"]) / 1000
+
+    # 2. Llamamos a la función que pusimos arriba
+    gen_diaria_real, eficiencia_real = simulacion_pvsyst(potencia_sistema_kw, hsp, temp)
+
+    # 3. Convertimos a Mensual
+    gen_mensual_real = gen_diaria_real * 30
+
+    # 4. Mostrar Resultados
+    st.metric("⚡ Generación Real Promedio", f"{gen_mensual_real:.0f} kWh/mes")
+    st.caption(f"📉 Eficiencia del Sistema (PR): {eficiencia_real*100:.1f}% (Considerando pérdidas por calor a {temp}°C)")
+    
 with tab2:
     n_serie = st.slider("Paneles en Serie", 1, 20, n_paneles)
     voc_total = dato_panel["Voc"] * n_serie
