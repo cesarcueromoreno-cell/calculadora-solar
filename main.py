@@ -9,7 +9,6 @@ st.set_page_config(page_title="CESAR CM Solar Suite", page_icon="☀️", layout
 
 def header(self):
         # --- BLOQUE CORREGIDO ---
-        # 1. Validar y poner el logo (UNA SOLA VEZ)
         if os.path.exists("logo.png"):
             self.image("logo.png", 10, 8, 33)
         
