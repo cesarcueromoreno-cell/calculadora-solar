@@ -8,10 +8,16 @@ import os
 st.set_page_config(page_title="CESAR CM Solar Suite", page_icon="☀️", layout="wide")
 
 def header(self):
-        # --- INICIO DEL LOGO ---
+        # --- BLOQUE CORREGIDO ---
+        # 1. Validar y poner el logo (UNA SOLA VEZ)
         if os.path.exists("logo.png"):
             self.image("logo.png", 10, 8, 33)
-        # --- FIN DEL LOGO ---
+        
+        # 2. Configurar fuente y título
+        self.set_font('Arial', 'B', 12)
+        self.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
+        self.ln(10)
+        # --- FIN DEL BLOQUE ---
 
         self.set_font('Arial', 'B', 12)
         self.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
