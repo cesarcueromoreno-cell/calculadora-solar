@@ -162,7 +162,7 @@ with tab1:
                 st.caption(f"⚠️ Nota: A {temp}°C, los paneles pierden un poco de eficiencia por calor.")
             else:
                 st.caption(f"❄️ Nota: A {temp}°C, los paneles trabajan muy eficientemente.")
-           st.markdown("---") 
+st.markdown("---") 
         st.subheader("📊 Comparativa: Solar vs Consumo")
 
         # Creamos los datos para la gráfica
