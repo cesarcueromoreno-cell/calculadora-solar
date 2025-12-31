@@ -44,8 +44,8 @@ class PDF(FPDF):
         self.ln(10)
 # ------------------------------------------
 def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
-    pdf = PDF()
-    pdf.add_page()
+pdf = PDF()
+pdf.add_page()
     
     # Información del Cliente
     pdf.set_font('Arial', '', 12)
