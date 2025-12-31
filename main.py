@@ -25,6 +25,7 @@ class PDF(FPDF):
         self.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
         self.ln(10)
 # ------------------------------------------
+
 # --- MOTOR DE CÁLCULO (TIPO PVSYST) ---
 # Copia esto y pégalo justo debajo de la class PDF
 def simulacion_pvsyst(potencia_pico_kw, hsp, temp_ambiente):
