@@ -4,6 +4,16 @@ from fpdf import FPDF
 from datetime import datetime
 import os
 
+# --- SISTEMA DE SEGURIDAD ---
+# 1. Pedimos la contraseña en la barra lateral
+password = st.sidebar.text_input("🔑 Ingresa la contraseña:", type="password")
+
+# 2. Si la contraseña NO es correcta, paramos todo
+if password != "SOLAR2025":
+    st.sidebar.error("🔒 App Bloqueada")
+    st.stop() # <--- Esto detiene la app aquí
+# ----------------------------
+
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="CESAR CM Solar Suite", page_icon="☀️", layout="wide")
 
