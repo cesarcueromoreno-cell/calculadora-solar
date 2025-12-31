@@ -44,41 +44,31 @@ class PDF(FPDF):
         self.ln(10)
 # ------------------------------------------
 
-    def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
-        pdf = PDF()
-        pdf.add_page()
-        pdf.set_font("Arial", size=12)
+  def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
+    pdf = PDF()
+    pdf.add_page()
     
-    # Fecha
-    pdf.cell(0, 10, f"Fecha: {datetime.now().strftime('%d/%m/%Y')}", ln=True, align='R')
-    pdf.ln(10)
-    
-    # 1. DATOS DEL CLIENTE
-    pdf.set_fill_color(200, 220, 255) # Azul clarito
-    pdf.cell(0, 10, " 1. INFORMACION DEL PROYECTO", 1, 1, 'L', fill=True)
-    pdf.ln(2)
-    pdf.cell(0, 8, f"Cliente: {cliente}", ln=True)
-    pdf.cell(0, 8, f"Ubicacion: {ciudad}", ln=True)
+    # Información del Cliente
+    pdf.set_font('Arial', '', 12)
+    pdf.cell(0, 10, f'Cliente: {cliente}', 0, 1)
+    pdf.cell(0, 10, f'Ubicación: {ciudad}', 0, 1)
     pdf.ln(5)
     
-    # 2. SISTEMA TÉCNICO
-    pdf.cell(0, 10, " 2. DETALLES DEL SISTEMA", 1, 1, 'L', fill=True)
-    pdf.ln(2)
-    pdf.cell(0, 8, f"Paneles Solares: {sistema_info['num_paneles']} x {sistema_info['ref_panel']} ({sistema_info['potencia_panel']}W)", ln=True)
-    pdf.cell(0, 8, f"Inversor: {sistema_info['inversor']}", ln=True)
-    pdf.cell(0, 8, f"Potencia Total Instalada: {sistema_info['pot_total']} Wp", ln=True)
-    pdf.cell(0, 8, f"Generacion Mensual Promedio: {int(sistema_info['generacion'])} kWh", ln=True)
+    # Información del Sistema
+    pdf.set_font('Arial', 'B', 12)
+    pdf.cell(0, 10, 'Detalles del Sistema:', 0, 1)
+    pdf.set_font('Arial', '', 12)
+    pdf.multi_cell(0, 10, sistema_info)
     pdf.ln(5)
     
-    # 3. FINANCIERO
-    pdf.cell(0, 10, " 3. ANALISIS DE INVERSION", 1, 1, 'L', fill=True)
-    pdf.ln(2)
-    pdf.cell(0, 8, f"Inversion Inicial: ${financiero_info['costo']:,.0f}", ln=True)
-    pdf.cell(0, 8, f"Ahorro Mensual Estimado: ${financiero_info['ahorro_mes']:,.0f}", ln=True)
-    pdf.set_font("Arial", 'B', 12)
-    pdf.cell(0, 10, f"TIEMPO DE RETORNO: {financiero_info['retorno']:.1f} ANOS", ln=True)
+    # Información Financiera
+    pdf.set_font('Arial', 'B', 12)
+    pdf.cell(0, 10, 'Análisis Financiero:', 0, 1)
+    pdf.set_font('Arial', '', 12)
+    pdf.multi_cell(0, 10, financiero_info)
     
-        return pdf.output(dest='S').encode('latin-1')
+    # Retorno del PDF (¡Con la sangría correcta!)
+    return pdf.output(dest='S').encode('latin-1')
 
 # --- CARGA DE DATOS ---
 try:
