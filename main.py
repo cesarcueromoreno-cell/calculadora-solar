@@ -16,16 +16,6 @@ if password != "SOLAR2025":
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="CESAR CM Solar Suite", page_icon="☀️", layout="wide")
-
-# --- CLASE PDF (LA RECETA DEL REPORTE) ---
-class PDF(FPDF):
-    def header(self):
-        # Título del reporte (Sin logo)
-        self.set_font('Arial', 'B', 12)
-        self.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
-        self.ln(10)
-# ------------------------------------------
-
 # --- FUNCIÓN MOTOR DE CÁLCULO (PVSYST LITE) ---
 def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
     # 1. Pérdidas por Temperatura
@@ -45,11 +35,13 @@ def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
     
     return generacion_diaria, eficiencia_global
     
-    def footer(self):
-        # Pie de página
-        self.set_y(-15)
-        self.set_font('Arial', 'I', 8)
-        self.cell(0, 10, f'Pagina {self.page_no()}', 0, 0, 'C')
+# --- CLASE PDF (LA RECETA DEL REPORTE) ---
+class PDF(FPDF):
+    def header(self):
+        # Título del reporte (Sin logo)
+        self.set_font('Arial', 'B', 12)
+        self.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
+        self.ln(10)
 # ------------------------------------------
 
     def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
@@ -135,37 +127,33 @@ with tab1:
     col1, col2 = st.columns(2)
     with col1:
         consumo = st.number_input("Consumo (kWh/mes)", value=500)
-       # Entrada de Consumo
+# --- Pega esto respetando la sangría (indentación) ---
+
 consumo = st.number_input("Consumo (kWh/mes)", value=500)
 
-# Entrada de Temperatura (NUEVO)
+# 1. AGREGAMOS EL INPUT DE TEMPERATURA
 temp = st.number_input("🌡️ Temperatura Ambiente (°C)", value=28.0)
 
-# --- CÁLCULOS ---
 if consumo > 0:
-    # Definir HSP manualmente si no existe la variable arriba (valor promedio Colombia)
+    # Definimos HSP (si no está definido arriba)
     hsp = 4.5 
     
-    # Calculamos paneles necesarios (cálculo simple inicial)
-    # Asumiendo generación promedio simple para saber cuántos pedir
+    # Cálculo simple para cantidad de paneles
     generacion_panel_mensual_simple = (dato_panel["Potencia"] / 1000) * hsp * 30 * 0.80
     n_paneles = int(consumo / generacion_panel_mensual_simple) + 1
 
     st.success(f"✅ Paneles requeridos: {n_paneles}")
 
-    # --- CÁLCULO EXACTO TIPO PVSYST ---
-    # 1. Potencia total instalada en kW
+    # 2. CÁLCULO EXACTO USANDO LA FUNCIÓN QUE MOVIMOS
     potencia_sistema_kw = (n_paneles * dato_panel["Potencia"]) / 1000
-
-    # 2. Llamamos a la función que pusimos arriba
+    
+    # Llamamos a la función
     gen_diaria_real, eficiencia_real = simulacion_pvsyst(potencia_sistema_kw, hsp, temp)
-
-    # 3. Convertimos a Mensual
+    
     gen_mensual_real = gen_diaria_real * 30
 
-    # 4. Mostrar Resultados
     st.metric("⚡ Generación Real Promedio", f"{gen_mensual_real:.0f} kWh/mes")
-    st.caption(f"📉 Eficiencia del Sistema (PR): {eficiencia_real*100:.1f}% (Considerando pérdidas por calor a {temp}°C)")
+    st.caption(f"📉 Eficiencia (PR): {eficiencia_real*100:.1f}% a {temp}°C")
     
 with tab2:
     n_serie = st.slider("Paneles en Serie", 1, 20, n_paneles)
