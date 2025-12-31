@@ -85,7 +85,8 @@ st.markdown("---")
 
 # BARRA LATERAL
 with st.sidebar:
-    st.image("logo.png") if os.path.exists("logo.png") else None
+   if os.path.exists("logo.png"):
+    st.image("logo.png")
     st.header("1. Proyecto")
     cliente = st.text_input("Cliente", "Empresa SAS")
     
