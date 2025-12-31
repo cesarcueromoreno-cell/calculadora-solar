@@ -146,6 +146,7 @@ with tab1:
             
             # B. Llamamos a la función que ya arreglaste arriba
             gen_diaria_real, eficiencia_real = simulacion_pvsyst(potencia_sistema_kw, hsp, temp)
+            gen_total = gen_diaria_real * 30
             
             # C. Resultados Finales
             col_res1, col_res2 = st.columns(2)
