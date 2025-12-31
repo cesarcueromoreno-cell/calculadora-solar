@@ -50,6 +50,8 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     # Información del Cliente
     pdf.set_font('Arial', '', 12)
     pdf.cell(0, 10, f'Cliente: {cliente}', 0, 1)
+    
+    # CORREGIDO: "Ubicacion" sin tilde
     pdf.cell(0, 10, f'Ubicacion: {ciudad}', 0, 1)
     pdf.ln(5)
     
@@ -62,13 +64,15 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     
     # Información Financiera
     pdf.set_font('Arial', 'B', 12)
-    pdf.cell(0, 10, 'Analisis Financiero:, 0, 1)
+    
+    # CORREGIDO: "Analisis" sin tilde
+    pdf.cell(0, 10, 'Analisis Financiero:', 0, 1)
+    
     pdf.set_font('Arial', '', 12)
     pdf.multi_cell(0, 10, financiero_info)
     
-    # Retorno del PDF (¡Con la sangría correcta!)
+    # Retorno del PDF
     return pdf.output(dest='S').encode('latin-1')
-
 # --- CARGA DE DATOS ---
 try:
     archivo = "data/base_datos.xlsx"
