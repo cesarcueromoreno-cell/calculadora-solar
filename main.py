@@ -24,7 +24,34 @@ class PDF(FPDF):
         self.set_font('Arial', 'B', 12)
         self.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
         self.ln(10)
-
+# ------------------------------------------
+# --- MOTOR DE CÁLCULO (TIPO PVSYST) ---
+# Copia esto y pégalo justo debajo de la class PDF
+def simulacion_pvsyst(potencia_pico_kw, hsp, temp_ambiente):
+    """
+    Calcula la energía real considerando pérdidas físicas.
+    """
+    # 1. Pérdida por Temperatura (Los paneles odian el calor)
+    # Se asume que la celda está 25°C más caliente que el aire
+    temp_celda = temp_ambiente + 25 
+    # Coeficiente de pérdida: 0.4% por cada grado extra
+    perdida_termica = (temp_celda - 25) * 0.004 
+    if perdida_termica < 0: perdida_termica = 0
+    
+    # 2. Pérdidas del Sistema (Eficiencia del Inversor y Cables)
+    eficiencia_inversor = 0.96 # 96%
+    perdida_suciedad = 0.03    # 3% por polvo
+    perdida_cables = 0.02      # 2% por resistencia
+    
+    # Factor de Rendimiento Global (Performance Ratio)
+    pr_sistema = (1 - perdida_termica) * (1 - perdida_suciedad) * (1 - perdida_cables) * eficiencia_inversor
+    
+    # 3. Cálculo Final
+    generacion_diaria = potencia_pico_kw * hsp * pr_sistema
+    
+    return generacion_diaria, pr_sistema
+# ------------------------------------------
+    
     def footer(self):
         # Pie de página
         self.set_y(-15)
@@ -32,10 +59,10 @@ class PDF(FPDF):
         self.cell(0, 10, f'Pagina {self.page_no()}', 0, 0, 'C')
 # ------------------------------------------
 
-def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
-    pdf = PDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
+    def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
+        pdf = PDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
     
     # Fecha
     pdf.cell(0, 10, f"Fecha: {datetime.now().strftime('%d/%m/%Y')}", ln=True, align='R')
