@@ -162,7 +162,18 @@ with tab1:
                 st.caption(f"⚠️ Nota: A {temp}°C, los paneles pierden un poco de eficiencia por calor.")
             else:
                 st.caption(f"❄️ Nota: A {temp}°C, los paneles trabajan muy eficientemente.")
-    
+           st.markdown("---") 
+        st.subheader("📊 Comparativa: Solar vs Consumo")
+
+        # Creamos los datos para la gráfica
+        datos_grafica = pd.DataFrame({
+            "Mes": ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
+            "Consumo Red": [consumo] * 12,       
+            "Tu Energía Solar": [gen_total] * 12   
+        })
+
+        # Mostramos la gráfica (Rojo = Consumo, Verde = Solar)
+        st.bar_chart(datos_grafica.set_index("Mes"), color=["#FF4B4B", "#00CC96"])
 with tab2:
     n_serie = st.slider("Paneles en Serie", 1, 20, n_paneles)
     voc_total = dato_panel["Voc"] * n_serie
