@@ -18,8 +18,7 @@ if password != "SOLAR2025":
 st.set_page_config(page_title="CESAR CM Solar Suite", page_icon="☀️", layout="wide")
 
 def header(self):
-        # --- VERSIÓN SIN LOGO ---
-        # Solo ponemos el título y listo
+        # Configuración de fuente y título (SIN LOGO)
         self.set_font('Arial', 'B', 12)
         self.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
         self.ln(10)
