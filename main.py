@@ -78,7 +78,7 @@ class PDF(FPDF):
     pdf.set_font("Arial", 'B', 12)
     pdf.cell(0, 10, f"TIEMPO DE RETORNO: {financiero_info['retorno']:.1f} ANOS", ln=True)
     
-    return pdf.output(dest='S').encode('latin-1')
+        return pdf.output(dest='S').encode('latin-1')
 
 # --- CARGA DE DATOS ---
 try:
