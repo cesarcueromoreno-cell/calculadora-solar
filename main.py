@@ -18,11 +18,6 @@ def header(self):
         self.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
         self.ln(10)
         # --- FIN DEL BLOQUE ---
-
-        self.set_font('Arial', 'B', 12)
-        self.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
-        self.ln(10)
-     
             
         self.set_font('Arial', 'B', 15)
         self.cell(0, 10, 'COTIZACION SISTEMA SOLAR FOTOVOLTAICO', 0, 1, 'C')
