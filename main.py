@@ -12,7 +12,7 @@ class PDF(FPDF):
     def header(self):
         # Intentamos poner el logo si existe
         if os.path.exists("logo.png"):
-            self.image("logo.png", 10, 8, 33) # (Archivo, x, y, ancho)
+            #self.image("logo.png", 10, 8, 33) # (Archivo, x, y, ancho)
             self.ln(20) # Espacio después del logo
         elif os.path.exists("logo.jpg"):
             self.image("logo.jpg", 10, 8, 33)
