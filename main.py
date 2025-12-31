@@ -84,10 +84,8 @@ st.title("CESAR CM INGENIERÍA - SUITE PROFESIONAL")
 st.markdown("---")
 
 # BARRA LATERAL
-with st.sidebar:
-   if os.path.exists("logo.png"):
-    st.image("logo.png")
-    st.header("1. Proyecto")
+if os.path.exists("logo.png"):
+    st.sidebar.image("logo.png")
     cliente = st.text_input("Cliente", "Empresa SAS")
     
     st.header("2. Ubicación")
