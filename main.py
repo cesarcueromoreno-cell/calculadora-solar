@@ -44,7 +44,7 @@ class PDF(FPDF):
         self.ln(10)
 # ------------------------------------------
 
-  def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
+def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     pdf = PDF()
     pdf.add_page()
     
