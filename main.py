@@ -50,7 +50,7 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     # Información del Cliente
     pdf.set_font('Arial', '', 12)
     pdf.cell(0, 10, f'Cliente: {cliente}', 0, 1)
-    pdf.cell(0, 10, f'Ubicación: {ciudad}', 0, 1)
+    pdf.cell(0, 10, f'Ubicacion: {ciudad}', 0, 1)
     pdf.ln(5)
     
     # Información del Sistema
@@ -62,7 +62,7 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     
     # Información Financiera
     pdf.set_font('Arial', 'B', 12)
-    pdf.cell(0, 10, 'Análisis Financiero:', 0, 1)
+    pdf.cell(0, 10, 'Análisis Financiero:, 0, 1)
     pdf.set_font('Arial', '', 12)
     pdf.multi_cell(0, 10, financiero_info)
     
