@@ -124,36 +124,50 @@ generacion_panel = (dato_panel["Potencia"] * hsp * 0.80 * 30) / 1000
 tab1, tab2, tab3 = st.tabs(["📐 Dimensionamiento", "⚡ Eléctrico", "💰 Financiero & PDF"])
 
 with tab1:
-    col1, col2 = st.columns(2)
-    with col1:
-        consumo = st.number_input("Consumo (kWh/mes)", value=500)
-# --- Pega esto respetando la sangría (indentación) ---
+        st.header("Dimensionamiento del Sistema")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # 1. Aquí pedimos el Consumo
+            consumo = st.number_input("Consumo Promedio (kWh/mes)", value=500)
+        
+        with col2:
+            # 2. ¡AQUÍ ESTÁ LA MAGIA! Pedimos la Temperatura
+            temp = st.number_input("🌡️ Temperatura Ambiente (°C)", value=28.0)
 
-consumo = st.number_input("Consumo (kWh/mes)", value=500)
+        # --- CÁLCULOS ---
+        if consumo > 0:
+            # Definir Hora Solar Pico (promedio Colombia)
+            hsp = 4.5 
+            
+            # Cálculo de paneles (Estimación inicial)
+            generacion_panel_mensual_simple = (dato_panel["Potencia"] / 1000) * hsp * 30 * 0.80
+            n_paneles = int(consumo / generacion_panel_mensual_simple) + 1
 
-# 1. AGREGAMOS EL INPUT DE TEMPERATURA
-temp = st.number_input("🌡️ Temperatura Ambiente (°C)", value=28.0)
+            # Mostrar resultado verde
+            st.success(f"✅ Paneles requeridos: {n_paneles}")
+            
+            st.divider() # Una línea separadora bonita
 
-if consumo > 0:
-    # Definimos HSP (si no está definido arriba)
-    hsp = 4.5 
-    
-    # Cálculo simple para cantidad de paneles
-    generacion_panel_mensual_simple = (dato_panel["Potencia"] / 1000) * hsp * 30 * 0.80
-    n_paneles = int(consumo / generacion_panel_mensual_simple) + 1
-
-    st.success(f"✅ Paneles requeridos: {n_paneles}")
-
-    # 2. CÁLCULO EXACTO USANDO LA FUNCIÓN QUE MOVIMOS
-    potencia_sistema_kw = (n_paneles * dato_panel["Potencia"]) / 1000
-    
-    # Llamamos a la función
-    gen_diaria_real, eficiencia_real = simulacion_pvsyst(potencia_sistema_kw, hsp, temp)
-    
-    gen_mensual_real = gen_diaria_real * 30
-
-    st.metric("⚡ Generación Real Promedio", f"{gen_mensual_real:.0f} kWh/mes")
-    st.caption(f"📉 Eficiencia (PR): {eficiencia_real*100:.1f}% a {temp}°C")
+            # --- CÁLCULO PROFESIONAL (Usando tu función arreglada) ---
+            
+            # A. Calculamos potencia total
+            potencia_sistema_kw = (n_paneles * dato_panel["Potencia"]) / 1000
+            
+            # B. Llamamos a la función que ya arreglaste arriba
+            gen_diaria_real, eficiencia_real = simulacion_pvsyst(potencia_sistema_kw, hsp, temp)
+            
+            # C. Resultados Finales
+            col_res1, col_res2 = st.columns(2)
+            col_res1.metric("⚡ Generación Real", f"{gen_diaria_real * 30:.0f} kWh/mes")
+            col_res2.metric("📉 Eficiencia (PR)", f"{eficiencia_real*100:.1f}%")
+            
+            # D. Mensaje explicativo
+            if temp > 25:
+                st.caption(f"⚠️ Nota: A {temp}°C, los paneles pierden un poco de eficiencia por calor.")
+            else:
+                st.caption(f"❄️ Nota: A {temp}°C, los paneles trabajan muy eficientemente.")
     
 with tab2:
     n_serie = st.slider("Paneles en Serie", 1, 20, n_paneles)
