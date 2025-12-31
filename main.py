@@ -23,7 +23,7 @@ def header(self):
         self.cell(0, 10, 'COTIZACION SISTEMA SOLAR FOTOVOLTAICO', 0, 1, 'C')
         self.ln(5)
 
-    def footer(self):
+def footer(self):
         self.set_y(-15)
         self.set_font('Arial', 'I', 8)
         self.cell(0, 10, f'Pagina {self.page_no()} - Generado por Cesar CM Ingenieria', 0, 0, 'C')
