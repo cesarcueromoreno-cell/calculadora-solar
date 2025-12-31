@@ -17,20 +17,20 @@ if password != "SOLAR2025":
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="CESAR CM Solar Suite", page_icon="☀️", layout="wide")
 
-def header(self):
-        # Configuración de fuente y título (SIN LOGO)
+# --- CLASE PDF (LA RECETA DEL REPORTE) ---
+class PDF(FPDF):
+    def header(self):
+        # Título del reporte (Sin logo)
         self.set_font('Arial', 'B', 12)
         self.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
         self.ln(10)
-            
-        self.set_font('Arial', 'B', 15)
-        self.cell(0, 10, 'COTIZACION SISTEMA SOLAR FOTOVOLTAICO', 0, 1, 'C')
-        self.ln(5)
 
-def footer(self):
+    def footer(self):
+        # Pie de página
         self.set_y(-15)
         self.set_font('Arial', 'I', 8)
-        self.cell(0, 10, f'Pagina {self.page_no()} - Generado por Cesar CM Ingenieria', 0, 0, 'C')
+        self.cell(0, 10, f'Pagina {self.page_no()}', 0, 0, 'C')
+# ------------------------------------------
 
 def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     pdf = PDF()
