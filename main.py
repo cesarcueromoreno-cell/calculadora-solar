@@ -16,7 +16,6 @@ if password != "SOLAR2025":
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="CESAR CM Solar Suite", page_icon="☀️", layout="wide")
-    
 # --- FUNCIÓN MOTOR DE CÁLCULO (PVSYST LITE) ---
 def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
     # 1. Pérdidas por Temperatura
