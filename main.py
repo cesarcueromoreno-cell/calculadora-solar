@@ -184,30 +184,28 @@ with tab3:
 
     st.markdown("---")
     
-   # --- PREPARAR TEXTO PARA EL PDF (Reemplazo de líneas 188-208) ---
+  # --- PREPARAR TEXTO PARA EL PDF (VERSIÓN CORREGIDA SIN SÍMBOLOS RAROS) ---
     
-    # Creamos un texto bonito con los datos del sistema
+    # IMPORTANTE: Usamos guiones (-) en lugar de puntos raros
     info_sistema_txt = f"""
-    RESUMEN TÉCNICO:
+    RESUMEN TECNICO:
     -------------------------------------
-    • Paneles Requeridos: {n_paneles} unidades
-    • Generación Promedio: {gen_total:.0f} kWh/mes
-    • Potencia Instalada: {(n_paneles * dato_panel['Potencia'])/1000:.2f} kWp
-    • Eficiencia del Sistema: {eficiencia_real*100:.1f}%
+    - Paneles Requeridos: {n_paneles} unidades
+    - Generacion Promedio: {gen_total:.0f} kWh/mes
+    - Potencia Instalada: {(n_paneles * dato_panel['Potencia'])/1000:.2f} kWp
+    - Eficiencia del Sistema: {eficiencia_real*100:.1f}%
     """
     
-    # Creamos el texto financiero
     info_financiera_txt = f"""
-    ANÁLISIS FINANCIERO:
+    ANALISIS FINANCIERO:
     -------------------------------------
-    • Costo del Proyecto: ${costo:,.0f}
-    • Ahorro Mensual: ${ahorro_mes:,.0f}
-    • Retorno de Inversión (ROI): {retorno:.1f} Años
+    - Costo del Proyecto: ${costo:,.0f}
+    - Ahorro Mensual: ${ahorro_mes:,.0f}
+    - Retorno de Inversion (ROI): {retorno:.1f} Anios
     """
 
     # --- BOTÓN DE DESCARGA ---
     if st.button("📄 Generar Reporte PDF Oficial"):
-        # AQUÍ ESTÁ LA CLAVE: Le pasamos las variables de TEXTO (_txt), no los diccionarios
         pdf_bytes = generar_pdf("Cliente Solar", "Bucaramanga", info_sistema_txt, info_financiera_txt)
         
         st.download_button(
