@@ -16,6 +16,16 @@ if password != "SOLAR2025":
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="CESAR CM Solar Suite", page_icon="☀️", layout="wide")
+# --- DICCIONARIO DE COORDENADAS (PARA EL MAPA) ---
+coordenadas_ciudades = {
+    "Bucaramanga": [7.1193, -73.1227],
+    "Bogota": [4.7110, -74.0721],
+    "Medellin": [6.2442, -75.5812],
+    "Cali": [3.4516, -76.5320],
+    "Barranquilla": [10.9685, -74.7813],
+    "San Jose del Guaviare": [2.5729, -72.6378],
+    "Colombia": [4.5709, -74.2973] 
+}
 # --- FUNCIÓN MOTOR DE CÁLCULO (PVSYST LITE) ---
 def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
     # 1. Pérdidas por Temperatura
@@ -153,6 +163,30 @@ with tab1:
             gen_total = gen_diaria_real * 30
             
             # C. Resultados Finales
+           # --- SECCIÓN DE MAPA Y DATOS GEOGRÁFICOS ---
+        st.markdown("---")
+        st.subheader("📍 Ubicación y Recurso Solar")
+        
+        col_mapa, col_datos = st.columns([2, 1]) 
+        
+        with col_mapa:
+            # Buscamos las coordenadas. Si no existe, usa Colombia por defecto.
+            coords = coordenadas_ciudades.get(ciudad, coordenadas_ciudades["Colombia"])
+            
+            # Mapa Satelital
+            df_mapa = pd.DataFrame({'lat': [coords[0]], 'lon': [coords[1]]})
+            st.map(df_mapa, zoom=12)
+
+        with col_datos:
+            # Tabla de Datos Técnicos
+            st.markdown("##### ☀️ Datos del Sitio")
+            with st.container(border=True):
+                st.markdown(f"**Ciudad:** {ciudad}")
+                st.markdown(f"**Latitud:** {coords[0]}°")
+                st.markdown(f"**Longitud:** {coords[1]}°")
+                st.divider()
+                st.markdown(f"**Irradiación:** {hsp:.1f} kWh/m²")
+                st.markdown(f"**Temperatura:** {temp}°C") 
             col_res1, col_res2 = st.columns(2)
             col_res1.metric("⚡ Generación Real", f"{gen_diaria_real * 30:.0f} kWh/mes")
             col_res2.metric("📉 Eficiencia (PR)", f"{eficiencia_real*100:.1f}%")
