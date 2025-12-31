@@ -7,20 +7,16 @@ import os
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="CESAR CM Solar Suite", page_icon="☀️", layout="wide")
 
-# --- FUNCIÓN PDF CON LOGO ---
-class PDF(FPDF):
-    def header(self):
-        # Intentamos poner el logo si existe
-      
-    def header(self):
-        # Logo (Solo debe haber una línea como esta)
+def header(self):
+        # Logo: Verificamos si existe y lo ponemos UNA sola vez
         if os.path.exists("logo.png"):
             self.image("logo.png", 10, 8, 33)
         
-        # Título
+        # Título del reporte
         self.set_font('Arial', 'B', 12)
         self.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
         self.ln(10)
+     
             
         self.set_font('Arial', 'B', 15)
         self.cell(0, 10, 'COTIZACION SISTEMA SOLAR FOTOVOLTAICO', 0, 1, 'C')
