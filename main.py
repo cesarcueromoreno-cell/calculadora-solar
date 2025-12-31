@@ -8,11 +8,11 @@ import os
 st.set_page_config(page_title="CESAR CM Solar Suite", page_icon="☀️", layout="wide")
 
 def header(self):
-        # Logo: Verificamos si existe y lo ponemos UNA sola vez
+        # --- INICIO DEL LOGO ---
         if os.path.exists("logo.png"):
             self.image("logo.png", 10, 8, 33)
-        
-        # Título del reporte
+        # --- FIN DEL LOGO ---
+
         self.set_font('Arial', 'B', 12)
         self.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
         self.ln(10)
