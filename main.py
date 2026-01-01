@@ -230,7 +230,33 @@ with tab3:
         retorno = costo / (ahorro_mes * 12)
         st.metric("Retorno de Inversión", f"{retorno:.1f} Años")
         st.metric("Ahorro Mensual", f"${ahorro_mes:,.0f}")
+# --- GRÁFICA DE RETORNO DE INVERSIÓN (NUEVO) ---
+        st.subheader("📈 Proyección de Ahorro Acumulado (25 Años)")
 
+        # 1. Calculamos cómo crece el dinero año tras año
+        flujo_dinero = []
+        dinero_actual = -costo  # Empezamos perdiendo la inversión inicial
+        ahorro_anual = ahorro_mes * 12
+
+        for anio in range(0, 26):
+            flujo_dinero.append(dinero_actual)
+            dinero_actual = dinero_actual + ahorro_anual  # Sumamos el ahorro de este año
+
+        # 2. Preparamos los datos para la gráfica
+        datos_roi = pd.DataFrame({
+            "Año": range(0, 26),
+            "Saldo Acumulado ($)": flujo_dinero
+        })
+
+        # 3. Dibujamos la línea
+        # Pista visual: Ponemos una línea en el 0 para ver cuándo cruzamos a ganancia
+        st.line_chart(datos_roi.set_index("Año"))
+
+        # Mensaje inteligente
+        if retorno < 5:
+            st.success(f"🚀 ¡Excelente Inversión! En el año {int(retorno)+1} ya tienes ganancias puras.")
+        else:
+            st.info(f"ℹ️ El sistema se paga solo en {retorno:.1f} años. Después, la energía es gratis.")
     st.markdown("---")
     
   # --- PREPARACIÓN DEL REPORTE PDF (NUEVO CON COORDENADAS) ---
