@@ -273,7 +273,7 @@ with tab3:
             pdf_bytes = generar_pdf(password, ciudad, info_sistema_txt, info_financiera_txt)
             
             st.download_button(
-                label="⬇️ Descargar PDF (CON COORDENADAS)"
+                label="⬇️ Descargar PDF (CON COORDENADAS)",
                 data=pdf_bytes,
                 file_name=f"Reporte_Solar_{ciudad}.pdf",
                 mime="application/pdf"
