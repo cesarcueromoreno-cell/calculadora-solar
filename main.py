@@ -212,11 +212,11 @@ with tab2:
         n_serie = st.slider("Paneles en Serie", 1, 20, n_paneles)
         voc_total = dato_panel["Voc"] * n_serie
     
-        if voc_total > dato_inv["Vmax"]:
-        st.error(f"🛑 PELIGRO: {voc_total:.1f}V supera el máximo de {dato_inv['Vmax']}V")
-        else:
-        st.success(f"✅ Voltaje Seguro: {voc_total:.1f}V (Max: {dato_inv['Vmax']}V)")
-        st.progress(voc_total / dato_inv["Vmax"])
+if voc_total > dato_inv["Vmax"]:
+    st.error(f"🛑 PELIGRO: {voc_total:.1f}V supera el máximo de {dato_inv['Vmax']}V")
+else:
+    st.success(f"✅ Voltaje Seguro: {voc_total:.1f}V (Max: {dato_inv['Vmax']}V)")
+    st.progress(voc_total / dato_inv["Vmax"])
 
 with tab3:
     col1, col2 = st.columns(2)
