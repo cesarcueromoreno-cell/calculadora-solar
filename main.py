@@ -3,7 +3,9 @@ import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
 import os
+
 st.error("🚨 SI VES ESTO, EL CÓDIGO YA ACTUALIZÓ")
+
 # --- SISTEMA DE SEGURIDAD ---
 # 1. Pedimos la contraseña en la barra lateral
 password = st.sidebar.text_input("🔑 Ingresa la contraseña:", type="password")
