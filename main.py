@@ -233,33 +233,49 @@ with tab3:
 
     st.markdown("---")
     
-  # --- PREPARAR TEXTO PARA EL PDF (VERSIÓN CORREGIDA SIN SÍMBOLOS RAROS) ---
+  # --- PREPARACIÓN DEL REPORTE PDF (NUEVO CON COORDENADAS) ---
     
-    # IMPORTANTE: Usamos guiones (-) en lugar de puntos raros
+    # 1. Recuperamos las coordenadas para ponerlas en el reporte
+    coords_pdf = coordenadas_ciudades.get(ciudad, coordenadas_ciudades["Colombia"])
+    
+    # 2. Texto TÉCNICO (Con Ubicación y Datos)
     info_sistema_txt = f"""
-    RESUMEN TECNICO:
-    -------------------------------------
-    - Paneles Requeridos: {n_paneles} unidades
-    - Generacion Promedio: {gen_total:.0f} kWh/mes
-    - Potencia Instalada: {(n_paneles * dato_panel['Potencia'])/1000:.2f} kWp
-    - Eficiencia del Sistema: {eficiencia_real*100:.1f}%
-    """
+    1. UBICACION Y DATOS DEL SITIO
+    --------------------------------------------------
+    Ciudad: {ciudad}
+    Coordenadas: Lat {coords_pdf[0]}, Lon {coords_pdf[1]}
+    Irradiacion (HSP): {hsp:.1f} kWh/m2/dia
+    Temperatura Ambiente: {temp} C
     
+    2. DETALLES DEL SISTEMA
+    --------------------------------------------------
+    Paneles en Serie: {n_serie} unidades
+    Potencia Total Instalada: {voc_total:.1f} V 
+    Generacion Estimada: {gen_total:.0f} kWh/mes
+    Eficiencia Global (PR): {eficiencia_real*100:.1f}%
+    """
+
+    # 3. Texto FINANCIERO
     info_financiera_txt = f"""
-    ANALISIS FINANCIERO:
-    -------------------------------------
-    - Costo del Proyecto: ${costo:,.0f}
-    - Ahorro Mensual: ${ahorro_mes:,.0f}
-    - Retorno de Inversion (ROI): {retorno:.1f} Anios
+    3. ANALISIS FINANCIERO
+    --------------------------------------------------
+    Costo del Proyecto: ${costo:,.0f} COP
+    Ahorro Mensual Estimado: ${ahorro_mes:,.0f} COP
+    Retorno de Inversion (ROI): {retorno:.1f} Años
     """
 
     # --- BOTÓN DE DESCARGA ---
-    if st.button("📄 Generar Reporte PDF Oficial"):
-        pdf_bytes = generar_pdf("Cliente Solar", "Bucaramanga", info_sistema_txt, info_financiera_txt)
-        
-        st.download_button(
-            label="💾 Descargar PDF Final",
-            data=pdf_bytes,
-            file_name="Reporte_Solar_Profesional.pdf",
-            mime="application/pdf"
-        )
+    col_izq, col_centro, col_der = st.columns([1, 2, 1])
+    
+    with col_centro:
+        if st.button("📄 Generar Reporte PDF Oficial", use_container_width=True):
+            # Usamos la variable 'ciudad' para que cambie según lo que elijas
+            pdf_bytes = generar_pdf(password, ciudad, info_sistema_txt, info_financiera_txt)
+            
+            st.download_button(
+                label="⬇️ Descargar PDF Ahora",
+                data=pdf_bytes,
+                file_name=f"Reporte_Solar_{ciudad}.pdf",
+                mime="application/pdf"
+            )
+            st.success("✅ ¡Reporte generado! Haz clic arriba para descargar.")
