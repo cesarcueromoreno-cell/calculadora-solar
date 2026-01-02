@@ -506,18 +506,23 @@ with tab3:
     Retorno de Inversion (ROI): {retorno:.1f} Años
     """
 
-    # --- BOTÓN DE DESCARGA ---
-    col_izq, col_centro, col_der = st.columns([1, 2, 1])
-    
-    with col_centro:
-        if st.button("📄 Generar Reporte PDF Oficial", use_container_width=True):
-            # Usamos la variable 'ciudad' para que cambie según lo que elijas
+   # --- BLOQUE DE DESCARGA FINAL ACTUALIZADO ---
+st.markdown("---")
+col_izq, col_centro, col_der = st.columns([1, 2, 1])
+
+with col_centro:
+    if st.button("📋 Generar Memoria Técnica PDF Oficial", use_container_width=True):
+        # Generamos los bytes del PDF con la función global y los textos dinámicos
+        try:
             pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_financiera_txt)
             
             st.download_button(
-            label="⬇️ Descargar PDF (CON COORDENADAS)",   # <--- ¡MIRA ESTA COMA AL FINAL!
+                label="⬇️ DESCARGAR REPORTE (CON COORDENADAS)",
                 data=pdf_bytes,
-                file_name=f"Reporte_Solar_{ciudad}.pdf",
-                mime="application/pdf"
+                file_name=f"Reporte_Solar_{ciudad}_{datetime.now().strftime('%Y%m%d')}.pdf",
+                mime="application/pdf",
+                key="download_pdf_button"
             )
-            st.success("✅ ¡Reporte generado! Haz clic arriba para descargar.")
+            st.success(f"✅ ¡Reporte para {cliente} generado con éxito!")
+        except Exception as e:
+            st.error(f"Hubo un error al generar el PDF: {e}")
