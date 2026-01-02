@@ -168,7 +168,14 @@ depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
 ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
 ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
 hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
-
+# --- CÓDIGO NUEVO: MAPA CON PUNTO ROJO ---
+    # 1. Sacamos las coordenadas exactas de la base de datos
+    lat = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["Latitud"]
+    lon = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["Longitud"]
+    
+    # 2. Mostramos el mapa con el punto
+    st.map(pd.DataFrame({'lat': [lat], 'lon': [lon]}), zoom=12)
+    # ----------------------------------------
 st.header("3. Equipos")
 ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
 dato_panel = df_modulos[df_modulos["Referencia"] == ref_panel].iloc[0]
