@@ -168,7 +168,7 @@ depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
 ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
 ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
 hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
-# --- CONFIGURACIÓN DE MAPA INTERACTIVO ---
+# --- CONFIGURACIÓN DE MAPA PROFESIONAL (GOTA + SELECTOR) ---
 import pydeck as pdk
 
 # 1. Selector de Tipo de Mapa en la Barra Lateral
@@ -177,7 +177,6 @@ tipo_mapa = st.sidebar.radio(
     ["Satélite Híbrido", "Satélite Puro", "Relieve / Terreno", "Tráfico / Calles"]
 )
 
-# Diccionario de capas de Google
 map_styles = {
     "Satélite Híbrido": "y",
     "Satélite Puro": "s",
@@ -193,40 +192,52 @@ elif ciudad == "Leticia":
 else:
     lat, lon = 4.5709, -74.2973
 
-# 3. Definición de Capas
-# Capa de fondo dinámica según tu elección
+# 3. Configuración de la GOTA (Icono)
+# Usamos el icono oficial de marcador rojo
+ICON_URL = "https://img.icons8.com/color/100/marker--v1.png"
+
+icon_data = {
+    "url": ICON_URL,
+    "width": 128,
+    "height": 128,
+    "anchorY": 128  # Esto hace que la punta de la gota toque el suelo
+}
+
+df_icon = pd.DataFrame([{
+    "lat": lat,
+    "lon": lon,
+    "icon_data": icon_data
+}])
+
+# 4. Definición de Capas
 capa_base = pdk.Layer(
     "TileLayer",
     get_tile_data=f"https://mt1.google.com/vt/lyrs={map_styles[tipo_mapa]}&x={{x}}&y={{y}}&z={{z}}",
     opacity=1,
 )
 
-# Capa del Punto Azul (SIEMPRE VISIBLE)
-capa_punto = pdk.Layer(
-    'ScatterplotLayer',
-    data=pd.DataFrame({'lat': [lat], 'lon': [lon]}),
-    get_position='[lon, lat]',
-    get_color='[0, 255, 255, 255]', # Azul Cian
-    get_radius=100,
+capa_gota = pdk.Layer(
+    "IconLayer",
+    df_icon,
+    get_icon="icon_data",
+    get_size=4,
+    size_scale=15, # Ajusta este número para hacer la gota más grande o pequeña
+    get_position="[lon, lat]",
     pickable=True,
-    stroked=True,
-    filled=True,
-    line_width_min_pixels=2,
-    get_line_color=[0, 0, 0], # Borde negro para que resalte en cualquier mapa
 )
 
-# 4. Renderizado
-st.write(f"📍 **Vista actual ({tipo_mapa}): {ciudad}**")
+# 5. Renderizado del Mapa
+st.write(f"📍 **Ubicación del Proyecto: {ciudad}**")
 
 st.pydeck_chart(pdk.Deck(
     map_style=None,
     initial_view_state=pdk.ViewState(
         latitude=lat,
         longitude=lon,
-        zoom=14.5,
-        pitch=0,
+        zoom=15,
+        pitch=40, # Inclinación ligera para efecto 3D
     ),
-    layers=[capa_base, capa_punto] # El punto va de segundo para estar arriba
+    layers=[capa_base, capa_gota]
 ))
 st.header("3. Equipos")
 ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
