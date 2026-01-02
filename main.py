@@ -100,24 +100,13 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     # --- CUERPO DEL REPORTE ---
     pdf.set_font('Arial', '', 12)
     
-    # Función pequeña para arreglar tildes (latin-1) y evitar errores raros
-    def limpiar(texto):
    # --- 1. DATOS DEL CLIENTE Y UBICACIÓN ---
     pdf.cell(0, 10, f'Cliente: {limpiar(cliente)}', 0, 1)
     pdf.cell(0, 10, f'Ubicacion: {limpiar(ciudad)}', 0, 1)
     pdf.ln(5)
 
     # --- 2. CUERPO TÉCNICO Y FINANCIERO ---
-    pdf.set_font('Arial', 'B', 12)
-    pdf.cell(0, 10, 'Detalles del Sistema:', 0, 1)
-    pdf.set_font('Arial', '', 12)
-    pdf.multi_cell(0, 10, limpiar(sistema_info))
-    pdf.ln(5)
-
-    pdf.set_font('Arial', 'B', 12)
-    pdf.cell(0, 10, 'Analisis Financiero:', 0, 1)
-    pdf.set_font('Arial', '', 12)
-    pdf.multi_cell(0, 10, limpiar(financiero_info))
+    # ... (aquí va el resto de tus pdf.cell y pdf.multi_cell)
 
     # --- 3. PARTE 2: INSERCIÓN DE LA GRÁFICA EN PÁGINA NUEVA ---
     pdf.add_page()
@@ -131,7 +120,7 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     # ESTA DEBE SER LA ÚLTIMA LÍNEA DE LA FUNCIÓN generar_pdf
     return pdf.output(dest='S').encode('latin-1')
 
-# --- 4. FUNCIÓN AUXILIAR (Fuera de generar_pdf) ---
+# --- 4. FUNCIÓN AUXILIAR (Fuera de generar_pdf, sin sangría) ---
 def limpiar(texto):
     return str(texto).encode('latin-1', 'replace').decode('latin-1')
     
