@@ -8,9 +8,8 @@ import os
 
     def cargar_biblioteca_red():
         # Sustituir por las URLs reales de tu repositorio de GitHub (en modo Raw)
-       # --- LÍNEAS 11 Y 12 CORREGIDAS ---
-       url_p = "https://raw.githubusercontent.com/cesar-cm/calculadora-solar/main/paneles_mundo.csv"
-       url_i = "https://raw.githubusercontent.com/cesar-cm/calculadora-solar/main/inversores_mundo.csv"
+        url_p = "https://raw.githubusercontent.com/cesarcueromoreno-cell/calculadora-solar/main/paneles_mundo.csv"
+        url_i = "https://raw.githubusercontent.com/cesarcueromoreno-cell/calculadora-solar/main/inversores_mundo.csv"
     
         # Lectura de la red
         df_p = pd.read_csv(url_p)
