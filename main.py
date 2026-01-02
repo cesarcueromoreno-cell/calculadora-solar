@@ -168,60 +168,54 @@ depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
 ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
 ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
 hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
-# --- MAPA SATELITAL REAL (TIPO GOOGLE MAPS) ---
+# --- MAPA SATELITAL REAL (ESTILO GOOGLE EARTH) ---
 import pydeck as pdk
 
-# 1. Coordenadas Manuales
+# 1. Coordenadas Manuales (Ubicación exacta de los puntos)
 if ciudad == "San José del Guaviare":
-    lat, lon = 2.5716, -72.6427
+    lat, lon = 2.5693, -72.6389 # Coordenada centrada en el casco urbano
 elif ciudad == "Leticia":
     lat, lon = -4.2153, -69.9406
 elif ciudad == "Bogotá":
     lat, lon = 4.7110, -74.0721
-elif ciudad == "Medellín":
-    lat, lon = 6.2442, -75.5812
-elif ciudad == "Cali":
-    lat, lon = 3.4516, -76.5320
-elif ciudad == "Barranquilla":
-    lat, lon = 10.9685, -74.7813
 else:
     lat, lon = 4.5709, -74.2973
 
-# 2. Capas del Mapa
-# Esta capa trae las fotos reales de satélite
-capa_satelite = pdk.Layer(
+# 2. Configuración de Capas
+# Esta capa es la que trae el satélite real de Google
+capa_google_earth = pdk.Layer(
     "TileLayer",
     data=None,
-    get_tile_data="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+    get_tile_data="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", # lyrs=s es Satélite Puro
     opacity=1,
 )
 
-# Esta capa pone el punto Azul Cian sobre la casa/terreno
-capa_punto = pdk.Layer(
+# Esta capa es tu marcador (Punto Azul Cian con borde blanco para resaltar)
+capa_marcador = pdk.Layer(
     'ScatterplotLayer',
     data=pd.DataFrame({'lat': [lat], 'lon': [lon]}),
     get_position='[lon, lat]',
-    get_color='[0, 255, 255, 220]',
-    get_radius=40, # Radio más pequeño para precisión en techos
+    get_color='[0, 255, 255, 255]', # Azul Cian sólido
+    get_radius=150, # Tamaño del punto para que se vea desde el aire
     pickable=True,
     stroked=True,
     filled=True,
     line_width_min_pixels=2,
-    get_line_color=[255, 255, 255],
+    get_line_color=[255, 255, 255], # Borde blanco (igual que Google Earth)
 )
 
-# 3. Renderizado
+# 3. Renderizado del Mapa
 st.write(f"🛰️ **Vista Satelital del Proyecto: {ciudad}**")
 
 st.pydeck_chart(pdk.Deck(
-    map_style=None, # Importante: None para que no interfiera con el satélite
+    map_style=None, # Desactivamos el mapa base aburrido
     initial_view_state=pdk.ViewState(
         latitude=lat,
         longitude=lon,
-        zoom=17, # Zoom más cercano para ver el sitio del proyecto
-        pitch=45, # Inclinación 3D
+        zoom=15, # Nivel de zoom ideal para ver la ciudad como en tu foto
+        pitch=0,  # Vista totalmente desde arriba
     ),
-    layers=[capa_satelite, capa_punto]
+    layers=[capa_google_earth, capa_marcador]
 ))
 st.header("3. Equipos")
 ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
