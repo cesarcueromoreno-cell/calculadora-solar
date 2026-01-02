@@ -6,20 +6,20 @@ import os
 # --- CARGA AUTOMÁTICA DE BIBLIOTECA GLOBAL ---
 @st.cache_data(ttl=3600)  # Se actualiza solo cada hora
 
-def cargar_biblioteca_red():
-    # Sustituir por las URLs reales de tu repositorio de GitHub (en modo Raw)
-    # --- LÍNEAS 10 Y 11 CORREGIDAS ---
-    url_p = "https://raw.githubusercontent.com/cesar-cm/calculadora-solar/main/paneles_mundo.csv"
-    url_i = "https://raw.githubusercontent.com/cesar-cm/calculadora-solar/main/inversores_mundo.csv"
+    def cargar_biblioteca_red():
+        # Sustituir por las URLs reales de tu repositorio de GitHub (en modo Raw)
+        # --- LÍNEAS 10 Y 11 CORREGIDAS ---
+        url_p = "https://raw.githubusercontent.com/cesar-cm/calculadora-solar/main/paneles_mundo.csv"
+        url_i = "https://raw.githubusercontent.com/cesar-cm/calculadora-solar/main/inversores_mundo.csv"
     
-    # Lectura de la red
-    df_p = pd.read_csv(url_p)
-    df_i = pd.read_csv(url_i)
+        # Lectura de la red
+        df_p = pd.read_csv(url_p)
+        df_i = pd.read_csv(url_i)
     
-    # Creamos diccionarios automáticos para los cálculos
-    dict_p = dict(zip(df_p['Referencia'], df_p['Potencia']))
-    dict_i = dict(zip(df_i['Referencia'], df_i['Potencia']))
-    return df_p, df_i, dict_p, dict_i
+        # Creamos diccionarios automáticos para los cálculos
+        dict_p = dict(zip(df_p['Referencia'], df_p['Potencia']))
+        dict_i = dict(zip(df_i['Referencia'], df_i['Potencia']))
+        return df_p, df_i, dict_p, dict_i
 
 # Ejecución de la carga
 df_modulos, df_inversores, data_paneles, data_inversores = cargar_biblioteca_red()
