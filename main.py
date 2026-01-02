@@ -352,7 +352,8 @@ with tab3:
     with col_centro:
         if st.button("📄 Generar Reporte PDF Oficial", use_container_width=True):
             # Usamos la variable 'ciudad' para que cambie según lo que elijas
-            pdf_bytes = generar_pdf(password, ciudad, info_sistema_txt, info_financiera_txt)
+            # CAMBIA 'password' POR 'cliente'
+            pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_financiera_txt)
             
             st.download_button(
             label="⬇️ Descargar PDF (CON COORDENADAS)",   # <--- ¡MIRA ESTA COMA AL FINAL!
