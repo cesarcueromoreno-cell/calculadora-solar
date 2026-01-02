@@ -168,20 +168,43 @@ depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
 ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
 ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
 hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
-# --- CÓDIGO NUEVO: MAPA CON PUNTO ROJO ---
-  # 1. Sacamos las coordenadas y las convertimos a números (float)
+# --- MAPA TIPO INGENIERÍA (ESTILO GLOBAL SOLAR ATLAS) ---
+    import pydeck as pdk
+
+    # 1. Coordenadas (Aseguramos que sean números)
     lat = float(ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["Latitud"])
     lon = float(ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["Longitud"])
+
+    # 2. Datos para el mapa
+    df_mapa = pd.DataFrame({'lat': [lat], 'lon': [lon]})
+
+    # 3. Renderizamos el Mapa 3D con Puntero Cian
+    st.write(f"📍 **Ubicación: {ciudad}**")
     
-    # 2. Creamos la tabla con una columna 'size' (tamaño) para que el punto sea gigante
-    df_mapa = pd.DataFrame({
-        'latitude': [lat],
-        'longitude': [lon],
-        'size': [5000]  # <--- Esto hace que el punto sea GRANDE y visible
-    })
-    
-    # 3. Mostramos el mapa diciéndole que use la columna 'size'
-    st.map(df_mapa, zoom=12, size="size")
+    st.pydeck_chart(pdk.Deck(
+        map_style=None,  # Usa el estilo predeterminado (limpio)
+        initial_view_state=pdk.ViewState(
+            latitude=lat,
+            longitude=lon,
+            zoom=15,       # Zoom bien cerca
+            pitch=45,      # Inclinación 3D (Efecto Pro)
+        ),
+        layers=[
+            pdk.Layer(
+                'ScatterplotLayer',    # Capa de puntos
+                data=df_mapa,
+                get_position='[lon, lat]',
+                get_color='[0, 200, 255, 200]', # <--- COLOR AZUL CIAN (R, G, B, Transparencia)
+                get_radius=150,        # Radio del punto en metros
+                pickable=True,
+                stroked=True,
+                filled=True,
+                line_width_min_pixels=2,
+                get_line_color=[255, 255, 255], # Borde blanco para resaltar
+            ),
+        ],
+        tooltip={"text": "📍 Proyecto: {lat}, {lon}"}
+    ))
 st.header("3. Equipos")
 ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
 dato_panel = df_modulos[df_modulos["Referencia"] == ref_panel].iloc[0]
