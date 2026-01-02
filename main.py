@@ -168,7 +168,6 @@ depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
 ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
 ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
 hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
-
 # --- MAPA TIPO INGENIERÍA (AZUL CIAN) ---
     import pydeck as pdk 
 
