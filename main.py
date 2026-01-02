@@ -57,6 +57,12 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     pdf = PDF()
     pdf.add_page()
     
+    # --- 🖼️ PONER EL LOGO (NUEVO) ---
+    # Verificamos si existe el archivo para que no de error
+    if os.path.exists("logo.png"):
+        pdf.image("logo.png", x=10, y=8, w=40)
+        pdf.ln(10) # Espacio para no escribir encima del logo
+    
     # Información del Cliente
     pdf.set_font('Arial', '', 12)
     pdf.cell(0, 10, f'Cliente: {cliente}', 0, 1)
