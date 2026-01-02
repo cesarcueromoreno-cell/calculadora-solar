@@ -56,52 +56,50 @@ class PDF(FPDF):
 def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     pdf = PDF()
     pdf.add_page()
-
-    # --- 🖼️ PONER EL LOGO (SOLUCIÓN FINAL) ---
-    # Vamos a usar directamente el archivo JPG que suele ser más seguro
+    
+    # --- LOGO (BLOQUE DE SEGURIDAD) ---
+    # Usamos try/except para que NUNCA se rompa, incluso si la imagen falla
     try:
-        # Intentamos cargar el archivo con extensión .JPG
+        # Prioridad 1: El archivo JPG (que sabemos que funciona)
         if os.path.exists("logo.png.JPG"):
             pdf.image("logo.png.JPG", x=10, y=8, w=40)
             pdf.ln(10)
-        # Si no, intentamos el otro archivo raro que tenías
+        # Prioridad 2: El archivo doble extensión
         elif os.path.exists("logo.png.png"):
             pdf.image("logo.png.png", x=10, y=8, w=40)
             pdf.ln(10)
-        # Ignoramos el "logo.png" normal porque sabemos que está dañado
     except:
-        # Si ALGO falla (lo que sea), no mostramos error rojo, solo seguimos.
+        # Si la imagen falla, no hacemos nada y seguimos generando el reporte
         pass
 
-    # --- TÍTULO DEL REPORTE ---
+    # --- TÍTULO ---
     pdf.set_font('Arial', 'B', 16)
-    # Cambié el título para que sepas si la App se actualizó
-    pdf.cell(0, 10, 'Reporte de Dimensionamiento Solar (V3)', 0, 1, 'C')
+    pdf.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
     pdf.ln(10)
-    
-    # Información del Cliente
+
+    # --- CUERPO DEL REPORTE ---
     pdf.set_font('Arial', '', 12)
-    pdf.cell(0, 10, f'Cliente: {cliente}', 0, 1)
     
-    # CORREGIDO: "Ubicacion" sin tilde
-    pdf.cell(0, 10, f'Ubicacion: {ciudad}', 0, 1)
+    # Función pequeña para arreglar tildes (latin-1) y evitar errores raros
+    def limpiar(texto):
+        return str(texto).encode('latin-1', 'replace').decode('latin-1')
+
+    pdf.cell(0, 10, f'Cliente: {limpiar(cliente)}', 0, 1)
+    pdf.cell(0, 10, f'Ubicacion: {limpiar(ciudad)}', 0, 1)
     pdf.ln(5)
-    
-    # Información del Sistema
+
     pdf.set_font('Arial', 'B', 12)
     pdf.cell(0, 10, 'Detalles del Sistema:', 0, 1)
     pdf.set_font('Arial', '', 12)
-    pdf.multi_cell(0, 10, sistema_info)
+    pdf.multi_cell(0, 10, limpiar(sistema_info))
     pdf.ln(5)
-    
-    # Información Financiera
+
     pdf.set_font('Arial', 'B', 12)
-    
-    # CORREGIDO: "Analisis" sin tilde
     pdf.cell(0, 10, 'Analisis Financiero:', 0, 1)
-    
     pdf.set_font('Arial', '', 12)
-    pdf.multi_cell(0, 10, financiero_info)
+    pdf.multi_cell(0, 10, limpiar(financiero_info))
+    
+    return pdf.output(dest='S').encode('latin-1', 'replace')
     
     # Retorno del PDF
     return pdf.output(dest='S').encode('latin-1')
