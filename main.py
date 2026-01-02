@@ -168,54 +168,65 @@ depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
 ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
 ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
 hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
-# --- MAPA SATELITAL HÍBRIDO (CALLES + SATÉLITE) ---
+# --- CONFIGURACIÓN DE MAPA INTERACTIVO ---
 import pydeck as pdk
 
-# 1. Coordenadas Manuales (Ubicación exacta)
+# 1. Selector de Tipo de Mapa en la Barra Lateral
+tipo_mapa = st.sidebar.radio(
+    "🗺️ Selecciona Estilo de Mapa:",
+    ["Satélite Híbrido", "Satélite Puro", "Relieve / Terreno", "Tráfico / Calles"]
+)
+
+# Diccionario de capas de Google
+map_styles = {
+    "Satélite Híbrido": "y",
+    "Satélite Puro": "s",
+    "Relieve / Terreno": "p",
+    "Tráfico / Calles": "m"
+}
+
+# 2. Coordenadas Manuales
 if ciudad == "San José del Guaviare":
     lat, lon = 2.5693, -72.6389
 elif ciudad == "Leticia":
     lat, lon = -4.2153, -69.9406
-elif ciudad == "Bogotá":
-    lat, lon = 4.7110, -74.0721
 else:
     lat, lon = 4.5709, -74.2973
 
-# 2. Configuración de Capas
-# Esta capa trae la imagen de Google con nombres de calles y barrios
-capa_google_hibrida = pdk.Layer(
+# 3. Definición de Capas
+# Capa de fondo dinámica según tu elección
+capa_base = pdk.Layer(
     "TileLayer",
-    data=None,
-    get_tile_data="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", # 'y' es Híbrido
+    get_tile_data=f"https://mt1.google.com/vt/lyrs={map_styles[tipo_mapa]}&x={{x}}&y={{y}}&z={{z}}",
     opacity=1,
 )
 
-# Marcador Azul Cian con borde negro para que resalte en el satélite
-capa_punto_pro = pdk.Layer(
+# Capa del Punto Azul (SIEMPRE VISIBLE)
+capa_punto = pdk.Layer(
     'ScatterplotLayer',
     data=pd.DataFrame({'lat': [lat], 'lon': [lon]}),
     get_position='[lon, lat]',
-    get_color='[0, 255, 255, 255]', # Cian brillante
-    get_radius=80, # Tamaño ideal para no tapar las calles
+    get_color='[0, 255, 255, 255]', # Azul Cian
+    get_radius=100,
     pickable=True,
     stroked=True,
     filled=True,
     line_width_min_pixels=2,
-    get_line_color=[0, 0, 0], # Borde negro para contraste
+    get_line_color=[0, 0, 0], # Borde negro para que resalte en cualquier mapa
 )
 
-# 3. Renderizado del Mapa
-st.write(f"🛰️ **Vista Técnica Satelital: {ciudad}**")
+# 4. Renderizado
+st.write(f"📍 **Vista actual ({tipo_mapa}): {ciudad}**")
 
 st.pydeck_chart(pdk.Deck(
-    map_style=None, # IMPORTANTE: None para que no salga el mapa gris de fondo
+    map_style=None,
     initial_view_state=pdk.ViewState(
         latitude=lat,
         longitude=lon,
-        zoom=14.5, # Zoom exacto de tu imagen de referencia
+        zoom=14.5,
         pitch=0,
     ),
-    layers=[capa_google_hibrida, capa_punto_pro]
+    layers=[capa_base, capa_punto] # El punto va de segundo para estar arriba
 ))
 st.header("3. Equipos")
 ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
