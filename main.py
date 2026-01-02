@@ -513,9 +513,22 @@ col_izq, col_centro, col_der = st.columns([1, 2, 1])
 with col_centro:
     if st.button("📋 Generar Memoria Técnica PDF Oficial", use_container_width=True):
         # Generamos los bytes del PDF con la función global y los textos dinámicos
+    # --- NUEVO: Agregamos las advertencias legales ---
+        advertencias_seguridad = """
+4. ADVERTENCIAS DE SEGURIDAD OBLIGATORIAS (RETIE)
+-------------------------------------------------
+- PELIGRO: Terminales energizadas incluso sin presencia de red.
+- ADVERTENCIA: Sistema con doble fuente de alimentacion.
+- NOTA: La instalacion requiere rotulacion tecnica obligatoria.
+- El Diagrama Unifilar debe estar visible en el tablero principal.
+"""
+        # Unimos las advertencias al texto financiero
+        info_final_pdf = info_financiera_txt + advertencias_seguridad
+
         try:
-            pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_financiera_txt)
-            
+            # Generamos el PDF usando la variable combinada
+            pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf)
+
             st.download_button(
                 label="⬇️ DESCARGAR REPORTE (CON COORDENADAS)",
                 data=pdf_bytes,
@@ -524,5 +537,7 @@ with col_centro:
                 key="download_pdf_button"
             )
             st.success(f"✅ ¡Reporte para {cliente} generado con éxito!")
+            
         except Exception as e:
             st.error(f"Hubo un error al generar el PDF: {e}")
+     
