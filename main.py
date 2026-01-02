@@ -173,8 +173,12 @@ hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
 import pydeck as pdk
 st.write("👀 COLUMNAS:", ciudades.columns)
 # 1. Coordenadas
-lat = float(ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["Latitud"])
-lon = float(ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["Longitud"])
+# --- TRAMPA PARA VER COLUMNAS ---
+    st.error(f"⚠️ TUS COLUMNAS SON: {list(ciudades.columns)}")
+    st.stop() # 🛑 Esto detiene la app aquí para que leas el mensaje
+    
+    # lat = ... (Esto lo pondremos bien cuando sepamos el nombre)
+    # lon = ...
 
 # 2. Datos
 df_mapa = pd.DataFrame({'lat': [lat], 'lon': [lon]})
