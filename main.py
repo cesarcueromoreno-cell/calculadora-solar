@@ -3,6 +3,10 @@ import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
 import os
+# --- CONFIGURACIÓN DE PÁGINA ---
+st.set_page_config(page_title="CESAR CM Solar Suite", page_icon="☀️", layout="wide")
+
+st.write("⚠️ VERSIÓN NUEVA CARGADA CORRECTAMENTE")
 
 # --- SISTEMA DE SEGURIDAD ---
 # 1. Pedimos la contraseña en la barra lateral
@@ -13,11 +17,6 @@ if password != "SOLAR2025":
     st.sidebar.error("🔒 App Bloqueada")
     st.stop() # <--- Esto detiene la app aquí
 # ----------------------------
-
-# --- CONFIGURACIÓN DE PÁGINA ---
-st.set_page_config(page_title="CESAR CM Solar Suite", page_icon="☀️", layout="wide")
-
-st.write("⚠️ VERSIÓN NUEVA CARGADA CORRECTAMENTE")
 
 # --- DICCIONARIO DE COORDENADAS (PARA EL MAPA) ---
 coordenadas_ciudades = {
