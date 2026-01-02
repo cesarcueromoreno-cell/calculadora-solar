@@ -127,7 +127,6 @@ st.markdown("---")
 
 # BARRA LATERAL
 # BARRA LATERAL (LOGO)
-
 # --- DATOS DEL PROYECTO (Ahora fuera del if para que siempre funcionen) ---
 cliente = st.text_input("Cliente", "Empresa SAS")
 
