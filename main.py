@@ -102,6 +102,18 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     
     # Función pequeña para arreglar tildes (latin-1) y evitar errores raros
     def limpiar(texto):
+        # --- PARTE 2: INSERCIÓN DE LA GRÁFICA EN EL PDF ---
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 14)
+    pdf.cell(0, 10, "4. PROYECCION FINANCIERA GRAFICA", ln=True, align='C')
+    pdf.ln(10)
+    
+    # Esta línea busca la imagen 'temp_roi.png' creada en la línea 470
+    if os.path.exists("temp_roi.png"):
+        pdf.image("temp_roi.png", x=10, y=40, w=190)
+
+    # ESTA DEBE SER LA ÚLTIMA LÍNEA DE LA FUNCIÓN
+    return pdf.output(dest='S').encode('latin-1')
         return str(texto).encode('latin-1', 'replace').decode('latin-1')
 
     pdf.cell(0, 10, f'Cliente: {limpiar(cliente)}', 0, 1)
@@ -467,7 +479,15 @@ with tab3:
         # 3. Dibujamos la línea
         # Pista visual: Ponemos una línea en el 0 para ver cuándo cruzamos a ganancia
         st.line_chart(datos_roi.set_index("Año"))
-
+# Guardamos la gráfica como imagen para el PDF
+        import matplotlib.pyplot as plt
+        fig_pdf, ax_pdf = plt.subplots(figsize=(8, 4))
+        ax_pdf.plot(datos_roi["Año"], datos_roi["Saldo Acumulado ($)"], color='green', linewidth=2)
+        ax_pdf.set_title("Proyección de Ahorro Acumulado (25 Años)")
+        ax_pdf.axhline(0, color='red', linestyle='--', linewidth=1) # Línea de equilibrio
+        ax_pdf.grid(True, linestyle=':', alpha=0.6)
+        fig_pdf.savefig("temp_roi.png", dpi=100, bbox_inches='tight')
+        plt.close(fig_pdf)
         # Mensaje inteligente
         if retorno < 5:
             st.success(f"🚀 ¡Excelente Inversión! En el año {int(retorno)+1} ya tienes ganancias puras.")
