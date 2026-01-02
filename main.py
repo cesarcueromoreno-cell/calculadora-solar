@@ -168,10 +168,10 @@ depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
 ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
 ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
 hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
-# --- MAPA MANUAL (Solución Definitiva) ---
+# --- MAPA MANUAL (ESTILO SATÉLITE PRO) ---
 import pydeck as pdk
 
-# 1. Coordenadas Manuales (Ya que no están en el Excel)
+# 1. Coordenadas Manuales
 if ciudad == "San José del Guaviare":
     lat, lon = 2.5716, -72.6427
 elif ciudad == "Leticia":
@@ -185,35 +185,35 @@ elif ciudad == "Cali":
 elif ciudad == "Barranquilla":
     lat, lon = 10.9685, -74.7813
 else:
-    # Coordenada por defecto (Centro del país)
-    lat, lon = 4.5709, -74.2973 
+    lat, lon = 4.5709, -74.2973
 
-# 2. Preparamos los datos
+# 2. Datos
 df_mapa = pd.DataFrame({'lat': [lat], 'lon': [lon]})
 
-# 3. Mapa 3D Profesional
-st.write(f"📍 **Ubicación del Proyecto: {ciudad}**")
+# 3. Mapa 3D Satelital
+st.write(f"📍 **Ubicación del Proyecto (Vista Satelital): {ciudad}**")
 
 st.pydeck_chart(pdk.Deck(
-    map_style=None,
+    # ESTA LÍNEA ES LA MAGIA DEL ESTILO SATÉLITE:
+    map_style='mapbox://styles/mapbox/satellite-streets-v11',
     initial_view_state=pdk.ViewState(
         latitude=lat,
         longitude=lon,
         zoom=13,
-        pitch=45,
+        pitch=50, # Un poco más de inclinación 3D
     ),
     layers=[
         pdk.Layer(
             'ScatterplotLayer',
             data=df_mapa,
             get_position='[lon, lat]',
-            get_color='[0, 255, 255, 200]', # Azul Cian
+            get_color='[0, 255, 255, 200]', # Azul Cian Brillante
             get_radius=300,
             pickable=True,
             stroked=True,
             filled=True,
-            line_width_min_pixels=2,
-            get_line_color=[0, 0, 0],
+            line_width_min_pixels=3,
+            get_line_color=[255, 255, 255], # Borde blanco para que resalte en el satélite
         ),
     ]
 ))
