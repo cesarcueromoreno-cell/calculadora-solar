@@ -168,7 +168,7 @@ depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
 ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
 ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
 hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
-# --- MAPA TIPO GOOGLE MAPS (SATÉLITE + CALLES) ---
+# --- MAPA SATELITAL REAL (TIPO GOOGLE MAPS) ---
 import pydeck as pdk
 
 # 1. Coordenadas Manuales
@@ -187,45 +187,41 @@ elif ciudad == "Barranquilla":
 else:
     lat, lon = 4.5709, -74.2973
 
-# 2. Datos del Punto
-df_mapa = pd.DataFrame({'lat': [lat], 'lon': [lon]})
-
-# 3. Construimos las Capas (Layers)
-# A) Capa de Fondo: Imágenes reales de Google Maps (Híbrido)
-capa_google = pdk.Layer(
+# 2. Capas del Mapa
+# Esta capa trae las fotos reales de satélite
+capa_satelite = pdk.Layer(
     "TileLayer",
     data=None,
-    # Esta URL trae las imágenes directo de Google (lyrs=y significa Híbrido)
     get_tile_data="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
     opacity=1,
 )
 
-# B) Capa del Punto: Tu marcador Azul Cian
+# Esta capa pone el punto Azul Cian sobre la casa/terreno
 capa_punto = pdk.Layer(
     'ScatterplotLayer',
-    data=df_mapa,
+    data=pd.DataFrame({'lat': [lat], 'lon': [lon]}),
     get_position='[lon, lat]',
-    get_color='[0, 255, 255, 200]', # Azul Cian Brillante
-    get_radius=300,
+    get_color='[0, 255, 255, 220]',
+    get_radius=40, # Radio más pequeño para precisión en techos
     pickable=True,
     stroked=True,
     filled=True,
     line_width_min_pixels=2,
-    get_line_color=[0, 0, 0],
+    get_line_color=[255, 255, 255],
 )
 
-# 4. Renderizamos el Mapa
-st.write(f"📍 **Ubicación del Proyecto (Google Satélite): {ciudad}**")
+# 3. Renderizado
+st.write(f"🛰️ **Vista Satelital del Proyecto: {ciudad}**")
 
 st.pydeck_chart(pdk.Deck(
-    map_style=None, # Desactivamos el mapa base por defecto para usar el de Google
+    map_style=None, # Importante: None para que no interfiera con el satélite
     initial_view_state=pdk.ViewState(
         latitude=lat,
         longitude=lon,
-        zoom=14,
-        pitch=45,
+        zoom=17, # Zoom más cercano para ver el sitio del proyecto
+        pitch=45, # Inclinación 3D
     ),
-    layers=[capa_google, capa_punto] # IMPORTANTE: Primero Google, luego el Punto
+    layers=[capa_satelite, capa_punto]
 ))
 st.header("3. Equipos")
 ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
