@@ -244,7 +244,23 @@ ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
 dato_panel = df_modulos[df_modulos["Referencia"] == ref_panel].iloc[0]
 ref_inv = st.selectbox("Inversor", df_inversores["Referencia"])
 dato_inv = df_inversores[df_inversores["Referencia"] == ref_inv].iloc[0]
+# --- CATÁLOGO TÉCNICO DE RESPALDO (Línea 247) ---
+st.markdown("---")
+st.subheader("📋 Disponibilidad de Modelos en Inventario")
+col_cat1, col_cat2 = st.columns(2)
 
+with col_cat1:
+    with st.expander("☀️ Ver Catálogo Completo de Paneles"):
+        # Mostramos todas las marcas y potencias del diccionario data_paneles
+        df_p = pd.DataFrame([{"Marca": m, "Potencia": f"{p} Wp"} for m, p in data_paneles.items()])
+        st.dataframe(df_p, use_container_width=True, hide_index=True)
+
+with col_cat2:
+    with st.expander("🔄 Ver Catálogo Completo de Inversores"):
+        # Mostramos todas las referencias y potencias del diccionario data_inversores
+        df_i = pd.DataFrame([{"Referencia": m, "Potencia": f"{p} kW"} for m, p in data_inversores.items()])
+        st.dataframe(df_i, use_container_width=True, hide_index=True)
+st.markdown("---")
 # CÁLCULOS GLOBALES
 generacion_panel = (dato_panel["Potencia"] * hsp * 0.80 * 30) / 1000
 
