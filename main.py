@@ -168,42 +168,46 @@ depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
 ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
 ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
 hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
+# ... (esto es lo que ya tienes arriba, línea 170)
+hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
+
+# --- PEGA DESDE AQUÍ HACIA ABAJO (Línea 171 en adelante) ---
 # --- MAPA TIPO INGENIERÍA (AZUL CIAN) ---
-    import pydeck as pdk 
+import pydeck as pdk
 
-    # 1. Coordenadas
-    lat = float(ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["Latitud"])
-    lon = float(ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["Longitud"])
+# 1. Coordenadas
+lat = float(ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["Latitud"])
+lon = float(ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["Longitud"])
 
-    # 2. Datos
-    df_mapa = pd.DataFrame({'lat': [lat], 'lon': [lon]})
+# 2. Datos
+df_mapa = pd.DataFrame({'lat': [lat], 'lon': [lon]})
 
-    # 3. Mapa 3D Avanzado
-    st.write(f"📍 **Ubicación del Proyecto: {ciudad}**")
-    
-    st.pydeck_chart(pdk.Deck(
-        map_style=None,
-        initial_view_state=pdk.ViewState(
-            latitude=lat,
-            longitude=lon,
-            zoom=14,
-            pitch=45, # Inclinación 3D
+# 3. Mapa 3D Avanzado
+st.write(f"📍 **Ubicación del Proyecto: {ciudad}**")
+
+st.pydeck_chart(pdk.Deck(
+    map_style=None,
+    initial_view_state=pdk.ViewState(
+        latitude=lat,
+        longitude=lon,
+        zoom=14,
+        pitch=45,
+    ),
+    layers=[
+        pdk.Layer(
+            'ScatterplotLayer',
+            data=df_mapa,
+            get_position='[lon, lat]',
+            get_color='[0, 255, 255, 200]',
+            get_radius=200,
+            pickable=True,
+            stroked=True,
+            filled=True,
+            line_width_min_pixels=2,
+            get_line_color=[0, 0, 0],
         ),
-        layers=[
-            pdk.Layer(
-                'ScatterplotLayer',
-                data=df_mapa,
-                get_position='[lon, lat]',
-                get_color='[0, 255, 255, 200]', # <--- COLOR CIAN BRILLANTE
-                get_radius=200,
-                pickable=True,
-                stroked=True,
-                filled=True,
-                line_width_min_pixels=2,
-                get_line_color=[0, 0, 0],
-            ),
-        ]
-    ))
+    ]
+))
 st.header("3. Equipos")
 ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
 dato_panel = df_modulos[df_modulos["Referencia"] == ref_panel].iloc[0]
