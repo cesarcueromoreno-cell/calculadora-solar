@@ -130,8 +130,8 @@ st.markdown("---")
 if os.path.exists("logo.png.JPG"):
     st.sidebar.image("logo.png.JPG")
 
-# --- DATOS DEL PROYECTO (Ahora fuera del if para que siempre funcionen) ---
-cliente = st.text_input("Cliente", "Empresa SAS")
+    # --- DATOS DEL PROYECTO (Ahora fuera del if para que siempre funcionen) ---
+    cliente = st.text_input("Cliente", "Empresa SAS")
 
 st.header("2. Ubicación")
 depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
