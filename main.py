@@ -244,22 +244,42 @@ ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
 dato_panel = df_modulos[df_modulos["Referencia"] == ref_panel].iloc[0]
 ref_inv = st.selectbox("Inversor", df_inversores["Referencia"])
 dato_inv = df_inversores[df_inversores["Referencia"] == ref_inv].iloc[0]
-# --- CATÁLOGO TÉCNICO DE RESPALDO (Línea 247) ---
+# --- CATÁLOGO TÉCNICO TOTAL (Línea 247) ---
 st.markdown("---")
-st.subheader("📋 Disponibilidad de Modelos en Inventario")
-col_cat1, col_cat2 = st.columns(2)
+st.subheader("📋 Ficha Técnica Global de Equipos Disponibles")
 
-with col_cat1:
-    with st.expander("☀️ Ver Catálogo Completo de Paneles"):
-        # Mostramos todas las marcas y potencias del diccionario data_paneles
-        df_p = pd.DataFrame([{"Marca": m, "Potencia": f"{p} Wp"} for m, p in data_paneles.items()])
-        st.dataframe(df_p, use_container_width=True, hide_index=True)
+# Creamos dos pestañas para no saturar la vista
+tab_paneles, tab_inversores = st.tabs(["☀️ Catálogo de Paneles", "🔄 Catálogo de Inversores"])
 
-with col_cat2:
-    with st.expander("🔄 Ver Catálogo Completo de Inversores"):
-        # Mostramos todas las referencias y potencias del diccionario data_inversores
-        df_i = pd.DataFrame([{"Referencia": m, "Potencia": f"{p} kW"} for m, p in data_inversores.items()])
-        st.dataframe(df_i, use_container_width=True, hide_index=True)
+with tab_paneles:
+    st.write("### Especificaciones de Módulos Fotovoltaicos")
+    # Mostramos TODO el DataFrame de módulos
+    st.dataframe(
+        df_modulos, 
+        use_container_width=True, 
+        hide_index=True,
+        column_config={
+            "Referencia": "Modelo del Panel",
+            "Potencia": st.column_config.NumberColumn("Potencia (Wp)", format="%d W"),
+            "Tecnologia": "Tipo de Celda"
+        }
+    )
+    st.caption(f"Se han encontrado {len(df_modulos)} modelos de paneles en la base de datos.")
+
+with tab_inversores:
+    st.write("### Especificaciones de Inversores / Convertidores")
+    # Mostramos TODO el DataFrame de inversores
+    st.dataframe(
+        df_inversores, 
+        use_container_width=True, 
+        hide_index=True,
+        column_config={
+            "Referencia": "Marca/Modelo",
+            "Potencia": st.column_config.NumberColumn("Capacidad (kW)", format="%.1f kW"),
+            "Eficiencia": "Rendimiento (%)"
+        }
+    )
+    st.caption(f"Se han encontrado {len(df_inversores)} modelos de inversores en la base de datos.")
 st.markdown("---")
 # CÁLCULOS GLOBALES
 generacion_panel = (dato_panel["Potencia"] * hsp * 0.80 * 30) / 1000
