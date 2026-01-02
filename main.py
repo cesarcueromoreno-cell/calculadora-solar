@@ -56,8 +56,7 @@ class PDF(FPDF):
 def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     pdf = PDF()
     pdf.add_page()
-    
-  # --- 🖼️ PONER EL LOGO (SOLUCIÓN FINAL) ---
+# --- 🖼️ PONER EL LOGO (SOLUCIÓN FINAL) ---
     # Vamos a usar directamente el archivo JPG que suele ser más seguro
     try:
         # Intentamos cargar el archivo con extensión .JPG
