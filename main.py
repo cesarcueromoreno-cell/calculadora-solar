@@ -168,7 +168,7 @@ depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
 ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
 ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
 hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
-# --- MAPA MANUAL (ESTILO SATÉLITE PRO) ---
+# --- MAPA MANUAL (ESTILO DARK TECH) ---
 import pydeck as pdk
 
 # 1. Coordenadas Manuales
@@ -190,30 +190,29 @@ else:
 # 2. Datos
 df_mapa = pd.DataFrame({'lat': [lat], 'lon': [lon]})
 
-# 3. Mapa 3D Satelital
-st.write(f"📍 **Ubicación del Proyecto (Vista Satelital): {ciudad}**")
+# 3. Mapa 3D Modo Oscuro
+st.write(f"📍 **Ubicación del Proyecto: {ciudad}**")
 
 st.pydeck_chart(pdk.Deck(
-    # ESTA LÍNEA ES LA MAGIA DEL ESTILO SATÉLITE:
-    map_style='mapbox://styles/mapbox/satellite-streets-v11',
+    map_style='dark',  # <--- CAMBIO AQUÍ: Modo Oscuro (Funciona siempre)
     initial_view_state=pdk.ViewState(
         latitude=lat,
         longitude=lon,
-        zoom=13,
-        pitch=50, # Un poco más de inclinación 3D
+        zoom=12,
+        pitch=50,
     ),
     layers=[
         pdk.Layer(
             'ScatterplotLayer',
             data=df_mapa,
             get_position='[lon, lat]',
-            get_color='[0, 255, 255, 200]', # Azul Cian Brillante
+            get_color='[0, 255, 255, 200]', # Azul Cian
             get_radius=300,
             pickable=True,
             stroked=True,
             filled=True,
-            line_width_min_pixels=3,
-            get_line_color=[255, 255, 255], # Borde blanco para que resalte en el satélite
+            line_width_min_pixels=2,
+            get_line_color=[255, 255, 255],
         ),
     ]
 ))
