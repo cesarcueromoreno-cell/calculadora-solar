@@ -174,8 +174,8 @@ import pydeck as pdk
 st.write("👀 COLUMNAS:", ciudades.columns)
 # 1. Coordenadas
 # --- TRAMPA DE DIAGNÓSTICO ---
-    st.error(f"🚨 TUS COLUMNAS SON: {list(ciudades.columns)}")
-    st.stop() # <--- ESTO FRENA LA APP AQUÍ MISMO
+st.error(f"🚨 TUS COLUMNAS SON: {list(ciudades.columns)}")
+st.stop() # <--- ESTO FRENA LA APP AQUÍ MISMO
     
     # lat = ... (Esto lo pondremos bien cuando sepamos el nombre)
     # lon = ...
