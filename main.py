@@ -230,7 +230,8 @@ with tab3:
         retorno = costo / (ahorro_mes * 12)
         st.metric("Retorno de Inversión", f"{retorno:.1f} Años")
         st.metric("Ahorro Mensual", f"${ahorro_mes:,.0f}")
-# --- GRÁFICA DE RETORNO DE INVERSIÓN (NUEVO) ---
+
+        # --- GRÁFICA DE RETORNO DE INVERSIÓN (NUEVO) ---
         st.subheader("📈 Proyección de Ahorro Acumulado (25 Años)")
 
         # 1. Calculamos cómo crece el dinero año tras año
