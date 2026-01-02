@@ -57,11 +57,25 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     pdf = PDF()
     pdf.add_page()
     
-    # --- 🖼️ PONER EL LOGO (NUEVO) ---
-    # Verificamos si existe el archivo para que no de error
+   # --- 🖼️ PONER EL LOGO (Versión Detectivesca) ---
+    # Intentamos con el nombre normal
     if os.path.exists("logo.png"):
         pdf.image("logo.png", x=10, y=8, w=40)
-        pdf.ln(10) # Espacio para no escribir encima del logo
+        pdf.ln(20) 
+    # Si no, intentamos con el nombre doble (error común)
+    elif os.path.exists("logo.png.png"):
+        pdf.image("logo.png.png", x=10, y=8, w=40)
+        pdf.ln(20)
+    # Si no, intentamos con JPG
+    elif os.path.exists("logo.png.JPG"):
+        pdf.image("logo.png.JPG", x=10, y=8, w=40)
+        pdf.ln(20)
+
+    # --- TÍTULO DEL REPORTE (Cambiado para probar) ---
+    pdf.set_font('Arial', 'B', 16)
+    # Agregamos la palabra "OFICIAL" para confirmar que el código nuevo funciona
+    pdf.cell(0, 10, 'Reporte OFICIAL de Dimensionamiento Solar', 0, 1, 'C')
+    pdf.ln(10)
     
     # Información del Cliente
     pdf.set_font('Arial', '', 12)
