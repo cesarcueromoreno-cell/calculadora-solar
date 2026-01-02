@@ -155,7 +155,6 @@ data_inversores = {
     "Precio": [1200000, 2500000, 4500000, 7000000] 
 }
 df_inversores = pd.DataFrame(data_inversores)
-
 # ----------------------------------------------------------------------
 # --- INTERFAZ ---
 st.title("CESAR CM INGENIERÍA - ACTUALIZADO")
