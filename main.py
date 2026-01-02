@@ -168,61 +168,54 @@ depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
 ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
 ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
 hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
-# --- MAPA SATELITAL CON ICONO PROFESIONAL ---
+# --- MAPA SATELITAL HÍBRIDO (ESTILO GOOGLE MAPS PROFESIONAL) ---
 import pydeck as pdk
 
-# 1. Coordenadas
+# 1. Coordenadas Manuales
 if ciudad == "San José del Guaviare":
     lat, lon = 2.5693, -72.6389
 elif ciudad == "Leticia":
     lat, lon = -4.2153, -69.9406
+elif ciudad == "Bogotá":
+    lat, lon = 4.7110, -74.0721
 else:
     lat, lon = 4.5709, -74.2973
 
-# 2. Configuración del Icono (La "Gota")
-ICON_URL = "https://img.icons8.com/plasticine/100/000000/marker.png"
-
-icon_data = {
-    "url": ICON_URL,
-    "width": 128,
-    "height": 128,
-    "anchorY": 128
-}
-
-df_icon = pd.DataFrame([{
-    "lat": lat,
-    "lon": lon,
-    "icon_data": icon_data
-}])
-
-# 3. Capas
-capa_satelite = pdk.Layer(
+# 2. Definición de Capas
+# Esta capa es la clave: lyrs=y activa Satélite + Etiquetas de calles/barrios
+capa_hibrida = pdk.Layer(
     "TileLayer",
-    get_tile_data="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
+    data=None,
+    get_tile_data="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+    opacity=1,
 )
 
-capa_icono = pdk.Layer(
-    "IconLayer",
-    df_icon,
-    get_icon="icon_data",
-    get_size=4,
-    size_scale=15,
-    get_position="[lon, lat]",
+# Tu marcador Azul Cian con borde negro para máxima visibilidad
+capa_marcador = pdk.Layer(
+    'ScatterplotLayer',
+    data=pd.DataFrame({'lat': [lat], 'lon': [lon]}),
+    get_position='[lon, lat]',
+    get_color='[0, 255, 255, 255]', # Azul Cian puro
+    get_radius=120, # Tamaño equilibrado para ver calles y el punto
     pickable=True,
+    stroked=True,
+    filled=True,
+    line_width_min_pixels=2,
+    get_line_color=[0, 0, 0], # Borde negro para que resalte sobre el verde
 )
 
-# 4. Mapa
-st.write(f"🛰️ **Ubicación Técnica: {ciudad}**")
+# 3. Renderizado del Mapa
+st.write(f"🛰️ **Vista Híbrida del Proyecto: {ciudad}**")
 
 st.pydeck_chart(pdk.Deck(
-    map_style=None,
+    map_style=None, # Desactivamos el mapa base para usar el de Google
     initial_view_state=pdk.ViewState(
         latitude=lat,
         longitude=lon,
-        zoom=15,
-        pitch=45,
+        zoom=15, # Nivel de zoom de tu imagen de referencia
+        pitch=0,
     ),
-    layers=[capa_satelite, capa_icono]
+    layers=[capa_hibrida, capa_marcador]
 ))
 st.header("3. Equipos")
 ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
