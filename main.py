@@ -136,21 +136,26 @@ data_ciudades = {
 }
 df_ciudades = pd.DataFrame(data_ciudades)
 
-# 2. Base de Datos de PANELES
+# 2. Base de Datos de PANELES (Corregida con VOC y Corriente)
 data_paneles = {
     "Referencia": ["Panel 450W Monocristalino", "Panel 550W Bifacial", "Panel 600W Industrial"],
     "Potencia": [450, 550, 600],
+    "Voc": [41.5, 49.6, 41.7],   # <--- ¡ESTA ES LA LÍNEA QUE FALTABA!
+    "Isc": [13.4, 13.9, 18.1],   # <--- Corriente
     "Precio": [550000, 720000, 850000] 
 }
 df_modulos = pd.DataFrame(data_paneles)
 
-# 3. Base de Datos de INVERSORES
+# 3. Base de Datos de INVERSORES (Con rangos de voltaje)
 data_inversores = {
     "Referencia": ["Microinversor 1.2kW", "Inversor 3kW", "Inversor 5kW Híbrido", "Inversor 10kW Trifásico"],
     "Potencia": [1200, 3000, 5000, 10000],
+    "Vmin": [20, 80, 120, 180],    # Voltaje mínimo
+    "Vmax": [60, 600, 600, 1000],  # Voltaje máximo
     "Precio": [1200000, 2500000, 4500000, 7000000] 
 }
 df_inversores = pd.DataFrame(data_inversores)
+
 # ----------------------------------------------------------------------
 # --- INTERFAZ ---
 st.title("CESAR CM INGENIERÍA - ACTUALIZADO")
