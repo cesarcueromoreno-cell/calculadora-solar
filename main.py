@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 # --- CARGA AUTOMÁTICA DE BIBLIOTECA GLOBAL ---
 @st.cache_data(ttl=3600)  # Se actualiza solo cada hora
+
 def cargar_biblioteca_red():
     # Sustituir por las URLs reales de tu repositorio de GitHub (en modo Raw)
     # --- LÍNEAS 10 Y 11 CORREGIDAS ---
