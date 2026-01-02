@@ -57,24 +57,29 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     pdf = PDF()
     pdf.add_page()
     
-   # --- 🖼️ PONER EL LOGO (Versión Detectivesca) ---
-    # Intentamos con el nombre normal
-    if os.path.exists("logo.png"):
-        pdf.image("logo.png", x=10, y=8, w=40)
-        pdf.ln(20) 
-    # Si no, intentamos con el nombre doble (error común)
+  # --- 🖼️ PONER EL LOGO (BLOQUE BLINDADO) ---
+    # 1. Intentamos primero con el archivo .JPG (que suele ser el formato real)
+    if os.path.exists("logo.png.JPG"):
+        pdf.image("logo.png.JPG", x=10, y=8, w=40)
+        pdf.ln(20)
+        
+    # 2. Si no, probamos con el .png.png
     elif os.path.exists("logo.png.png"):
         pdf.image("logo.png.png", x=10, y=8, w=40)
         pdf.ln(20)
-    # Si no, intentamos con JPG
-    elif os.path.exists("logo.png.JPG"):
-        pdf.image("logo.png.JPG", x=10, y=8, w=40)
-        pdf.ln(20)
+        
+    # 3. Último intento con logo.png, pero con PROTECCIÓN (try/except)
+    elif os.path.exists("logo.png"):
+        try:
+            pdf.image("logo.png", x=10, y=8, w=40)
+            pdf.ln(20)
+        except:
+            # Si el archivo está dañado o es falso, no hacemos nada y seguimos
+            pass
 
-    # --- TÍTULO DEL REPORTE (Cambiado para probar) ---
+    # --- TÍTULO DEL REPORTE ---
     pdf.set_font('Arial', 'B', 16)
-    # Agregamos la palabra "OFICIAL" para confirmar que el código nuevo funciona
-    pdf.cell(0, 10, 'Reporte OFICIAL de Dimensionamiento Solar', 0, 1, 'C')
+    pdf.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
     pdf.ln(10)
     
     # Información del Cliente
