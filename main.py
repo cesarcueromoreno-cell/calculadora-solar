@@ -102,24 +102,12 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     
     # Función pequeña para arreglar tildes (latin-1) y evitar errores raros
     def limpiar(texto):
-        # --- PARTE 2: INSERCIÓN DE LA GRÁFICA EN EL PDF ---
-    pdf.add_page()
-    pdf.set_font("Arial", 'B', 14)
-    pdf.cell(0, 10, "4. PROYECCION FINANCIERA GRAFICA", ln=True, align='C')
-    pdf.ln(10)
-    
-    # Esta línea busca la imagen 'temp_roi.png' creada en la línea 470
-    if os.path.exists("temp_roi.png"):
-        pdf.image("temp_roi.png", x=10, y=40, w=190)
-
-    # ESTA DEBE SER LA ÚLTIMA LÍNEA DE LA FUNCIÓN
-    return pdf.output(dest='S').encode('latin-1')
-        return str(texto).encode('latin-1', 'replace').decode('latin-1')
-
+   # --- 1. DATOS DEL CLIENTE Y UBICACIÓN ---
     pdf.cell(0, 10, f'Cliente: {limpiar(cliente)}', 0, 1)
     pdf.cell(0, 10, f'Ubicacion: {limpiar(ciudad)}', 0, 1)
     pdf.ln(5)
 
+    # --- 2. CUERPO TÉCNICO Y FINANCIERO ---
     pdf.set_font('Arial', 'B', 12)
     pdf.cell(0, 10, 'Detalles del Sistema:', 0, 1)
     pdf.set_font('Arial', '', 12)
@@ -130,8 +118,22 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     pdf.cell(0, 10, 'Analisis Financiero:', 0, 1)
     pdf.set_font('Arial', '', 12)
     pdf.multi_cell(0, 10, limpiar(financiero_info))
+
+    # --- 3. PARTE 2: INSERCIÓN DE LA GRÁFICA EN PÁGINA NUEVA ---
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 14)
+    pdf.cell(0, 10, "4. PROYECCION FINANCIERA GRAFICA", ln=True, align='C')
+    pdf.ln(10)
     
-    return pdf.output(dest='S').encode('latin-1', 'replace')
+    if os.path.exists("temp_roi.png"):
+        pdf.image("temp_roi.png", x=10, y=40, w=190)
+
+    # ESTA DEBE SER LA ÚLTIMA LÍNEA DE LA FUNCIÓN generar_pdf
+    return pdf.output(dest='S').encode('latin-1')
+
+# --- 4. FUNCIÓN AUXILIAR (Fuera de generar_pdf) ---
+def limpiar(texto):
+    return str(texto).encode('latin-1', 'replace').decode('latin-1')
     
     # Retorno del PDF
     return pdf.output(dest='S').encode('latin-1')
