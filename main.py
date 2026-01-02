@@ -126,16 +126,19 @@ st.title("CESAR CM INGENIERÍA - SUITE PROFESIONAL")
 st.markdown("---")
 
 # BARRA LATERAL
-if os.path.exists("logo.png"):
-    st.sidebar.image("logo.png")
+# BARRA LATERAL (LOGO)
+    if os.path.exists("logo.png.JPG"):
+        st.sidebar.image("logo.png.JPG")
+
+    # --- DATOS DEL PROYECTO (Ahora fuera del if para que siempre funcionen) ---
     cliente = st.text_input("Cliente", "Empresa SAS")
-    
+
     st.header("2. Ubicación")
     depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
     ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
     ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
     hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
-    
+
     st.header("3. Equipos")
     ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
     dato_panel = df_modulos[df_modulos["Referencia"] == ref_panel].iloc[0]
