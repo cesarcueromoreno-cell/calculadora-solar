@@ -135,9 +135,6 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
 def limpiar(texto):
     return str(texto).encode('latin-1', 'replace').decode('latin-1')
     
-    # Retorno del PDF
-    return pdf.output(dest='S').encode('latin-1')
-
 # --- BASE DE DATOS AUTOMÁTICA (CAPITALES Y PRINCIPALES DE COLOMBIA) ---
 # Esto reemplaza al archivo Excel para que nunca falle
 import pandas as pd
