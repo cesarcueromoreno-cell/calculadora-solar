@@ -171,9 +171,9 @@ hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
 # --- MAPA SATELITAL REAL (ESTILO GOOGLE EARTH) ---
 import pydeck as pdk
 
-# 1. Coordenadas Manuales (Ubicación exacta de los puntos)
+# 1. Coordenadas Manuales Ajustadas
 if ciudad == "San José del Guaviare":
-    lat, lon = 2.5693, -72.6389 # Coordenada centrada en el casco urbano
+    lat, lon = 2.5693, -72.6389
 elif ciudad == "Leticia":
     lat, lon = -4.2153, -69.9406
 elif ciudad == "Bogotá":
@@ -182,40 +182,40 @@ else:
     lat, lon = 4.5709, -74.2973
 
 # 2. Configuración de Capas
-# Esta capa es la que trae el satélite real de Google
-capa_google_earth = pdk.Layer(
+# Esta capa obliga a mostrar la fotografía satelital real de Google
+capa_satelite_real = pdk.Layer(
     "TileLayer",
     data=None,
-    get_tile_data="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", # lyrs=s es Satélite Puro
+    get_tile_data="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", # 's' para Satélite Puro
     opacity=1,
 )
 
-# Esta capa es tu marcador (Punto Azul Cian con borde blanco para resaltar)
+# Esta capa es tu marcador Azul Cian con borde blanco (Contraste alto)
 capa_marcador = pdk.Layer(
     'ScatterplotLayer',
     data=pd.DataFrame({'lat': [lat], 'lon': [lon]}),
     get_position='[lon, lat]',
-    get_color='[0, 255, 255, 255]', # Azul Cian sólido
-    get_radius=150, # Tamaño del punto para que se vea desde el aire
+    get_color='[0, 255, 255, 255]', # Azul Cian Intenso
+    get_radius=100, # Tamaño ideal para ver desde el satélite
     pickable=True,
     stroked=True,
     filled=True,
     line_width_min_pixels=2,
-    get_line_color=[255, 255, 255], # Borde blanco (igual que Google Earth)
+    get_line_color=[255, 255, 255], # Borde Blanco para que resalte
 )
 
 # 3. Renderizado del Mapa
 st.write(f"🛰️ **Vista Satelital del Proyecto: {ciudad}**")
 
 st.pydeck_chart(pdk.Deck(
-    map_style=None, # Desactivamos el mapa base aburrido
+    map_style=None, # Desactivamos el mapa base para que no tape el satélite
     initial_view_state=pdk.ViewState(
         latitude=lat,
         longitude=lon,
-        zoom=15, # Nivel de zoom ideal para ver la ciudad como en tu foto
-        pitch=0,  # Vista totalmente desde arriba
+        zoom=15, # Nivel de zoom similar a Google Earth
+        pitch=0,
     ),
-    layers=[capa_google_earth, capa_marcador]
+    layers=[capa_satelite_real, capa_marcador]
 ))
 st.header("3. Equipos")
 ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
