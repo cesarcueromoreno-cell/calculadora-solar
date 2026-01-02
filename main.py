@@ -4,8 +4,6 @@ from fpdf import FPDF
 from datetime import datetime
 import os
 
-st.write("⚠️ VERSIÓN NUEVA CARGADA CORRECTAMENTE")
-
 # --- SISTEMA DE SEGURIDAD ---
 # 1. Pedimos la contraseña en la barra lateral
 password = st.sidebar.text_input("🔑 Ingresa la contraseña:", type="password")
@@ -18,6 +16,9 @@ if password != "SOLAR2025":
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="CESAR CM Solar Suite", page_icon="☀️", layout="wide")
+
+st.write("⚠️ VERSIÓN NUEVA CARGADA CORRECTAMENTE")
+
 # --- DICCIONARIO DE COORDENADAS (PARA EL MAPA) ---
 coordenadas_ciudades = {
     "Bucaramanga": [7.1193, -73.1227],
