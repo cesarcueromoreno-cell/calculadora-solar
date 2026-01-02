@@ -157,7 +157,7 @@ data_inversores = {
 df_inversores = pd.DataFrame(data_inversores)
 # ----------------------------------------------------------------------
 # --- INTERFAZ ---
-st.title("CESAR CM INGENIERÍA - ACTUALIZADO")
+st.title("CESAR CM INGENIERÍA - VERSION FINAL 3.0")
 st.markdown("---")
 
 # --- DATOS DEL PROYECTO (Ahora fuera del if para que siempre funcionen) ---
