@@ -127,7 +127,7 @@ st.markdown("---")
 
 # BARRA LATERAL
 # BARRA LATERAL (LOGO)
-if os.path.exists("logo.png.JPG"):
+
     st.sidebar.image("logo.png.JPG")
 
     # --- DATOS DEL PROYECTO (Ahora fuera del if para que siempre funcionen) ---
