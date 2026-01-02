@@ -171,7 +171,7 @@ hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
 # --- PEGA DESDE AQUÍ HACIA ABAJO (Línea 171 en adelante) ---
 # --- MAPA TIPO INGENIERÍA (AZUL CIAN) ---
 import pydeck as pdk
-
+st.write("👀 COLUMNAS:", ciudades.columns)
 # 1. Coordenadas
 lat = float(ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["Latitud"])
 lon = float(ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["Longitud"])
