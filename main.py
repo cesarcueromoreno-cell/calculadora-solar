@@ -168,22 +168,30 @@ depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
 ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
 ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
 hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
-# --- PEGA DESDE AQUÍ HACIA ABAJO (Línea 171 en adelante) ---
-# --- MAPA TIPO INGENIERÍA (AZUL CIAN) ---
+# --- MAPA MANUAL (Solución Definitiva) ---
 import pydeck as pdk
-st.write("👀 COLUMNAS:", ciudades.columns)
-# 1. Coordenadas
-# --- TRAMPA DE DIAGNÓSTICO ---
-st.error(f"🚨 TUS COLUMNAS SON: {list(ciudades.columns)}")
-st.stop() # <--- ESTO FRENA LA APP AQUÍ MISMO
-    
-    # lat = ... (Esto lo pondremos bien cuando sepamos el nombre)
-    # lon = ...
 
-# 2. Datos
+# 1. Coordenadas Manuales (Ya que no están en el Excel)
+if ciudad == "San José del Guaviare":
+    lat, lon = 2.5716, -72.6427
+elif ciudad == "Leticia":
+    lat, lon = -4.2153, -69.9406
+elif ciudad == "Bogotá":
+    lat, lon = 4.7110, -74.0721
+elif ciudad == "Medellín":
+    lat, lon = 6.2442, -75.5812
+elif ciudad == "Cali":
+    lat, lon = 3.4516, -76.5320
+elif ciudad == "Barranquilla":
+    lat, lon = 10.9685, -74.7813
+else:
+    # Coordenada por defecto (Centro del país)
+    lat, lon = 4.5709, -74.2973 
+
+# 2. Preparamos los datos
 df_mapa = pd.DataFrame({'lat': [lat], 'lon': [lon]})
 
-# 3. Mapa 3D Avanzado
+# 3. Mapa 3D Profesional
 st.write(f"📍 **Ubicación del Proyecto: {ciudad}**")
 
 st.pydeck_chart(pdk.Deck(
@@ -191,7 +199,7 @@ st.pydeck_chart(pdk.Deck(
     initial_view_state=pdk.ViewState(
         latitude=lat,
         longitude=lon,
-        zoom=14,
+        zoom=13,
         pitch=45,
     ),
     layers=[
@@ -199,8 +207,8 @@ st.pydeck_chart(pdk.Deck(
             'ScatterplotLayer',
             data=df_mapa,
             get_position='[lon, lat]',
-            get_color='[0, 255, 255, 200]',
-            get_radius=200,
+            get_color='[0, 255, 255, 200]', # Azul Cian
+            get_radius=300,
             pickable=True,
             stroked=True,
             filled=True,
