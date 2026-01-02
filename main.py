@@ -106,21 +106,52 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     # Retorno del PDF
     return pdf.output(dest='S').encode('latin-1')
 # --- CARGA DE DATOS ---
-try:
-    archivo = "data/base_datos.xlsx"
-    df_ciudades = pd.read_excel(archivo, sheet_name="Ciudades")
-    df_modulos = pd.read_excel(archivo, sheet_name="Modulos")
-    df_inversores = pd.read_excel(archivo, sheet_name="Inversores")
-    
-    # Limpieza
-    df_modulos.columns = df_modulos.columns.str.strip()
-    df_ciudades.columns = df_ciudades.columns.str.strip()
-    df_inversores.columns = df_inversores.columns.str.strip()
+# --- BASE DE DATOS AUTOMÁTICA (CAPITALES Y PRINCIPALES DE COLOMBIA) ---
+# Esto reemplaza al archivo Excel para que nunca falle
+import pandas as pd
 
-except Exception as e:
-    st.error(f"⚠️ Error leyendo Excel: {e}")
-    st.stop()
+# 1. Base de Datos de CIUDADES
+data_ciudades = {
+    "Departamento": [
+        "Amazonas", "Antioquia", "Antioquia", "Arauca", "Atlántico", "Bolívar", "Boyacá", "Caldas", 
+        "Caquetá", "Casanare", "Cauca", "Cesar", "Chocó", "Córdoba", "Cundinamarca", "Bogotá D.C.", 
+        "Guainía", "Guaviare", "Huila", "La Guajira", "Magdalena", "Meta", "Nariño", 
+        "Norte de Santander", "Putumayo", "Quindío", "Risaralda", "San Andrés", "Santander", 
+        "Sucre", "Tolima", "Valle del Cauca", "Vaupés", "Vichada"
+    ],
+    "Ciudad": [
+        "Leticia", "Medellín", "Rionegro", "Arauca", "Barranquilla", "Cartagena", "Tunja", "Manizales", 
+        "Florencia", "Yopal", "Popayán", "Valledupar", "Quibdó", "Montería", "Girardot", "Bogotá", 
+        "Inírida", "San José del Guaviare", "Neiva", "Riohacha", "Santa Marta", "Villavicencio", "Pasto", 
+        "Cúcuta", "Mocoa", "Armenia", "Pereira", "San Andrés", "Bucaramanga", 
+        "Sincelejo", "Ibagué", "Cali", "Mitú", "Puerto Carreño"
+    ],
+    "HSP": [
+        4.5, 4.8, 4.7, 5.2, 5.5, 5.3, 4.6, 4.2, 
+        4.0, 4.9, 4.5, 5.6, 3.8, 5.1, 4.8, 4.2, 
+        4.6, 4.5, 5.2, 6.0, 5.5, 4.7, 4.3, 
+        5.0, 3.9, 4.4, 4.5, 5.2, 5.0, 
+        5.2, 4.9, 4.8, 4.4, 5.1
+    ]
+}
+df_ciudades = pd.DataFrame(data_ciudades)
 
+# 2. Base de Datos de PANELES
+data_paneles = {
+    "Referencia": ["Panel 450W Monocristalino", "Panel 550W Bifacial", "Panel 600W Industrial"],
+    "Potencia": [450, 550, 600],
+    "Precio": [550000, 720000, 850000] 
+}
+df_modulos = pd.DataFrame(data_paneles)
+
+# 3. Base de Datos de INVERSORES
+data_inversores = {
+    "Referencia": ["Microinversor 1.2kW", "Inversor 3kW", "Inversor 5kW Híbrido", "Inversor 10kW Trifásico"],
+    "Potencia": [1200, 3000, 5000, 10000],
+    "Precio": [1200000, 2500000, 4500000, 7000000] 
+}
+df_inversores = pd.DataFrame(data_inversores)
+# ----------------------------------------------------------------------
 # --- INTERFAZ ---
 st.title("CESAR CM INGENIERÍA - SUITE PROFESIONAL")
 st.markdown("---")
