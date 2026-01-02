@@ -3,3 +3,6 @@ pandas
 openpyxl
 fpdf
 # reinicio
+matplotlib
+pandas
+fpdf
