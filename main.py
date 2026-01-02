@@ -311,7 +311,33 @@ with tab_inversores:
 st.markdown("---")
 # CÁLCULOS GLOBALES
 generacion_panel = (dato_panel["Potencia"] * hsp * 0.80 * 30) / 1000
+# --- SECCIÓN TÉCNICA: DIAGRAMA UNIFILAR Y MATERIALES (Línea 314) ---
+st.markdown("---")
+st.header("⚡ Especificaciones Técnicas (RETIE)")
 
+exp_dis = st.expander("📝 Ver Lista de Materiales y Datos de Diseño")
+with exp_dis:
+    c_mat1, c_mat2 = st.columns(2)
+    
+    with c_mat1:
+        st.subheader("🛠️ Componentes de Protección")
+        # Cálculo dinámico basado en el inversor seleccionado
+        pot_inv_kw = dato_inv["Potencia"]
+        corr_ac = (pot_inv_kw * 1000) / 208 # Basado en sistema trifásico/bifásico común
+        bre_sug = round(corr_ac * 1.25, 0)
+        
+        st.write(f"**Protección AC sugerida:** Breaker {bre_sug}A")
+        st.write(f"**Cableado AC:** 3x10 AWG (Mínimo recomendado)")
+        st.write(f"**Tubería:** EMT 3/4\" con etiquetas de advertencia")
+
+    with c_mat2:
+        st.subheader("⚠️ Rótulos Obligatorios")
+        st.write("- 🚩 Peligro: Terminales Energizadas (CC y CA)")
+        st.write("- 🚩 Advertencia: Doble fuente de alimentación")
+        st.write("- 🚩 Identificación de Puesta a Tierra")
+        st.write("- 🚩 Rotulación de Tuberías de CC")
+
+    st.info("💡 Estos datos son la base para el Diagrama Unifilar obligatorio para legalización ante el OR.")
 # TABS
 tab1, tab2, tab3 = st.tabs(["📐 Dimensionamiento", "⚡ Eléctrico", "💰 Financiero & PDF"])
 
