@@ -3,6 +3,24 @@ import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
 import os
+# --- CARGA AUTOMÁTICA DE BIBLIOTECA GLOBAL ---
+@st.cache_data(ttl=3600)  # Se actualiza solo cada hora
+def cargar_biblioteca_red():
+    # Sustituir por las URLs reales de tu repositorio de GitHub (en modo Raw)
+    url_p = "https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/paneles_mundo.csv"
+    url_i = "https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/inversores_mundo.csv"
+    
+    # Lectura de la red
+    df_p = pd.read_csv(url_p)
+    df_i = pd.read_csv(url_i)
+    
+    # Creamos diccionarios automáticos para los cálculos
+    dict_p = dict(zip(df_p['Referencia'], df_p['Potencia']))
+    dict_i = dict(zip(df_i['Referencia'], df_i['Potencia']))
+    return df_p, df_i, dict_p, dict_i
+
+# Ejecución de la carga
+df_modulos, df_inversores, data_paneles, data_inversores = cargar_biblioteca_red()
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="CESAR CM Solar Suite", page_icon="☀️", layout="wide")
 
@@ -244,6 +262,16 @@ ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
 dato_panel = df_modulos[df_modulos["Referencia"] == ref_panel].iloc[0]
 ref_inv = st.selectbox("Inversor", df_inversores["Referencia"])
 dato_inv = df_inversores[df_inversores["Referencia"] == ref_inv].iloc[0]
+# --- VISUALIZADOR DE BIBLIOTECA GLOBAL (Línea 265) ---
+st.markdown("---")
+with st.expander("🌐 EXPLORAR BIBLIOTECA GLOBAL DEL MERCADO"):
+    t1, t2 = st.tabs(["☀️ Módulos", "🔄 Inversores"])
+    with t1:
+        st.dataframe(df_modulos, use_container_width=True, hide_index=True)
+        st.caption(f"Equipos sincronizados: {len(df_modulos)}")
+    with t2:
+        st.dataframe(df_inversores, use_container_width=True, hide_index=True)
+        st.caption(f"Equipos sincronizados: {len(df_inversores)}")
 # --- CATÁLOGO TÉCNICO TOTAL (Línea 247) ---
 st.markdown("---")
 st.subheader("📋 Ficha Técnica Global de Equipos Disponibles")
