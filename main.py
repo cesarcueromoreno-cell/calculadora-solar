@@ -4,6 +4,8 @@ from fpdf import FPDF
 from datetime import datetime
 import os
 
+st.write("⚠️ VERSIÓN NUEVA CARGADA CORRECTAMENTE")
+
 # --- SISTEMA DE SEGURIDAD ---
 # 1. Pedimos la contraseña en la barra lateral
 password = st.sidebar.text_input("🔑 Ingresa la contraseña:", type="password")
