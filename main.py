@@ -169,13 +169,19 @@ ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
 ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
 hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
 # --- CÓDIGO NUEVO: MAPA CON PUNTO ROJO ---
-    # 1. Sacamos las coordenadas exactas de la base de datos
-    lat = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["Latitud"]
-    lon = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["Longitud"]
+  # 1. Sacamos las coordenadas y las convertimos a números (float)
+    lat = float(ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["Latitud"])
+    lon = float(ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["Longitud"])
     
-    # 2. Mostramos el mapa con el punto
-    st.map(pd.DataFrame({'lat': [lat], 'lon': [lon]}), zoom=12)
-    # ----------------------------------------
+    # 2. Creamos la tabla con una columna 'size' (tamaño) para que el punto sea gigante
+    df_mapa = pd.DataFrame({
+        'latitude': [lat],
+        'longitude': [lon],
+        'size': [5000]  # <--- Esto hace que el punto sea GRANDE y visible
+    })
+    
+    # 3. Mostramos el mapa diciéndole que use la columna 'size'
+    st.map(df_mapa, zoom=12, size="size")
 st.header("3. Equipos")
 ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
 dato_panel = df_modulos[df_modulos["Referencia"] == ref_panel].iloc[0]
