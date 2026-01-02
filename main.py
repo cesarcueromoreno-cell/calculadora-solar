@@ -104,7 +104,14 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     pdf.cell(0, 10, f'Cliente: {limpiar(cliente)}', 0, 1)
     pdf.cell(0, 10, f'Ubicacion: {limpiar(ciudad)}', 0, 1)
     pdf.ln(5)
-
+# --- 1. UBICACIÓN Y COORDENADAS (Línea 105 aprox) ---
+    pdf.set_font('Arial', 'B', 12)
+    pdf.cell(0, 10, "1. GEORREFERENCIACION DEL PROYECTO", ln=True)
+    pdf.set_font('Arial', '', 11)
+    pdf.cell(0, 10, f"Ciudad: {limpiar(ciudad)}", ln=True)
+    # Mostramos las coordenadas exactas para la UPME/Operador de Red
+    pdf.cell(0, 10, f"Coordenadas: Latitud {lat}, Longitud {lon}", ln=True)
+    pdf.ln(5)
     # --- 2. CUERPO TÉCNICO Y FINANCIERO ---
     # ... (aquí va el resto de tus pdf.cell y pdf.multi_cell)
 
@@ -117,6 +124,35 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
     if os.path.exists("temp_roi.png"):
         pdf.image("temp_roi.png", x=10, y=40, w=190)
 
+    # --- 5. DIAGRAMA UNIFILAR PRELIMINAR (Línea 127) ---
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 14)
+    pdf.cell(0, 10, "5. DIAGRAMA UNIFILAR PRELIMINAR", ln=True, align='C')
+    pdf.ln(10)
+
+    # Dibujo del Arreglo Fotovoltaico (Paneles)
+    pdf.rect(20, 40, 40, 30) 
+    pdf.line(20, 55, 60, 55)
+    pdf.line(40, 40, 40, 70)
+    pdf.set_font("Arial", 'B', 10)
+    pdf.text(22, 75, "GENERADOR FOTOVOLTAICO")
+
+    # Trayectoria de Corriente Continua (CC)
+    pdf.line(60, 55, 90, 55)
+    pdf.text(65, 53, "Bus CC (Cable Solar)")
+
+    # Dibujo del Inversor
+    pdf.rect(90, 45, 40, 20)
+    pdf.text(100, 57, "INVERSOR")
+
+    # Trayectoria de Corriente Alterna (CA) y Protecciones
+    pdf.line(130, 55, 160, 55)
+    pdf.text(133, 53, "Proteccion CA / DPS")
+
+    # Conexión al Punto de Acople (Tablero Principal)
+    pdf.rect(160, 40, 30, 40)
+    pdf.text(162, 48, "TABLERO P.")
+    pdf.text(162, 55, "AC RED")
     # ESTA DEBE SER LA ÚLTIMA LÍNEA DE LA FUNCIÓN generar_pdf
     return pdf.output(dest='S').encode('latin-1')
 
