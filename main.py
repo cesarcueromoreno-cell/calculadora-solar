@@ -73,7 +73,7 @@ class PDF(FPDF):
         self.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
         self.ln(10)
 # ------------------------------------------
-def generar_pdf(cliente, ciudad, sistema_info, financiero_info):
+def generar_pdf(cliente, ciudad, sistema_info, financiero_info, lat, lon):
     pdf = PDF()
     pdf.add_page()
     
