@@ -133,17 +133,17 @@ st.markdown("---")
 # --- DATOS DEL PROYECTO (Ahora fuera del if para que siempre funcionen) ---
     cliente = st.text_input("Cliente", "Empresa SAS")
 
-    st.header("2. Ubicación")
-    depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
-    ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
-    ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
-    hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
+st.header("2. Ubicación")
+depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
+ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
+ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
+hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
 
-    st.header("3. Equipos")
-    ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
-    dato_panel = df_modulos[df_modulos["Referencia"] == ref_panel].iloc[0]
-    ref_inv = st.selectbox("Inversor", df_inversores["Referencia"])
-    dato_inv = df_inversores[df_inversores["Referencia"] == ref_inv].iloc[0]
+st.header("3. Equipos")
+ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
+dato_panel = df_modulos[df_modulos["Referencia"] == ref_panel].iloc[0]
+ref_inv = st.selectbox("Inversor", df_inversores["Referencia"])
+dato_inv = df_inversores[df_inversores["Referencia"] == ref_inv].iloc[0]
 
 # CÁLCULOS GLOBALES
 generacion_panel = (dato_panel["Potencia"] * hsp * 0.80 * 30) / 1000
