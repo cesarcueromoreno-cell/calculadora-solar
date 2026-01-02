@@ -168,54 +168,61 @@ depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
 ciudades = df_ciudades[df_ciudades["Departamento"] == depto]
 ciudad = st.selectbox("Ciudad", ciudades["Ciudad"])
 hsp = ciudades[ciudades["Ciudad"] == ciudad].iloc[0]["HSP"]
-# --- MAPA SATELITAL REAL (ESTILO GOOGLE EARTH) ---
+# --- MAPA SATELITAL CON ICONO PROFESIONAL ---
 import pydeck as pdk
 
-# 1. Coordenadas Manuales Ajustadas
+# 1. Coordenadas
 if ciudad == "San José del Guaviare":
     lat, lon = 2.5693, -72.6389
 elif ciudad == "Leticia":
     lat, lon = -4.2153, -69.9406
-elif ciudad == "Bogotá":
-    lat, lon = 4.7110, -74.0721
 else:
     lat, lon = 4.5709, -74.2973
 
-# 2. Configuración de Capas
-# Esta capa obliga a mostrar la fotografía satelital real de Google
-capa_satelite_real = pdk.Layer(
+# 2. Configuración del Icono (La "Gota")
+ICON_URL = "https://img.icons8.com/plasticine/100/000000/marker.png"
+
+icon_data = {
+    "url": ICON_URL,
+    "width": 128,
+    "height": 128,
+    "anchorY": 128
+}
+
+df_icon = pd.DataFrame([{
+    "lat": lat,
+    "lon": lon,
+    "icon_data": icon_data
+}])
+
+# 3. Capas
+capa_satelite = pdk.Layer(
     "TileLayer",
-    data=None,
-    get_tile_data="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", # 's' para Satélite Puro
-    opacity=1,
+    get_tile_data="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}",
 )
 
-# Esta capa es tu marcador Azul Cian con borde blanco (Contraste alto)
-capa_marcador = pdk.Layer(
-    'ScatterplotLayer',
-    data=pd.DataFrame({'lat': [lat], 'lon': [lon]}),
-    get_position='[lon, lat]',
-    get_color='[0, 255, 255, 255]', # Azul Cian Intenso
-    get_radius=100, # Tamaño ideal para ver desde el satélite
+capa_icono = pdk.Layer(
+    "IconLayer",
+    df_icon,
+    get_icon="icon_data",
+    get_size=4,
+    size_scale=15,
+    get_position="[lon, lat]",
     pickable=True,
-    stroked=True,
-    filled=True,
-    line_width_min_pixels=2,
-    get_line_color=[255, 255, 255], # Borde Blanco para que resalte
 )
 
-# 3. Renderizado del Mapa
-st.write(f"🛰️ **Vista Satelital del Proyecto: {ciudad}**")
+# 4. Mapa
+st.write(f"🛰️ **Ubicación Técnica: {ciudad}**")
 
 st.pydeck_chart(pdk.Deck(
-    map_style=None, # Desactivamos el mapa base para que no tape el satélite
+    map_style=None,
     initial_view_state=pdk.ViewState(
         latitude=lat,
         longitude=lon,
-        zoom=15, # Nivel de zoom similar a Google Earth
-        pitch=0,
+        zoom=15,
+        pitch=45,
     ),
-    layers=[capa_satelite_real, capa_marcador]
+    layers=[capa_satelite, capa_icono]
 ))
 st.header("3. Equipos")
 ref_panel = st.selectbox("Panel", df_modulos["Referencia"])
