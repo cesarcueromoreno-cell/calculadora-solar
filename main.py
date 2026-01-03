@@ -578,7 +578,7 @@ with tab3:
         "perdidas_temp": 0.05
     }
     #---Este bloque reemplaza el contenido dentro de info_sistema_txt
-        info_sistema_txt = f"""
+    info_sistema_txt = f"""
 1. BALANCE ENERGETICO Y RENDIMIENTO (ESTILO PVSYST)
 ------------------------------------------------------------
 - Performance Ratio (PR) Estimado: {pr_porcentaje:.1f}%
