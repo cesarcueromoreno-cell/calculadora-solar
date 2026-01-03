@@ -566,17 +566,17 @@ with tab3:
     
     # 1. Recuperamos las coordenadas para ponerlas en el reporte
     coords_pdf = coordenadas_ciudades.get(ciudad, coordenadas_ciudades["Colombia"])
-   # --- BIBLIOTECA DE INGENIERÍA Y RENDIMIENTO (ESTILO PVSYST) ---
+        # --- BIBLIOTECA DE INGENIERÍA Y RENDIMIENTO (ESTILO PVSYST) ---
         precios = {
-        "panel": 625000,        
-        "inversor_kw": 880000,  
-        "estructura": 115000,   
-        "mano_obra_w": 780,     
-        "tramite": 1350000,
-        "eficiencia_inv": 0.97, # 97% Eficiencia del Inversor
-        "perdidas_dc": 0.08,    # 8% Pérdidas por cableado y suciedad
-        "perdidas_temp": 0.05   # 5% Pérdidas por temperatura (Típico en Colombia)
-    }
+            "panel": 625000,        
+            "inversor_kw": 880000,  
+            "estructura": 115000,   
+            "mano_obra_w": 780,     
+            "tramite": 1350000,
+            "eficiencia_inv": 0.97, # 97% Eficiencia del Inversor
+            "perdidas_dc": 0.08,    # 8% Pérdidas por cableado y suciedad
+            "perdidas_temp": 0.05   # 5% Pérdidas por temperatura (Típico en Colombia)
+        }
     #---Este bloque reemplaza el contenido dentro de info_sistema_txt
         info_sistema_txt = f"""
 1. BALANCE ENERGETICO Y RENDIMIENTO (ESTILO PVSYST)
