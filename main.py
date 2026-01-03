@@ -41,16 +41,15 @@ if password != "SOLAR2025":
     st.stop() # <--- Esto detiene la app aquí
 # ----------------------------
 
-# --- DICCIONARIO DE COORDENADAS (PARA EL MAPA) ---
-coordenadas_ciudades = {
-    "Bucaramanga": [7.1193, -73.1227],
-    "Bogota": [4.7110, -74.0721],
-    "Medellin": [6.2442, -75.5812],
-    "Cali": [3.4516, -76.5320],
-    "Barranquilla": [10.9685, -74.7813],
-    "San Jose del Guaviare": [2.5729, -72.6378],
-    "Colombia": [4.5709, -74.2973] 
-}
+# --- LÍNEA 44: DICCIONARIO Y ENTRADA DE COORDENADAS ---
+st.sidebar.subheader("📍 Coordenadas Global Solar Atlas")
+ciudad_ref = st.sidebar.selectbox("Seleccione Ciudad Base", list(coordenadas_ciudades.keys()))
+
+# Latitud y longitud dinámicas
+# --- LÍNEA 53 (Dentro de la barra lateral) ---
+st.sidebar.markdown("---")
+lat_atlas = st.sidebar.number_input("Latitud (Global Solar Atlas)", value=2.5729, format="%.4f")
+lon_atlas = st.sidebar.number_input("Longitud (Global Solar Atlas)", value=-72.6378, format="%.4f")
 # --- FUNCIÓN MOTOR DE CÁLCULO (PVSYST LITE) ---
 def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
     # 1. Pérdidas por Temperatura
