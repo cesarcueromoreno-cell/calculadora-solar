@@ -567,19 +567,19 @@ with tab3:
     # 1. Recuperamos las coordenadas para ponerlas en el reporte
     coords_pdf = coordenadas_ciudades.get(ciudad, coordenadas_ciudades["Colombia"])
     # --- BIBLIOTECA DE PRECIOS MERCADO COLOMBIA 2026 ---
-        precios = {
-            "panel": 625000,        # COP por panel de 550W
-            "inversor_kw": 880000,  # COP por kW (On-grid certificado)
-            "estructura": 115000,   # COP por panel (Aluminio)
-            "mano_obra_w": 780,     # COP por Vatio (Incluye firma RETIE)
-            "tramite": 1350000      # Global legalización Operador de Red
-        }
+    precios = {
+        "panel": 625000,        # COP por panel de 550W
+        "inversor_kw": 880000,  # COP por kW (On-grid certificado)
+        "estructura": 115000,   # COP por panel (Aluminio)
+        "mano_obra_w": 780,     # COP por Vatio (Incluye firma RETIE)
+        "tramite": 1350000      # Global legalización Operador de Red
+    }
         
-        # Cálculos de Presupuesto Automático
-        total_materiales = (n_serie * precios["panel"]) + (n_serie * precios["estructura"])
-        total_inversor = (n_serie * 550 / 1000) * precios["inversor_kw"]
-        total_mo = (n_serie * 550) * precios["mano_obra_w"]
-        presupuesto_final = total_materiales + total_inversor + total_mo + precios["tramite"]
+    # Cálculos de Presupuesto Automático
+    total_materiales = (n_serie * precios["panel"]) + (n_serie * precios["estructura"])
+    total_inversor = (n_serie * 550 / 1000) * precios["inversor_kw"]
+    total_mo = (n_serie * 550) * precios["mano_obra_w"]
+    presupuesto_final = total_materiales + total_inversor + total_mo + precios["tramite"]
     # 2. Texto TÉCNICO (Con Ubicación y Datos Reales)
     info_sistema_txt = f"""
 1. UBICACION Y DATOS DEL SITIO
