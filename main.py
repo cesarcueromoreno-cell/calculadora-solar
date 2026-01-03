@@ -606,8 +606,7 @@ with col_centro:
             # 2. Si la NASA responde, usamos ese dato; si no, el 4.5 base
             if dato_nasa:
                 hsp_final = dato_nasa
-          
-           # 4. Preparamos advertencias de seguridad (RETIE)
+          # 4. Preparamos advertencias de seguridad (RETIE)
         advertencias_seguridad = """
 - PELIGRO: Terminales energizadas incluso sin presencia de red.
 - ADVERTENCIA: Sistema con doble fuente de alimentacion.
