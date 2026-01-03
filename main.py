@@ -592,19 +592,23 @@ with tab3:
     Ahorro Mensual Estimado: ${ahorro_mes:,.0f} COP
     Retorno de Inversion (ROI): {retorno:.1f} Años
     """
-
+# --- VALOR INICIAL PARA EVITAR EL ERROR ---
+hsp_atlas = 4.5
    # --- BLOQUE DE DESCARGA FINAL ACTUALIZADO ---
 st.markdown("---")
 col_izq, col_centro, col_der = st.columns([1, 2, 1])
 
 with col_centro:
-   if st.button("📄 Generar Memoria Técnica PDF Oficial", use_container_width=True):
-       # 1. OBTENEMOS EL DATO DEL ATLAS SOLAR (NASA)
-        hsp_atlas = obtener_radiacion_nasa(lat_atlas, lon_atlas)
+  if st.button("📄 Generar Memoria Técnica PDF Oficial", use_container_width=True):
+        # 1. Consultamos la radiación real de la NASA
+        dato_nasa = obtener_radiacion_nasa(lat_atlas, lon_atlas)
         
-        # Seguridad: Si la NASA no responde, usamos 4.5 (promedio regional)
-        if hsp_atlas is None:
-            hsp_atlas = 4.5
+        # 2. Si la NASA responde, usamos ese valor; si no, mantenemos el promedio
+        if dato_nasa:
+            hsp_atlas = dato_nasa
+            
+        # 3. Ejecutamos el motor de cálculo con el dato validado
+        gen_final, ef_final = simulacion_pvsyst(potencia_total, hsp_atlas, 28)
             
         # 2. CALCULAMOS LA GENERACIÓN REAL CON EL DATO VALIDADO
         gen_final, ef_final = simulacion_pvsyst(potencia_total, hsp_atlas, 28)
