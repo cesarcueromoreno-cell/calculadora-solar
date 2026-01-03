@@ -73,7 +73,7 @@ class PDF(FPDF):
         self.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
         self.ln(10)
 # ------------------------------------------
-def generar_pdf(cliente, ciudad, sistema_info, financiero_info, lat, lon):
+def generar_pdf(cliente, ciudad, sistema_info, financiero_info, lat, lon, n_serie):
     pdf = PDF()
     pdf.add_page()
     
@@ -167,25 +167,30 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info, lat, lon):
     pdf.cell(40, 10, "Cantidad", 1, 0, 'C', True)
     pdf.cell(50, 10, "Unidad", 1, 1, 'C', True)
 
-    # Datos Dinámicos de la Tabla
+# --- DATOS CALCULADOS AUTOMÁTICAMENTE ---
     pdf.set_font("Arial", '', 10)
-    pdf.cell(100, 10, "Modulos Fotovoltaicos (Tier 1)", 1, 0)
-    pdf.cell(40, 10, "Segun Diseño", 1, 0, 'C') 
+    
+    # 1. Paneles (Variable directa)
+    pdf.cell(100, 10, "Modulos Fotovoltaicos de Alta Eficiencia", 1, 0)
+    pdf.cell(40, 10, f"{n_serie}", 1, 0, 'C') 
     pdf.cell(50, 10, "Unidades", 1, 1, 'C')
 
-    pdf.cell(100, 10, "Inversor Solar On-Grid (Certificado)", 1, 0)
+    # 2. Estructura (1 unidad de soporte por panel)
+    pdf.cell(100, 10, "Estructura de Soporte (Aluminio Anodizado)", 1, 0)
+    pdf.cell(40, 10, f"{n_serie}", 1, 0, 'C')
+    pdf.cell(50, 10, "Kits", 1, 1, 'C')
+
+    # 3. Cable Solar (Calcula 5 metros por cada panel instalado)
+    pdf.cell(100, 10, "Cable Solar CC 4mm2 (Proteccion UV)", 1, 0)
+    pdf.cell(40, 10, f"{n_serie * 5}", 1, 0, 'C') 
+    pdf.cell(50, 10, "Metros", 1, 1, 'C')
+
+    # 4. Inversor y Protecciones (Se mantienen en 1 unidad global)
+    pdf.cell(100, 10, "Inversor String On-Grid (Certificado)", 1, 0)
     pdf.cell(40, 10, "1", 1, 0, 'C')
     pdf.cell(50, 10, "Unidad", 1, 1, 'C')
 
-    pdf.cell(100, 10, "Estructura de Montaje (Aluminio Anodizado)", 1, 0)
-    pdf.cell(40, 10, "1", 1, 0, 'C')
-    pdf.cell(50, 10, "Sistema", 1, 1, 'C')
-
-    pdf.cell(100, 10, "Cable Solar CC 4mm2 / 6mm2 (Proteccion UV)", 1, 0)
-    pdf.cell(40, 10, "Global", 1, 0, 'C')
-    pdf.cell(50, 10, "Metros", 1, 1, 'C')
-
-    pdf.cell(100, 10, "Kit de Protecciones CC/CA (DPS y Breakers)", 1, 0)
+    pdf.cell(100, 10, "Kit de Protecciones CC/CA (Breakers + DPS)", 1, 0)
     pdf.cell(40, 10, "1", 1, 0, 'C')
     pdf.cell(50, 10, "Kit", 1, 1, 'C')
     return pdf.output(dest='S').encode('latin-1')
