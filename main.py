@@ -577,6 +577,10 @@ with tab3:
         "perdidas_dc": 0.08,
         "perdidas_temp": 0.05
     }
+    # Cálculos de Ingeniería para el Balance Energético
+        eficiencia_global = precios["eficiencia_inv"] * (1 - precios["perdidas_dc"]) * (1 - precios["perdidas_temp"])
+        pr_porcentaje = eficiencia_global * 100
+        gen_total = n_serie * 550 * hsp * 365 * eficiencia_global
     #---Este bloque reemplaza el contenido dentro de info_sistema_txt
     info_sistema_txt = f"""
 1. BALANCE ENERGETICO Y RENDIMIENTO (ESTILO PVSYST)
