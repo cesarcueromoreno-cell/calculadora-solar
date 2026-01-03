@@ -591,7 +591,6 @@ with tab3:
     Costo del Proyecto: ${costo:,.0f} COP
     Ahorro Mensual Estimado: ${ahorro_mes:,.0f} COP
     Retorno de Inversion (ROI): {retorno:.1f} Años
-    """
 # --- VALOR INICIAL PARA EVITAR EL ERROR ---
 hsp_final = 4.5
    # --- BLOQUE DE DESCARGA FINAL ACTUALIZADO ---
