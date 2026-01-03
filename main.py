@@ -606,8 +606,8 @@ with col_centro:
 - El Diagrama Unifilar debe estar visible en el tablero principal.
 """
         # Unimos las advertencias al texto financiero
-        info_final_pdf = info_financiera_txt + advertencias_seguridad
-
+       # --- REEMPLAZA LA LÍNEA 609 POR ESTA ---
+pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, coords_pdf[0], coords_pdf[1], n_serie)
         try:
             # Generamos el PDF usando la variable combinada
             # --- LÍNEA 574 ACTUALIZADA ---
