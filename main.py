@@ -566,36 +566,33 @@ with tab3:
     
     # 1. Recuperamos las coordenadas para ponerlas en el reporte
     coords_pdf = coordenadas_ciudades.get(ciudad, coordenadas_ciudades["Colombia"])
-    # --- BIBLIOTECA DE PRECIOS MERCADO COLOMBIA 2026 ---
-    precios = {
-        "panel": 625000,        # COP por panel de 550W
-        "inversor_kw": 880000,  # COP por kW (On-grid certificado)
-        "estructura": 115000,   # COP por panel (Aluminio)
-        "mano_obra_w": 780,     # COP por Vatio (Incluye firma RETIE)
-        "tramite": 1350000      # Global legalización Operador de Red
+   # --- BIBLIOTECA DE INGENIERÍA Y RENDIMIENTO (ESTILO PVSYST) ---
+   precios = {
+        "panel": 625000,        
+        "inversor_kw": 880000,  
+        "estructura": 115000,   
+        "mano_obra_w": 780,     
+        "tramite": 1350000,
+        "eficiencia_inv": 0.97, # 97% Eficiencia del Inversor
+        "perdidas_dc": 0.08,    # 8% Pérdidas por cableado y suciedad
+        "perdidas_temp": 0.05   # 5% Pérdidas por temperatura (Típico en Colombia)
     }
-        
-    # Cálculos de Presupuesto Automático
-    total_materiales = (n_serie * precios["panel"]) + (n_serie * precios["estructura"])
-    total_inversor = (n_serie * 550 / 1000) * precios["inversor_kw"]
-    total_mo = (n_serie * 550) * precios["mano_obra_w"]
-    presupuesto_final = total_materiales + total_inversor + total_mo + precios["tramite"]
-    # 2. Texto TÉCNICO (Con Ubicación y Datos Reales)
-    info_sistema_txt = f"""
-1. UBICACION Y DATOS DEL SITIO
+    #---Este bloque reemplaza el contenido dentro de info_sistema_txt
+        info_sistema_txt = f"""
+1. BALANCE ENERGETICO Y RENDIMIENTO (ESTILO PVSYST)
 ------------------------------------------------------------
-Ciudad: {ciudad}
-Coordenadas Reales: Lat {lat_atlas}, Lon {lon_atlas}
-Irradiacion (HSP): {hsp:.1f} kWh/m2/dia
+- Performance Ratio (PR) Estimado: {pr_porcentaje:.1f}%
+- Produccion Especifica: {(gen_total / (n_serie * 550 / 1000)):.1f} kWh/kWp/año
+- Factor de Perdidas Globales: {100 - pr_porcentaje:.1f}%
+  (Incluye: Temperatura, Suciedad, Caida de Tension DC/AC)
 
-2. LISTA DE MATERIALES Y COMPONENTES
+2. LISTA DE MATERIALES Y COMPONENTES (MTD)
 ------------------------------------------------------------
-- Paneles Solares ({n_serie} unidades): {n_serie} Unidades de alta eficiencia.
-- Inversor On-Grid (Certificado Anti-Isla): 1 Unidad.
-- Estructura de Soporte Alum. Anodizado: 1 Kit completo.
-- Protecciones DC (Breakers + DPS Solar): 1 Juego de seguridad.
-- Cable Solar Fotovoltaico 10 AWG: 1 Kit de instalacion.
-- Medidor Bidireccional: 1 Unidad (Segun operador).
+- Paneles Solares ({n_serie} unidades): Modulos Monocristalinos Tier 1.
+- Inversor On-Grid (Certificado Anti-Isla): 1 Unidad de alta eficiencia.
+- Estructura de Soporte: Aluminio Anodizado (Resistencia 120km/h).
+- Protecciones DC: Breakers 1000V + DPS Solar (Cumplimiento RETIE).
+- Medidor Bidireccional: 1 Unidad (Homologado Operador de Red).
 """
 # 3. Texto FINANCIERO
 info_financiera_txt = f"""
