@@ -614,7 +614,7 @@ with col_centro:
             "\n- NOTA: La instalacion requiere rotulacion tecnica obligatoria."
             "\n- El Diagrama Unifilar debe estar visible en el tablero principal.\n"
         )
-       info_final_pdf = info_financiera_txt + advertencias_seguridad
+        info_final_pdf = info_financiera_txt + advertencias_seguridad
 
         try:
             # 5. Generamos el PDF con los 8 argumentos exactos
