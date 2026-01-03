@@ -567,7 +567,7 @@ with tab3:
     # 1. Recuperamos las coordenadas para ponerlas en el reporte
     coords_pdf = coordenadas_ciudades.get(ciudad, coordenadas_ciudades["Colombia"])
    # --- BIBLIOTECA DE INGENIERÍA Y RENDIMIENTO (ESTILO PVSYST) ---
-   precios = {
+        precios = {
         "panel": 625000,        
         "inversor_kw": 880000,  
         "estructura": 115000,   
