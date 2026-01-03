@@ -70,22 +70,19 @@ def obtener_radiacion_nasa(lat, lon):
 
 def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
     # 1. Pérdidas por Temperatura
-    # Los paneles pierden eficiencia si hace mucho calor (aprox -0.4% por cada grado arriba de 25°C)
     perdida_temp = 0.004 * (temp_amb_grados - 25)
-    if perdida_temp < 0: perdida_temp = 0 # Si hace frío, ganan un poco o se quedan igual (simplificado)
-    
+    if perdida_temp < 0: perdida_temp = 0
+
     # 2. Pérdidas del Sistema (Cables, suciedad, inversor)
-    # Un estándar de la industria es 14% de pérdidas totales (Performance Ratio base 0.86)
-    perdidas_sistema = 0.14 
-    
+    perdidas_sistema = 0.14
+
     # 3. Eficiencia Total (Performance Ratio - PR)
     eficiencia_global = 1 - (perdidas_sistema + perdida_temp)
-    
-    # --- LÍNEA 84: LLAMADA A LA API ---
-hsp_nasa = obtener_radiacion_nasa(lat_atlas, lon_atlas)
-gen_diaria, ef_global = simulacion_pvsyst(potencia_total, hsp_nasa, 28)
-    
-return generacion_diaria, eficiencia_global
+
+    # 4. Cálculo de Energía: Potencia * Sol * Eficiencia
+    generacion_diaria = potencia_dc_kw * hsp_sitio * eficiencia_global
+
+    return generacion_diaria, eficiencia_global
     
 # --- CLASE PDF (LA RECETA DEL REPORTE) ---
 class PDF(FPDF):
