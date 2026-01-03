@@ -599,18 +599,18 @@ st.markdown("---")
 col_izq, col_centro, col_der = st.columns([1, 2, 1])
 
 with col_centro:
-  if st.button("📄 Generar Memoria Técnica PDF Oficial", use_container_width=True):
-        # 1. Consultamos la radiación real de la NASA
+ # --- BLOQUE FINAL DE GENERACIÓN ---
+    if st.button("📄 Generar Memoria Técnica PDF Oficial", use_container_width=True):
+        # 1. Consultamos la radiación real de la NASA (Global Solar Atlas)
         dato_nasa = obtener_radiacion_nasa(lat_atlas, lon_atlas)
         
-        # 2. Validamos el dato (Si la NASA falla, usamos el 4.5 definido en la línea 596)
-        if dato_nasa:
-            hsp_atlas = dato_nasa
+        # 2. Asignamos valor de seguridad si la conexión falla
+        hsp_final = dato_nasa if dato_nasa else 4.5
             
-        # 3. EJECUTAMOS EL MOTOR DE CÁLCULO (UNA SOLA VEZ)
-        gen_final, ef_final = simulacion_pvsyst(potencia_total, hsp_atlas, 28)
+        # 3. EJECUTAMOS EL MOTOR DE CÁLCULO (SÓLO CUANDO SE PRESIONA EL BOTÓN)
+        gen_final, ef_final = simulacion_pvsyst(potencia_total, hsp_final, 28)
         
-        # 3. TERCERO: Preparamos las advertencias de seguridad (RETIE)
+        # 4. Preparamos advertencias de seguridad (RETIE)
         advertencias_seguridad = """
 - PELIGRO: Terminales energizadas incluso sin presencia de red.
 - ADVERTENCIA: Sistema con doble fuente de alimentacion.
@@ -618,18 +618,18 @@ with col_centro:
 - El Diagrama Unifilar debe estar visible en el tablero principal.
 """
         info_final_pdf = info_financiera_txt + advertencias_seguridad
+
         try:
-            # 4. Generamos el PDF con los 8 argumentos exactos
+            # 5. Generamos el PDF con los 8 argumentos exactos
             pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, lat_atlas, lon_atlas, n_serie, tipo_sistema)
 
             st.download_button(
                 label="📥 DESCARGAR REPORTE TÉCNICO COMPLETO",
                 data=pdf_bytes,
-                file_name=f"Reporte_Solar_{ciudad}_{datetime.now().strftime('%Y%m%d')}.pdf",
-                mime="application/pdf",
-                key="download_pdf_button_final"
+                file_name=f"Reporte_Solar_{cliente}_{datetime.now().strftime('%Y%m%d')}.pdf",
+                mime="application/pdf"
             )
             st.success(f"✅ ¡Reporte para {cliente} generado con éxito!")
 
         except Exception as e:
-            st.error(f"Hubo un error al generar el PDF: {e}")
+            st.error(f"Error técnico al generar el reporte: {e}")
