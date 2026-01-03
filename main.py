@@ -606,15 +606,15 @@ with col_centro:
             # 2. Si la NASA responde, usamos ese dato; si no, el 4.5 base
             if dato_nasa:
                 hsp_final = dato_nasa
-          # 4. Preparamos advertencias de seguridad (RETIE)
-        advertencias_seguridad = """
-- PELIGRO: Terminales energizadas incluso sin presencia de red.
-- ADVERTENCIA: Sistema con doble fuente de alimentacion.
-- NOTA: La instalacion requiere rotulacion tecnica obligatoria.
-- El Diagrama Unifilar debe estar visible en el tablero principal.
-"""
+         # 4. Preparamos advertencias de seguridad (RETIE)
+        advertencias_seguridad = (
+            "\n- PELIGRO: Terminales energizadas incluso sin presencia de red."
+            "\n- ADVERTENCIA: Sistema con doble fuente de alimentacion."
+            "\n- NOTA: La instalacion requiere rotulacion tecnica obligatoria."
+            "\n- El Diagrama Unifilar debe estar visible en el tablero principal.\n"
+        )
         info_final_pdf = info_financiera_txt + advertencias_seguridad
-
+ 
             try:
                 # 5. Generamos el PDF con los 8 argumentos exactos
                 pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, lat_atlas, lon_atlas, n_serie, tipo_sistema)
