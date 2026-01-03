@@ -599,10 +599,14 @@ col_izq, col_centro, col_der = st.columns([1, 2, 1])
 
 with col_centro:
    if st.button("📄 Generar Memoria Técnica PDF Oficial", use_container_width=True):
-        # 1. PRIMERO: Obtenemos la radiación real de la NASA (Global Solar Atlas)
+       # 1. OBTENEMOS EL DATO DEL ATLAS SOLAR (NASA)
         hsp_atlas = obtener_radiacion_nasa(lat_atlas, lon_atlas)
         
-        # 2. SEGUNDO: Calculamos la generación real con ese dato
+        # Seguridad: Si la NASA no responde, usamos 4.5 (promedio regional)
+        if hsp_atlas is None:
+            hsp_atlas = 4.5
+            
+        # 2. CALCULAMOS LA GENERACIÓN REAL CON EL DATO VALIDADO
         gen_final, ef_final = simulacion_pvsyst(potencia_total, hsp_atlas, 28)
         
         # 3. TERCERO: Preparamos las advertencias de seguridad (RETIE)
