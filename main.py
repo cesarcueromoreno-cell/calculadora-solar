@@ -607,9 +607,9 @@ with col_centro:
         # 2. Asignamos valor de seguridad si la conexión falla
         hsp_final = dato_nasa if dato_nasa else 4.5
             
-        # 3. EJECUTAMOS EL MOTOR DE CÁLCULO (SÓLO CUANDO SE PRESIONA EL BOTÓN)
+        # 3. EJECUTAMOS EL MOTOR DE CÁLCULO
         gen_final, ef_final = simulacion_pvsyst(potencia_total, hsp_final, 28)
-        
+
         # 4. Preparamos advertencias de seguridad (RETIE)
         advertencias_seguridad = """
 - PELIGRO: Terminales energizadas incluso sin presencia de red.
