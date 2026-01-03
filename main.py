@@ -603,14 +603,11 @@ with col_centro:
         # 1. Consultamos la radiación real de la NASA
         dato_nasa = obtener_radiacion_nasa(lat_atlas, lon_atlas)
         
-        # 2. Si la NASA responde, usamos ese valor; si no, mantenemos el promedio
+        # 2. Validamos el dato (Si la NASA falla, usamos el 4.5 definido en la línea 596)
         if dato_nasa:
             hsp_atlas = dato_nasa
             
-        # 3. Ejecutamos el motor de cálculo con el dato validado
-        gen_final, ef_final = simulacion_pvsyst(potencia_total, hsp_atlas, 28)
-            
-        # 2. CALCULAMOS LA GENERACIÓN REAL CON EL DATO VALIDADO
+        # 3. EJECUTAMOS EL MOTOR DE CÁLCULO (UNA SOLA VEZ)
         gen_final, ef_final = simulacion_pvsyst(potencia_total, hsp_atlas, 28)
         
         # 3. TERCERO: Preparamos las advertencias de seguridad (RETIE)
