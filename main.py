@@ -602,6 +602,7 @@ with tab3:
 total_materiales = (n_serie * precios["panel"]) + precios["estructura"]
 total_inversor = (n_serie * 550 / 1000) * precios["inversor_kw"]
 total_mo = n_serie * 550 * precios["mano_obra_w"]
+presupuesto_final = total_materiales + total_inversor + total_mo + precios["tramite"]
 # 3. Texto FINANCIERO
 info_financiera_txt = f"""
 3. DESGLOSE DE INVERSION ESTIMADA (MERCADO 2026)
