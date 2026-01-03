@@ -626,7 +626,7 @@ with col_centro:
             st.download_button(
                 label="📥 DESCARGAR REPORTE TÉCNICO COMPLETO",
                 data=pdf_bytes,
-                file_name=f"Reporte_Solar_{cliente}_{datetime.now().strftime('%Y%m%d')}.pdf",
+                file_name=f"Reporte_Solar_{cliente}.pdf",
                 mime="application/pdf"
             )
             st.success(f"✅ ¡Reporte para {cliente} generado con éxito!")
