@@ -568,7 +568,7 @@ with tab3:
     coords_pdf = coordenadas_ciudades.get(ciudad, coordenadas_ciudades["Colombia"])
     
     # 2. Texto TÉCNICO (Con Ubicación y Datos Reales)
-        info_sistema_txt = f"""
+    info_sistema_txt = f"""
 1. UBICACION Y DATOS DEL SITIO
 ------------------------------------------------------------
 Ciudad: {ciudad}
