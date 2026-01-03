@@ -573,7 +573,7 @@ with tab3:
 ------------------------------------------------------------
 Ciudad: {ciudad}
 Coordenadas Reales: Lat {lat_atlas}, Lon {lon_atlas}
-Irradiacion (HSP NASA): {hsp_final:.2f} kWh/m2/dia
+Irradiacion (HSP): {hsp:.1f} kWh/m2/dia
 
 2. LISTA DE MATERIALES Y COMPONENTES
 ------------------------------------------------------------
