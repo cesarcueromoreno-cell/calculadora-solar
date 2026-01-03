@@ -173,20 +173,28 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info, lat, lon, n_seri
     pdf.cell(50, 10, "Unidad", 1, 1, 'C', True)
 
 # --- PÁGINA 4: MATERIALES DINÁMICOS ---
+    pdf.set_font("Arial", 'B', 10)
+    pdf.cell(100, 10, "Descripcion del Componente", 1, 0, 'C', True)
+    pdf.cell(40, 10, "Cantidad", 1, 0, 'C', True)
+    pdf.cell(50, 10, "Unidad", 1, 1, 'C', True)
+
     pdf.set_font("Arial", '', 10)
     if tipo_sistema == "On-Grid (Conectado a Red)":
         comp, cant = "Inversor On-Grid (Certificado Anti-Isla)", "1"
     elif tipo_sistema == "Off-Grid (Autónomo)":
-        comp, cant = "Inversor Cargador + Banco de Baterías", "Sistema"
+        comp, cant = "Inversor Cargador + Banco de Baterias", "Sistema"
     else:
         comp, cant = "Variador de Frecuencia Solar (VFD)", "1"
 
     pdf.cell(100, 10, comp, 1, 0)
     pdf.cell(40, 10, cant, 1, 0, 'C')
     pdf.cell(50, 10, "Unidad", 1, 1, 'C')
+    
+  # --- FINAL DE LA FUNCIÓN generar_pdf ---
     return pdf.output(dest='S').encode('latin-1')
-# --- 4. FUNCIÓN AUXILIAR (Fuera de generar_pdf, sin sangría) ---
-    def limpiar(texto):
+
+# --- 4. FUNCIÓN AUXILIAR (Sin sangría, pegada al borde izquierdo) ---
+def limpiar(texto):
     return str(texto).encode('latin-1', 'replace').decode('latin-1')
     
 # --- BASE DE DATOS AUTOMÁTICA (CAPITALES Y PRINCIPALES DE COLOMBIA) ---
