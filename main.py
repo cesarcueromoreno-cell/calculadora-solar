@@ -610,7 +610,7 @@ with col_centro:
        # --- LÍNEA 608: Unimos las advertencias al texto financiero ---
         info_final_pdf = info_financiera_txt + advertencias_seguridad
 
-       try:
+        try:
             # --- LÍNEA 613-614: ÚNICA LLAMADA CORRECTA CON 7 ARGUMENTOS ---
             pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, coords_pdf[0], coords_pdf[1], n_serie)
             
