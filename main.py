@@ -593,7 +593,7 @@ with tab3:
     Retorno de Inversion (ROI): {retorno:.1f} Años
     """
 # --- VALOR INICIAL PARA EVITAR EL ERROR ---
-hsp_atlas = 4.5
+hsp_final = 4.5
    # --- BLOQUE DE DESCARGA FINAL ACTUALIZADO ---
 st.markdown("---")
 col_izq, col_centro, col_der = st.columns([1, 2, 1])
