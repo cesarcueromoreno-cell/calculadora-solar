@@ -599,9 +599,9 @@ with tab3:
 - Medidor Bidireccional: 1 Unidad (Homologado Operador de Red).
 """
 # --- LÓGICA DE COSTOS Y PRESUPUESTO (MERCADO COLOMBIA 2026) ---
-        total_materiales = (n_serie * precios["panel"]) + precios["estructura"]
-        total_inversor = (n_serie * 550 / 1000) * precios["inversor_kw"]
-        total_mo = n_serie * 550 * precios["mano_obra_w"]
+total_materiales = (n_serie * precios["panel"]) + precios["estructura"]
+total_inversor = (n_serie * 550 / 1000) * precios["inversor_kw"]
+total_mo = n_serie * 550 * precios["mano_obra_w"]
 # 3. Texto FINANCIERO
 info_financiera_txt = f"""
 3. DESGLOSE DE INVERSION ESTIMADA (MERCADO 2026)
