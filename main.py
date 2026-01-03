@@ -614,18 +614,18 @@ with col_centro:
             "\n- NOTA: La instalacion requiere rotulacion tecnica obligatoria."
             "\n- El Diagrama Unifilar debe estar visible en el tablero principal.\n"
         )
-        info_final_pdf = info_financiera_txt + advertencias_seguridad
- 
-            try:
-                # 5. Generamos el PDF con los 8 argumentos exactos
-                pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, lat_atlas, lon_atlas, n_serie, tipo_sistema)
+       info_final_pdf = info_financiera_txt + advertencias_seguridad
 
-                st.download_button(
-                    label="📥 DESCARGAR REPORTE TÉCNICO COMPLETO",
-                    data=pdf_bytes,
-                    file_name=f"Reporte_Solar_{cliente}.pdf",
-                    mime="application/pdf"
-                )
+        try:
+            # 5. Generamos el PDF con los 8 argumentos exactos
+            pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, lat_atlas, lon_atlas, n_serie, tipo_sistema)
+
+            st.download_button(
+                label="📥 DESCARGAR REPORTE TÉCNICO COMPLETO",
+                data=pdf_bytes,
+                file_name=f"Reporte_Solar_{cliente}.pdf",
+                mime="application/pdf"
+            )
                 st.success(f"✅ ¡Reporte para {cliente} generado con éxito!")
 
             except Exception as e:
