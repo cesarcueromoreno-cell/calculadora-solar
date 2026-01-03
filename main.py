@@ -154,6 +154,40 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info, lat, lon):
     pdf.text(162, 48, "TABLERO P.")
     pdf.text(162, 55, "AC RED")
     # ESTA DEBE SER LA ÚLTIMA LÍNEA DE LA FUNCIÓN generar_pdf
+    # --- 6. PÁGINA 4: LISTA DE MATERIALES (Línea 157) ---
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 14)
+    pdf.cell(0, 10, "6. LISTA DE MATERIALES Y COMPONENTES", ln=True, align='C')
+    pdf.ln(10)
+
+    # Encabezado de la Tabla
+    pdf.set_fill_color(200, 220, 255)
+    pdf.set_font("Arial", 'B', 10)
+    pdf.cell(100, 10, "Descripcion del Componente", 1, 0, 'C', True)
+    pdf.cell(40, 10, "Cantidad", 1, 0, 'C', True)
+    pdf.cell(50, 10, "Unidad", 1, 1, 'C', True)
+
+    # Datos Dinámicos de la Tabla
+    pdf.set_font("Arial", '', 10)
+    pdf.cell(100, 10, "Modulos Fotovoltaicos (Tier 1)", 1, 0)
+    pdf.cell(40, 10, "Segun Diseño", 1, 0, 'C') 
+    pdf.cell(50, 10, "Unidades", 1, 1, 'C')
+
+    pdf.cell(100, 10, "Inversor Solar On-Grid (Certificado)", 1, 0)
+    pdf.cell(40, 10, "1", 1, 0, 'C')
+    pdf.cell(50, 10, "Unidad", 1, 1, 'C')
+
+    pdf.cell(100, 10, "Estructura de Montaje (Aluminio Anodizado)", 1, 0)
+    pdf.cell(40, 10, "1", 1, 0, 'C')
+    pdf.cell(50, 10, "Sistema", 1, 1, 'C')
+
+    pdf.cell(100, 10, "Cable Solar CC 4mm2 / 6mm2 (Proteccion UV)", 1, 0)
+    pdf.cell(40, 10, "Global", 1, 0, 'C')
+    pdf.cell(50, 10, "Metros", 1, 1, 'C')
+
+    pdf.cell(100, 10, "Kit de Protecciones CC/CA (DPS y Breakers)", 1, 0)
+    pdf.cell(40, 10, "1", 1, 0, 'C')
+    pdf.cell(50, 10, "Kit", 1, 1, 'C')
     return pdf.output(dest='S').encode('latin-1')
 
 # --- 4. FUNCIÓN AUXILIAR (Fuera de generar_pdf, sin sangría) ---
