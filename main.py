@@ -566,7 +566,20 @@ with tab3:
     
     # 1. Recuperamos las coordenadas para ponerlas en el reporte
     coords_pdf = coordenadas_ciudades.get(ciudad, coordenadas_ciudades["Colombia"])
-    
+    # --- BIBLIOTECA DE PRECIOS MERCADO COLOMBIA 2026 ---
+        precios = {
+            "panel": 625000,        # COP por panel de 550W
+            "inversor_kw": 880000,  # COP por kW (On-grid certificado)
+            "estructura": 115000,   # COP por panel (Aluminio)
+            "mano_obra_w": 780,     # COP por Vatio (Incluye firma RETIE)
+            "tramite": 1350000      # Global legalización Operador de Red
+        }
+        
+        # Cálculos de Presupuesto Automático
+        total_materiales = (n_serie * precios["panel"]) + (n_serie * precios["estructura"])
+        total_inversor = (n_serie * 550 / 1000) * precios["inversor_kw"]
+        total_mo = (n_serie * 550) * precios["mano_obra_w"]
+        presupuesto_final = total_materiales + total_inversor + total_mo + precios["tramite"]
     # 2. Texto TÉCNICO (Con Ubicación y Datos Reales)
     info_sistema_txt = f"""
 1. UBICACION Y DATOS DEL SITIO
@@ -586,11 +599,18 @@ Irradiacion (HSP): {hsp:.1f} kWh/m2/dia
 """
 # 3. Texto FINANCIERO
 info_financiera_txt = f"""
-3. ANALISIS FINANCIERO
+3. DESGLOSE DE INVERSION ESTIMADA (MERCADO 2026)
 ------------------------------------------------------------
-Costo del Proyecto: ${costo:,.0f} COP
+- Suministro de Equipos y Estructura: ${total_materiales + total_inversor:,.0f} COP
+- Mano de Obra e Ingenieria (RETIE): ${total_mo:,.0f} COP
+- Tramites de Conexion y Medidor: ${precios['tramite']:,.0f} COP
+------------------------------------------------------------
+TOTAL PROYECTO (Llave en mano): ${presupuesto_final:,.0f} COP
+
+4. PROYECCION DE RETORNO
+------------------------------------------------------------
 Ahorro Mensual Estimado: ${ahorro_mes:,.0f} COP
-Retorno de Inversion (ROI): {retorno:.1f} Años
+Retorno de Inversion (ROI): {presupuesto_final / (ahorro_mes * 12):.1f} Años
 """
 
 # --- VALOR INICIAL PARA EVITAR EL ERROR ---
