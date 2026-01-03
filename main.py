@@ -184,9 +184,9 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info, lat, lon, n_seri
     pdf.cell(100, 10, comp, 1, 0)
     pdf.cell(40, 10, cant, 1, 0, 'C')
     pdf.cell(50, 10, "Unidad", 1, 1, 'C')
-return pdf.output(dest='S').encode('latin-1')
+    return pdf.output(dest='S').encode('latin-1')
 # --- 4. FUNCIÓN AUXILIAR (Fuera de generar_pdf, sin sangría) ---
-def limpiar(texto):
+    def limpiar(texto):
     return str(texto).encode('latin-1', 'replace').decode('latin-1')
     
 # --- BASE DE DATOS AUTOMÁTICA (CAPITALES Y PRINCIPALES DE COLOMBIA) ---
