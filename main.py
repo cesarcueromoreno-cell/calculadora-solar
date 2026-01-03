@@ -81,7 +81,6 @@ def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
 
     # 4. Cálculo de Energía: Potencia * Sol * Eficiencia
     generacion_diaria = potencia_dc_kw * hsp_sitio * eficiencia_global
-
     return generacion_diaria, eficiencia_global
     
 # --- CLASE PDF (LA RECETA DEL REPORTE) ---
@@ -599,35 +598,33 @@ st.markdown("---")
 col_izq, col_centro, col_der = st.columns([1, 2, 1])
 
 with col_centro:
-    if st.button("📋 Generar Memoria Técnica PDF Oficial", use_container_width=True):
-        # Generamos los bytes del PDF con la función global y los textos dinámicos
-    # --- NUEVO: Agregamos las advertencias legales ---
+    if st.button("📄 Generar Memoria Técnica PDF Oficial", use_container_width=True):
+        # 1. Consultamos la radiación real de la NASA/Atlas antes de generar
+        hsp_atlas = obtener_radiacion_nasa(lat_atlas, lon_atlas)
+        
+        # 2. Actualizamos la simulación con el dato real del sitio
+        gen_final, ef_final = simulacion_pvsyst(potencia_total, hsp_atlas, 28)
+        
+        # 3. Advertencias de seguridad obligatorias
         advertencias_seguridad = """
-4. ADVERTENCIAS DE SEGURIDAD OBLIGATORIAS (RETIE)
--------------------------------------------------
 - PELIGRO: Terminales energizadas incluso sin presencia de red.
 - ADVERTENCIA: Sistema con doble fuente de alimentacion.
 - NOTA: La instalacion requiere rotulacion tecnica obligatoria.
 - El Diagrama Unifilar debe estar visible en el tablero principal.
 """
-        # Unimos las advertencias al texto financiero
-     
-       # --- LÍNEA 608: Unimos las advertencias al texto financiero ---
         info_final_pdf = info_financiera_txt + advertencias_seguridad
 
         try:
-            # --- LÍNEA 613-614: ÚNICA LLAMADA CORRECTA CON 7 ARGUMENTOS ---
-            pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, coords_pdf[0], coords_pdf[1], n_serie)
-            
-            # --- UN SOLO BOTÓN DE DESCARGA ---
+            # 4. Generamos el PDF con los 8 argumentos exactos
+            pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, lat_atlas, lon_atlas, n_serie, tipo_sistema)
+
             st.download_button(
-                label="⬇️ DESCARGAR REPORTE TÉCNICO COMPLETO",
+                label="📥 DESCARGAR REPORTE TÉCNICO COMPLETO",
                 data=pdf_bytes,
                 file_name=f"Reporte_Solar_{ciudad}_{datetime.now().strftime('%Y%m%d')}.pdf",
                 mime="application/pdf",
                 key="download_pdf_button_final"
             )
-            
             st.success(f"✅ ¡Reporte para {cliente} generado con éxito!")
 
         except Exception as e:
