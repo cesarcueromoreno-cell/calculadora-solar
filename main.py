@@ -567,22 +567,23 @@ with tab3:
     # 1. Recuperamos las coordenadas para ponerlas en el reporte
     coords_pdf = coordenadas_ciudades.get(ciudad, coordenadas_ciudades["Colombia"])
     
-    # 2. Texto TÉCNICO (Con Ubicación y Datos)
-    info_sistema_txt = f"""
-    1. UBICACION Y DATOS DEL SITIO
-    --------------------------------------------------
-    Ciudad: {ciudad}
-    Coordenadas: Lat {coords_pdf[0]}, Lon {coords_pdf[1]}
-    Irradiacion (HSP): {hsp:.1f} kWh/m2/dia
-    Temperatura Ambiente: {temp} C
-    
-    2. DETALLES DEL SISTEMA
-    --------------------------------------------------
-    Paneles en Serie: {n_serie} unidades
-    Potencia Total Instalada: {voc_total:.1f} V 
-    Generacion Estimada: {gen_total:.0f} kWh/mes
-    Eficiencia Global (PR): {eficiencia_real*100:.1f}%
-    """
+    # 2. Texto TÉCNICO (Con Ubicación y Datos Reales)
+        info_sistema_txt = f"""
+1. UBICACION Y DATOS DEL SITIO
+------------------------------------------------------------
+Ciudad: {ciudad}
+Coordenadas Reales: Lat {lat_atlas}, Lon {lon_atlas}
+Irradiacion (HSP NASA): {hsp_final:.2f} kWh/m2/dia
+
+2. LISTA DE MATERIALES Y COMPONENTES
+------------------------------------------------------------
+- Paneles Solares ({n_serie} unidades): {n_serie} Unidades de alta eficiencia.
+- Inversor On-Grid (Certificado Anti-Isla): 1 Unidad.
+- Estructura de Soporte Alum. Anodizado: 1 Kit completo.
+- Protecciones DC (Breakers + DPS Solar): 1 Juego de seguridad.
+- Cable Solar Fotovoltaico 10 AWG: 1 Kit de instalacion.
+- Medidor Bidireccional: 1 Unidad (Segun operador).
+"""
 # 3. Texto FINANCIERO
 info_financiera_txt = f"""
 3. ANALISIS FINANCIERO
