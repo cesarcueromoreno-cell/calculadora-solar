@@ -606,21 +606,24 @@ with col_centro:
 - El Diagrama Unifilar debe estar visible en el tablero principal.
 """
         # Unimos las advertencias al texto financiero
-       # --- REEMPLAZA LA LÍNEA 609 POR ESTA ---
-pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, coords_pdf[0], coords_pdf[1], n_serie)
-        try:
-            # Generamos el PDF usando la variable combinada
-            # --- LÍNEA 574 ACTUALIZADA ---
-            pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, coords_pdf[0], coords_pdf[1])
+     
+       # --- LÍNEA 608: Unimos las advertencias al texto financiero ---
+        info_final_pdf = info_financiera_txt + advertencias_seguridad
+
+       try:
+            # --- LÍNEA 613-614: ÚNICA LLAMADA CORRECTA CON 7 ARGUMENTOS ---
+            pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, coords_pdf[0], coords_pdf[1], n_serie)
+            
+            # --- UN SOLO BOTÓN DE DESCARGA ---
             st.download_button(
-                label="⬇️ DESCARGAR REPORTE (CON COORDENADAS)",
+                label="⬇️ DESCARGAR REPORTE TÉCNICO COMPLETO",
                 data=pdf_bytes,
                 file_name=f"Reporte_Solar_{ciudad}_{datetime.now().strftime('%Y%m%d')}.pdf",
                 mime="application/pdf",
-                key="download_pdf_button"
+                key="download_pdf_button_final"
             )
-            st.success(f"✅ ¡Reporte para {cliente} generado con éxito!")
             
+            st.success(f"✅ ¡Reporte para {cliente} generado con éxito!")
+
         except Exception as e:
             st.error(f"Hubo un error al generar el PDF: {e}")
-     
