@@ -85,7 +85,7 @@ def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
 hsp_nasa = obtener_radiacion_nasa(lat_atlas, lon_atlas)
 gen_diaria, ef_global = simulacion_pvsyst(potencia_total, hsp_nasa, 28)
     
-    return generacion_diaria, eficiencia_global
+return generacion_diaria, eficiencia_global
     
 # --- CLASE PDF (LA RECETA DEL REPORTE) ---
 class PDF(FPDF):
