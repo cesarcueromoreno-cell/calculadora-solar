@@ -41,16 +41,33 @@ if password != "SOLAR2025":
     st.stop() # <--- Esto detiene la app aquí
 # ----------------------------
 
-# --- LÍNEA 44: DICCIONARIO Y ENTRADA DE COORDENADAS ---
+# --- 1. PRIMERO DEFINIMOS LOS DATOS (Línea 44) ---
+coordenadas_ciudades = {
+    "Bucaramanga": [7.1193, -73.1227],
+    "Bogota": [4.7110, -74.0721],
+    "Medellin": [6.2442, -75.5812],
+    "Cali": [3.4516, -76.5320],
+    "Barranquilla": [10.9685, -74.7813],
+    "San Jose del Guaviare": [2.5729, -72.6378],
+    "Colombia": [4.5709, -74.2973]
+}
+
+# --- 2. LUEGO CREAMOS LA BARRA LATERAL (Línea 55 aprox) ---
 st.sidebar.subheader("📍 Coordenadas Global Solar Atlas")
 ciudad_ref = st.sidebar.selectbox("Seleccione Ciudad Base", list(coordenadas_ciudades.keys()))
 
-# Latitud y longitud dinámicas
-# --- LÍNEA 53 (Dentro de la barra lateral) ---
-st.sidebar.markdown("---")
-lat_atlas = st.sidebar.number_input("Latitud (Global Solar Atlas)", value=2.5729, format="%.4f")
-lon_atlas = st.sidebar.number_input("Longitud (Global Solar Atlas)", value=-72.6378, format="%.4f")
-# --- FUNCIÓN MOTOR DE CÁLCULO (PVSYST LITE) ---
+lat_atlas = st.sidebar.number_input("Latitud exacta", value=coordenadas_ciudades[ciudad_ref][0], format="%.4f")
+lon_atlas = st.sidebar.number_input("Longitud exacta", value=coordenadas_ciudades[ciudad_ref][1], format="%.4f")
+import requests
+
+def obtener_radiacion_nasa(lat, lon):
+    url = f"https://power.larc.nasa.gov/api/temporal/daily/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&longitude={lon}&latitude={lat}&start=20240101&end=20240101&format=JSON"
+    try:
+        r = requests.get(url, timeout=5)
+        return r.json()['properties']['parameter']['ALLSKY_SFC_SW_DWN']['20240101']
+    except:
+        return 4.5  # Valor de respaldo para Guaviare
+
 def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
     # 1. Pérdidas por Temperatura
     # Los paneles pierden eficiencia si hace mucho calor (aprox -0.4% por cada grado arriba de 25°C)
@@ -64,8 +81,9 @@ def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
     # 3. Eficiencia Total (Performance Ratio - PR)
     eficiencia_global = 1 - (perdidas_sistema + perdida_temp)
     
-    # 4. Cálculo de Energía: Potencia * Sol * Eficiencia
-    generacion_diaria = potencia_dc_kw * hsp_sitio * eficiencia_global
+    # --- LÍNEA 84: LLAMADA A LA API ---
+hsp_nasa = obtener_radiacion_nasa(lat_atlas, lon_atlas)
+gen_diaria, ef_global = simulacion_pvsyst(potencia_total, hsp_nasa, 28)
     
     return generacion_diaria, eficiencia_global
     
