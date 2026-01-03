@@ -607,7 +607,7 @@ with col_centro:
             # 2. Si la NASA responde, usamos ese dato; si no, el 4.5 base
             if dato_nasa:
                 hsp_final = dato_nasa
-         # 4. Preparamos advertencias de seguridad (RETIE)
+        # 4. Preparamos advertencias de seguridad (RETIE)
         advertencias_seguridad = (
             "\n- PELIGRO: Terminales energizadas incluso sin presencia de red."
             "\n- ADVERTENCIA: Sistema con doble fuente de alimentacion."
@@ -626,6 +626,7 @@ with col_centro:
                 file_name=f"Reporte_Solar_{cliente}.pdf",
                 mime="application/pdf"
             )
-                st.success(f"✅ ¡Reporte para {cliente} generado con éxito!")
+            st.success(f"✅ ¡Reporte para {cliente} generado con éxito!")
+            
         except Exception as e:
             st.error(f"Error técnico al generar el reporte: {e}")
