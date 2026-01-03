@@ -583,14 +583,15 @@ with tab3:
     Generacion Estimada: {gen_total:.0f} kWh/mes
     Eficiencia Global (PR): {eficiencia_real*100:.1f}%
     """
+# 3. Texto FINANCIERO
+info_financiera_txt = f"""
+3. ANALISIS FINANCIERO
+------------------------------------------------------------
+Costo del Proyecto: ${costo:,.0f} COP
+Ahorro Mensual Estimado: ${ahorro_mes:,.0f} COP
+Retorno de Inversion (ROI): {retorno:.1f} Años
+"""
 
-    # 3. Texto FINANCIERO
-    info_financiera_txt = f"""
-    3. ANALISIS FINANCIERO
-    --------------------------------------------------
-    Costo del Proyecto: ${costo:,.0f} COP
-    Ahorro Mensual Estimado: ${ahorro_mes:,.0f} COP
-    Retorno de Inversion (ROI): {retorno:.1f} Años
 # --- VALOR INICIAL PARA EVITAR EL ERROR ---
 hsp_final = 4.5
    # --- BLOQUE DE DESCARGA FINAL ACTUALIZADO ---
