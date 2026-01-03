@@ -607,14 +607,14 @@ with col_centro:
             if dato_nasa:
                 hsp_final = dato_nasa
           
-            # 4. Preparamos advertencias de seguridad (RETIE)
-            advertencias_seguridad = """
+           # 4. Preparamos advertencias de seguridad (RETIE)
+        advertencias_seguridad = """
 - PELIGRO: Terminales energizadas incluso sin presencia de red.
 - ADVERTENCIA: Sistema con doble fuente de alimentacion.
 - NOTA: La instalacion requiere rotulacion tecnica obligatoria.
 - El Diagrama Unifilar debe estar visible en el tablero principal.
 """
-            info_final_pdf = info_financiera_txt + advertencias_seguridad
+        info_final_pdf = info_financiera_txt + advertencias_seguridad
 
             try:
                 # 5. Generamos el PDF con los 8 argumentos exactos
