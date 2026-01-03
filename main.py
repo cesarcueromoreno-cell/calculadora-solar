@@ -568,14 +568,14 @@ with tab3:
     coords_pdf = coordenadas_ciudades.get(ciudad, coordenadas_ciudades["Colombia"])
         # --- BIBLIOTECA DE INGENIERÍA Y RENDIMIENTO (ESTILO PVSYST) ---
         precios = {
-            "panel": 625000,        
-            "inversor_kw": 880000,  
-            "estructura": 115000,   
-            "mano_obra_w": 780,     
+            "panel": 625000,
+            "inversor_kw": 880000,
+            "estructura": 115000,
+            "mano_obra_w": 780,
             "tramite": 1350000,
-            "eficiencia_inv": 0.97, # 97% Eficiencia del Inversor
-            "perdidas_dc": 0.08,    # 8% Pérdidas por cableado y suciedad
-            "perdidas_temp": 0.05   # 5% Pérdidas por temperatura (Típico en Colombia)
+            "eficiencia_inv": 0.97,
+            "perdidas_dc": 0.08,
+            "perdidas_temp": 0.05
         }
     #---Este bloque reemplaza el contenido dentro de info_sistema_txt
         info_sistema_txt = f"""
