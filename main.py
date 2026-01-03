@@ -24,7 +24,12 @@ df_modulos, df_inversores, data_paneles, data_inversores = cargar_biblioteca_red
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="CESAR CM Solar Suite", page_icon="☀️", layout="wide")
 
+# --- LÍNEA 27: SELECTOR DE TIPO DE SISTEMA ---
 st.write("⚠️ VERSIÓN NUEVA CARGADA CORRECTAMENTE")
+tipo_sistema = st.sidebar.selectbox(
+    "Tipo de Sistema (Estilo PVSyst)",
+    ["On-Grid (Conectado a Red)", "Off-Grid (Autónomo)", "Bombeo Solar"]
+)
 
 # --- SISTEMA DE SEGURIDAD ---
 # 1. Pedimos la contraseña en la barra lateral
@@ -73,7 +78,7 @@ class PDF(FPDF):
         self.cell(0, 10, 'Reporte de Dimensionamiento Solar', 0, 1, 'C')
         self.ln(10)
 # ------------------------------------------
-def generar_pdf(cliente, ciudad, sistema_info, financiero_info, lat, lon, n_serie):
+def generar_pdf(cliente, ciudad, sistema_info, financiero_info, lat, lon, n_serie, tipo_sistema):
     pdf = PDF()
     pdf.add_page()
     
@@ -167,34 +172,19 @@ def generar_pdf(cliente, ciudad, sistema_info, financiero_info, lat, lon, n_seri
     pdf.cell(40, 10, "Cantidad", 1, 0, 'C', True)
     pdf.cell(50, 10, "Unidad", 1, 1, 'C', True)
 
-# --- DATOS CALCULADOS AUTOMÁTICAMENTE ---
+# --- PÁGINA 4: MATERIALES DINÁMICOS ---
     pdf.set_font("Arial", '', 10)
-    
-    # 1. Paneles (Variable directa)
-    pdf.cell(100, 10, "Modulos Fotovoltaicos de Alta Eficiencia", 1, 0)
-    pdf.cell(40, 10, f"{n_serie}", 1, 0, 'C') 
-    pdf.cell(50, 10, "Unidades", 1, 1, 'C')
+    if tipo_sistema == "On-Grid (Conectado a Red)":
+        comp, cant = "Inversor On-Grid (Certificado Anti-Isla)", "1"
+    elif tipo_sistema == "Off-Grid (Autónomo)":
+        comp, cant = "Inversor Cargador + Banco de Baterías", "Sistema"
+    else:
+        comp, cant = "Variador de Frecuencia Solar (VFD)", "1"
 
-    # 2. Estructura (1 unidad de soporte por panel)
-    pdf.cell(100, 10, "Estructura de Soporte (Aluminio Anodizado)", 1, 0)
-    pdf.cell(40, 10, f"{n_serie}", 1, 0, 'C')
-    pdf.cell(50, 10, "Kits", 1, 1, 'C')
-
-    # 3. Cable Solar (Calcula 5 metros por cada panel instalado)
-    pdf.cell(100, 10, "Cable Solar CC 4mm2 (Proteccion UV)", 1, 0)
-    pdf.cell(40, 10, f"{n_serie * 5}", 1, 0, 'C') 
-    pdf.cell(50, 10, "Metros", 1, 1, 'C')
-
-    # 4. Inversor y Protecciones (Se mantienen en 1 unidad global)
-    pdf.cell(100, 10, "Inversor String On-Grid (Certificado)", 1, 0)
-    pdf.cell(40, 10, "1", 1, 0, 'C')
+    pdf.cell(100, 10, comp, 1, 0)
+    pdf.cell(40, 10, cant, 1, 0, 'C')
     pdf.cell(50, 10, "Unidad", 1, 1, 'C')
-
-    pdf.cell(100, 10, "Kit de Protecciones CC/CA (Breakers + DPS)", 1, 0)
-    pdf.cell(40, 10, "1", 1, 0, 'C')
-    pdf.cell(50, 10, "Kit", 1, 1, 'C')
-    return pdf.output(dest='S').encode('latin-1')
-
+return pdf.output(dest='S').encode('latin-1')
 # --- 4. FUNCIÓN AUXILIAR (Fuera de generar_pdf, sin sangría) ---
 def limpiar(texto):
     return str(texto).encode('latin-1', 'replace').decode('latin-1')
