@@ -599,21 +599,19 @@ col_izq, col_centro, col_der = st.columns([1, 2, 1])
 
 with col_centro:
     if st.button("📄 Generar Memoria Técnica PDF Oficial", use_container_width=True):
-        # 1. Consultamos la radiación real de la NASA/Atlas antes de generar
+        # 1. OBTENEMOS EL DATO DEL ATLAS SOLAR (NASA)
         hsp_atlas = obtener_radiacion_nasa(lat_atlas, lon_atlas)
         
-        # 2. Actualizamos la simulación con el dato real del sitio
+        # 2. CALCULAMOS LA GENERACIÓN REAL CON ESE DATO
         gen_final, ef_final = simulacion_pvsyst(potencia_total, hsp_atlas, 28)
         
-        # 3. Advertencias de seguridad obligatorias
+        # 3. TEXTO DE ADVERTENCIAS REQUERIDO POR RETIE
         advertencias_seguridad = """
 - PELIGRO: Terminales energizadas incluso sin presencia de red.
 - ADVERTENCIA: Sistema con doble fuente de alimentacion.
 - NOTA: La instalacion requiere rotulacion tecnica obligatoria.
-- El Diagrama Unifilar debe estar visible en el tablero principal.
 """
         info_final_pdf = info_financiera_txt + advertencias_seguridad
-
         try:
             # 4. Generamos el PDF con los 8 argumentos exactos
             pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, lat_atlas, lon_atlas, n_serie, tipo_sistema)
