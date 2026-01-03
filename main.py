@@ -572,7 +572,7 @@ with col_centro:
         try:
             # Generamos el PDF usando la variable combinada
             # --- LÍNEA 574 ACTUALIZADA ---
-pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, coords_pdf[0], coords_pdf[1])
+            pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, coords_pdf[0], coords_pdf[1])
             st.download_button(
                 label="⬇️ DESCARGAR REPORTE (CON COORDENADAS)",
                 data=pdf_bytes,
