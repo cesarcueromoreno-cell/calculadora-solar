@@ -673,8 +673,56 @@ with col_centro:
 
                 # 4. INSERTAR GRÁFICA MENSUAL (La que creamos en la línea 636)
                 pdf.image("grafica_solar.png", x=15, w=180)
-                
-                # 5. GENERAR DESCARGA
+                # --- INSERTAR AQUÍ PARA LA PÁGINA 2 ---
+        pdf.add_page()
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 10, '2. GEORREFERENCIACION Y UBICACION', 0, 1, 'L')
+        pdf.set_font('Arial', '', 11)
+        pdf.multi_cell(0, 6, f"""
+        Coordenadas del Proyecto:
+        - Latitud: {lat_atlas}
+        - Longitud: {lon_atlas}
+        - Ciudad: {ciudad}
+        - Radiacion Mensual Promedio (NASA): {hsp_final:.2f} kWh/m2/dia
+        """)
+        # --- ESTO ES EL FINAL DE TU PÁGINA 2 ACTUAL (Línea 687) ---
+        """)
+
+        # >>> PEGA EL SEGUNDO CÓDIGO AQUÍ (Nueva Línea 688) <<<
+        pdf.add_page()
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 10, '3. LISTA DE MATERIALES Y COMPONENTES', 0, 1, 'L')
+        pdf.set_font('Arial', '', 10)
+        
+        # Tabla de Componentes
+        pdf.cell(100, 10, 'Descripcion del Componente', 1)
+        pdf.cell(40, 10, 'Cantidad', 1)
+        pdf.cell(40, 10, 'Unidad', 1, 1)
+        
+        pdf.cell(100, 10, 'Inversor On-Grid (Proteccion Anti-Isla)', 1)
+        pdf.cell(40, 10, '1', 1)
+        pdf.cell(40, 10, 'Unidad', 1, 1)
+        
+        pdf.cell(100, 10, 'Paneles Solares Monocristalinos 550Wp', 1)
+        pdf.cell(40, 10, f'{n_serie}', 1)
+        pdf.cell(40, 10, 'Unidades', 1, 1)
+        
+        pdf.ln(10)
+        pdf.set_font('Arial', 'B', 12)
+        pdf.cell(0, 10, 'ADVERTENCIAS DE SEGURIDAD (RETIE)', 0, 1)
+        pdf.set_font('Arial', '', 9)
+        pdf.multi_cell(0, 5, """
+        - PELIGRO: Terminales energizadas incluso sin presencia de red.
+        - ADVERTENCIA: Sistema con doble fuente de alimentacion.
+        - NOTA: La instalacion requiere rotulacion tecnica obligatoria.
+        - El Diagrama Unifilar debe estar visible en el tablero principal.
+        """)
+        # >>> FIN DEL SEGUNDO CÓDIGO <<<
+
+        # # 5. GENERAR DESCARGA (Esto queda debajo, en la actual línea 688)
+        pdf_bytes = pdf.output(dest='S').encode('latin-1')         
+            
+    # 5. GENERAR DESCARGA
                 pdf_bytes = pdf.output(dest='S').encode('latin-1')
                 st.download_button(
                     label="📥 DESCARGAR REPORTE TÉCNICO COMPLETO",
