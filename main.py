@@ -644,17 +644,35 @@ col_izq, col_centro, col_der = st.columns([1, 2, 1])
 with col_centro:
         # --- BLOQUE FINAL DE GENERACIÓN ---
         if st.button("📄 Generar Memoria Técnica PDF Oficial", use_container_width=True):
-            # 1. Consultamos la radiación real de la NASA (Global Solar Atlas)
-            dato_nasa = obtener_radiacion_nasa(lat_atlas, lon_atlas)
+            # 1. INICIALIZACIÓN DEL PDF (Esto evita el NameError)
+            from fpdf import FPDF
+            pdf = FPDF()
+            pdf.set_auto_page_break(auto=True, margin=15)
+            pdf.add_page()
+            
+            # 2. ENCABEZADO PROFESIONAL
+            pdf.set_font('Arial', 'B', 16)
+            pdf.cell(0, 10, 'REPORTE DE DIMENSIONAMIENTO SOLAR', 0, 1, 'C')
+            pdf.set_font('Arial', 'I', 10)
+            pdf.cell(0, 5, f'Cliente: {cliente} - Ciudad: {ciudad}', 0, 1, 'C')
+            pdf.ln(10)
+
+            # 3. DATOS TÉCNICOS Y CÁLCULOS (Balance Energético)
             pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 10, '2. BALANCE ENERGETICO Y DATOS TECNICOS', 0, 1, 'L')
+            pdf.cell(0, 10, '1. BALANCE ENERGETICO Y DATOS TECNICOS', 0, 1, 'L')
             pdf.set_font('Arial', '', 10)
-            pdf.multi_cell(0, 5, f"""
+            pdf.multi_cell(0, 6, f"""
             - Sistema Fotovoltaico: {n_serie} Paneles Monocristalinos de 550Wp.
             - Potencia Total Instalada: {(n_serie * 550 / 1000):.2f} kWp.
             - Generacion Mensual Estimada: {(gen_total / 12):.2f} kWh/mes.
             - Performance Ratio (PR) del Sistema: {pr_porcentaje:.1f}%.
-            """)            
+            - Inversor Seleccionado: On-Grid con Proteccion Anti-Isla Certificada.
+            """)
+            pdf.ln(5)
+
+            # 4. INSERTAR GRÁFICA DE PRODUCCIÓN (La que creamos en la línea 636)
+            pdf.image("grafica_solar.png", x=15, w=180)
+            pdf.ln(5)
             # 2. Si la NASA responde, usamos ese dato; si no, el 4.5 base
             if dato_nasa:
                 hsp_final = dato_nasa
