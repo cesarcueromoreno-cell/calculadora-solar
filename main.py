@@ -718,8 +718,18 @@ with col_centro:
         - NOTA: La instalacion requiere rotulacion tecnica obligatoria.
         - El Diagrama Unifilar debe estar visible en el tablero principal.
         """)
+# --- LÍNEA 711 (ADVERTENCIAS RETIE) ---
+        pdf.set_font('Arial', 'B', 12)
+        pdf.cell(0, 10, 'ADVERTENCIAS DE SEGURIDAD (RETIE)', 0, 1)
+        pdf.set_font('Arial', '', 9)
+        pdf.multi_cell(0, 5, """
+        - PELIGRO: Terminales energizadas incluso sin presencia de red.
+        - ADVERTENCIA: Sistema con doble fuente de alimentacion.
+        - NOTA: La instalacion requiere rotulacion tecnica obligatoria.
+        - El Diagrama Unifilar debe estar visible en el tablero principal.
+        """) # <--- CIERRE ÚNICO Y LIMPIO
 
-        # 5. GENERAR DESCARGA (Línea 722 - Deja solo este bloque único)
+        # 5. GENERAR DESCARGA (Línea 729 en tu imagen)
         pdf_bytes = pdf.output(dest='S').encode('latin-1')
         st.download_button(
             label="📥 DESCARGAR REPORTE TÉCNICO COMPLETO",
@@ -727,9 +737,7 @@ with col_centro:
             file_name=f"Reporte_Solar_{cliente}.pdf",
             mime="application/pdf"
         )
-        # --- ESTO ES LO ÚNICO QUE DEBE QUEDAR AL FINAL ---
         st.success(f"✅ ¡Reporte para {cliente} listo para descargar!")
 
     except Exception as e:
         st.error(f"Error al generar el PDF: {e}")
-# --- AQUÍ TERMINA TU ARCHIVO ---
