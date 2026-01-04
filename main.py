@@ -621,20 +621,20 @@ Retorno de Inversion (ROI): {presupuesto_final / (ahorro_mes * 12):.1f} Años
 # --- GENERACIÓN DE GRÁFICA MENSUAL ESTILO PVSYST ---
 import matplotlib.pyplot as plt
         
-        meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-        # Simulación de producción mensual basada en clima del Guaviare y gen_total calculado
-        prod_mensual = [gen_total/12 * (1 + (0.15 if m in [0,1,11] else -0.12)) for m in range(12)]
+meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+# Simulación de producción mensual basada en clima del Guaviare y gen_total calculado
+prod_mensual = [gen_total/12 * (1 + (0.15 if m in [0,1,11] else -0.12)) for m in range(12)]
         
-        plt.figure(figsize=(7, 3.5))
-        plt.bar(meses, prod_mensual, color='#2ecc71', edgecolor='#27ae60')
-        plt.title('Generación Mensual Estimada (kWh)', fontsize=10, fontweight='bold')
-        plt.ylabel('Energía (kWh)', fontsize=9)
-        plt.grid(axis='y', linestyle='--', alpha=0.3)
+plt.figure(figsize=(7, 3.5))
+plt.bar(meses, prod_mensual, color='#2ecc71', edgecolor='#27ae60')
+plt.title('Generación Mensual Estimada (kWh)', fontsize=10, fontweight='bold')
+plt.ylabel('Energía (kWh)', fontsize=9)
+plt.grid(axis='y', linestyle='--', alpha=0.3)
         
-        # Guardar la imagen para el reporte PDF
-        plt.tight_layout()
-        plt.savefig("grafica_solar.png", dpi=150)
-        plt.close()
+Guardar la imagen para el reporte PDF
+plt.tight_layout()
+plt.savefig("grafica_solar.png", dpi=150)
+plt.close()
 # --- VALOR INICIAL PARA EVITAR EL ERROR ---
 hsp_final = 4.5
    # --- BLOQUE DE DESCARGA FINAL ACTUALIZADO ---
