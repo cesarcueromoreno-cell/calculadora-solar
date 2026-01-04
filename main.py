@@ -712,34 +712,27 @@ with col_centro:
         pdf.cell(0, 10, 'ADVERTENCIAS DE SEGURIDAD (RETIE)', 0, 1)
         pdf.set_font('Arial', '', 9)
         
-       # --- ESTO ES EL FINAL DE TU PÁGINA 3 (Ajusta la línea 721) ---
         pdf.multi_cell(0, 5, """
         - PELIGRO: Terminales energizadas incluso sin presencia de red.
         - ADVERTENCIA: Sistema con doble fuente de alimentacion.
         - NOTA: La instalacion requiere rotulacion tecnica obligatoria.
         - El Diagrama Unifilar debe estar visible en el tablero principal.
         """)
-        # >>> ASEGÚRATE QUE LAS COMILLAS ARRIBA ESTÉN ASÍ EXACTAMENTE <<<
 
-        # 5. GENERAR DESCARGA (Esto debe ir justo debajo)
+        # --- LÍNEA 720 (CIERRE DE COMILLAS DEL RETIE) ---
+        """)
+
+        # 5. GENERAR DESCARGA (Línea 722 - Deja solo este bloque único)
         pdf_bytes = pdf.output(dest='S').encode('latin-1')
-        # >>> FIN DEL BLOQUE NUEVO <<<
+        st.download_button(
+            label="📥 DESCARGAR REPORTE TÉCNICO COMPLETO",
+            data=pdf_bytes,
+            file_name=f"Reporte_Solar_{cliente}.pdf",
+            mime="application/pdf"
+        )
+        # --- ESTO ES LO ÚNICO QUE DEBE QUEDAR AL FINAL ---
+        st.success(f"✅ ¡Reporte para {cliente} listo para descargar!")
 
-        # Aquí continúa tu código de generación de descarga (Línea 688 original)
-        pdf_bytes = pdf.output(dest='S').encode('latin-1')
-
-        # # 5. GENERAR DESCARGA (Esto queda debajo, en la actual línea 688)
-        pdf_bytes = pdf.output(dest='S').encode('latin-1')         
-            
-    # 5. GENERAR DESCARGA
-                pdf_bytes = pdf.output(dest='S').encode('latin-1')
-                st.download_button(
-                    label="📥 DESCARGAR REPORTE TÉCNICO COMPLETO",
-                    data=pdf_bytes,
-                    file_name=f"Reporte_Solar_{cliente}.pdf",
-                    mime="application/pdf"
-                )
-                st.success(f"✅ ¡Reporte para {cliente} listo para descargar!")
-
-            except Exception as e:
-                st.error(f"Error al generar el PDF: {e}")
+    except Exception as e:
+        st.error(f"Error al generar el PDF: {e}")
+# --- AQUÍ TERMINA TU ARCHIVO ---
