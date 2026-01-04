@@ -718,18 +718,15 @@ with col_centro:
         - NOTA: La instalacion requiere rotulacion tecnica obligatoria.
         - El Diagrama Unifilar debe estar visible en el tablero principal.
         """)
-# --- LÍNEA 711 (ADVERTENCIAS RETIE) ---
-        pdf.set_font('Arial', 'B', 12)
-        pdf.cell(0, 10, 'ADVERTENCIAS DE SEGURIDAD (RETIE)', 0, 1)
-        pdf.set_font('Arial', '', 9)
+# --- ESTE ES EL CIERRE DE TU PÁGINA 3 (Línea 720 aprox) ---
         pdf.multi_cell(0, 5, """
         - PELIGRO: Terminales energizadas incluso sin presencia de red.
         - ADVERTENCIA: Sistema con doble fuente de alimentacion.
         - NOTA: La instalacion requiere rotulacion tecnica obligatoria.
         - El Diagrama Unifilar debe estar visible en el tablero principal.
-        """) # <--- CIERRE ÚNICO Y LIMPIO
+        """) # <--- ASEGÚRATE DE QUE ESTO TENGA EL CIERRE ASÍ
 
-        # 5. GENERAR DESCARGA (Línea 729 en tu imagen)
+        # 5. GENERAR DESCARGA (Línea 722 - Solo un bloque único)
         pdf_bytes = pdf.output(dest='S').encode('latin-1')
         st.download_button(
             label="📥 DESCARGAR REPORTE TÉCNICO COMPLETO",
@@ -740,4 +737,4 @@ with col_centro:
         st.success(f"✅ ¡Reporte para {cliente} listo para descargar!")
 
     except Exception as e:
-        st.error(f"Error al generar el PDF: {e}")
+        st.error(f"Error técnico al generar el PDF: {e}")
