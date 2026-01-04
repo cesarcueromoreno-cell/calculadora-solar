@@ -619,7 +619,7 @@ Ahorro Mensual Estimado: ${ahorro_mes:,.0f} COP
 Retorno de Inversion (ROI): {presupuesto_final / (ahorro_mes * 12):.1f} Años
 """
 # --- GENERACIÓN DE GRÁFICA MENSUAL ESTILO PVSYST ---
-        import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
         
         meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
         # Simulación de producción mensual basada en clima del Guaviare y gen_total calculado
