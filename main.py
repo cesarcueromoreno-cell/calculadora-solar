@@ -667,12 +667,12 @@ with col_centro:
         )
         info_final_pdf = info_financiera_txt + advertencias_seguridad
 # Añadir el texto financiero y técnico al PDF
-            pdf.add_page()
-            pdf.set_font('Arial', 'B', 14)
-            pdf.cell(0, 10, '3. RESUMEN EJECUTIVO Y MATERIALES', 0, 1, 'C')
-            pdf.ln(5)
-            pdf.set_font('Arial', '', 11)
-            pdf.multi_cell(0, 6, info_final_pdf)
+pdf.add_page()
+pdf.set_font('Arial', 'B', 14)
+pdf.cell(0, 10, '3. RESUMEN EJECUTIVO Y MATERIALES', 0, 1, 'C')
+pdf.ln(5)
+pdf.set_font('Arial', '', 11)
+pdf.multi_cell(0, 6, info_final_pdf)
         try:
             # 5. Generamos el PDF con los 8 argumentos exactos
             pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, lat_atlas, lon_atlas, n_serie, tipo_sistema)
