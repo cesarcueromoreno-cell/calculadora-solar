@@ -718,14 +718,6 @@ with col_centro:
         - NOTA: La instalacion requiere rotulacion tecnica obligatoria.
         - El Diagrama Unifilar debe estar visible en el tablero principal.
         """)
-# --- ESTE ES EL CIERRE DE TU PÁGINA 3 (Línea 720 aprox) ---
-        pdf.multi_cell(0, 5, """
-        - PELIGRO: Terminales energizadas incluso sin presencia de red.
-        - ADVERTENCIA: Sistema con doble fuente de alimentacion.
-        - NOTA: La instalacion requiere rotulacion tecnica obligatoria.
-        - El Diagrama Unifilar debe estar visible en el tablero principal.
-        """) # <--- ASEGÚRATE DE QUE ESTO TENGA EL CIERRE ASÍ
-
         # 5. GENERAR DESCARGA (Línea 722 - Solo un bloque único)
         pdf_bytes = pdf.output(dest='S').encode('latin-1')
         st.download_button(
