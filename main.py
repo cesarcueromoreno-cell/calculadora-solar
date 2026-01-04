@@ -685,16 +685,16 @@ with col_centro:
         - Ciudad: {ciudad}
         - Radiacion Mensual Promedio (NASA): {hsp_final:.2f} kWh/m2/dia
         """)
-        # --- ESTO ES EL FINAL DE TU PÁGINA 2 ACTUAL (Línea 687) ---
+       # --- ESTO CIERRA TU PÁGINA 2 ACTUAL (Línea 687) ---
         """)
 
-        # >>> PEGA EL SEGUNDO CÓDIGO AQUÍ (Nueva Línea 688) <<<
+        # >>> PEGA ESTO AQUÍ (Página 3: Materiales y RETIE) <<<
         pdf.add_page()
         pdf.set_font('Arial', 'B', 14)
         pdf.cell(0, 10, '3. LISTA DE MATERIALES Y COMPONENTES', 0, 1, 'L')
         pdf.set_font('Arial', '', 10)
         
-        # Tabla de Componentes
+        # Tabla de Componentes (Formato Estándar)
         pdf.cell(100, 10, 'Descripcion del Componente', 1)
         pdf.cell(40, 10, 'Cantidad', 1)
         pdf.cell(40, 10, 'Unidad', 1, 1)
@@ -711,13 +711,18 @@ with col_centro:
         pdf.set_font('Arial', 'B', 12)
         pdf.cell(0, 10, 'ADVERTENCIAS DE SEGURIDAD (RETIE)', 0, 1)
         pdf.set_font('Arial', '', 9)
+        
+        # OJO: Asegúrate de que las comillas de abajo cierren bien el texto
         pdf.multi_cell(0, 5, """
         - PELIGRO: Terminales energizadas incluso sin presencia de red.
         - ADVERTENCIA: Sistema con doble fuente de alimentacion.
         - NOTA: La instalacion requiere rotulacion tecnica obligatoria.
         - El Diagrama Unifilar debe estar visible en el tablero principal.
         """)
-        # >>> FIN DEL SEGUNDO CÓDIGO <<<
+        # >>> FIN DEL BLOQUE NUEVO <<<
+
+        # Aquí continúa tu código de generación de descarga (Línea 688 original)
+        pdf_bytes = pdf.output(dest='S').encode('latin-1')
 
         # # 5. GENERAR DESCARGA (Esto queda debajo, en la actual línea 688)
         pdf_bytes = pdf.output(dest='S').encode('latin-1')         
