@@ -646,7 +646,15 @@ with col_centro:
         if st.button("📄 Generar Memoria Técnica PDF Oficial", use_container_width=True):
             # 1. Consultamos la radiación real de la NASA (Global Solar Atlas)
             dato_nasa = obtener_radiacion_nasa(lat_atlas, lon_atlas)
-            
+            pdf.set_font('Arial', 'B', 12)
+            pdf.cell(0, 10, '2. BALANCE ENERGETICO Y DATOS TECNICOS', 0, 1, 'L')
+            pdf.set_font('Arial', '', 10)
+            pdf.multi_cell(0, 5, f"""
+            - Sistema Fotovoltaico: {n_serie} Paneles Monocristalinos de 550Wp.
+            - Potencia Total Instalada: {(n_serie * 550 / 1000):.2f} kWp.
+            - Generacion Mensual Estimada: {(gen_total / 12):.2f} kWh/mes.
+            - Performance Ratio (PR) del Sistema: {pr_porcentaje:.1f}%.
+            """)            
             # 2. Si la NASA responde, usamos ese dato; si no, el 4.5 base
             if dato_nasa:
                 hsp_final = dato_nasa
@@ -658,7 +666,13 @@ with col_centro:
             "\n- El Diagrama Unifilar debe estar visible en el tablero principal.\n"
         )
         info_final_pdf = info_financiera_txt + advertencias_seguridad
-
+# Añadir el texto financiero y técnico al PDF
+            pdf.add_page()
+            pdf.set_font('Arial', 'B', 14)
+            pdf.cell(0, 10, '3. RESUMEN EJECUTIVO Y MATERIALES', 0, 1, 'C')
+            pdf.ln(5)
+            pdf.set_font('Arial', '', 11)
+            pdf.multi_cell(0, 6, info_final_pdf)
         try:
             # 5. Generamos el PDF con los 8 argumentos exactos
             pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, lat_atlas, lon_atlas, n_serie, tipo_sistema)
