@@ -712,13 +712,17 @@ with col_centro:
         pdf.cell(0, 10, 'ADVERTENCIAS DE SEGURIDAD (RETIE)', 0, 1)
         pdf.set_font('Arial', '', 9)
         
-        # OJO: Asegúrate de que las comillas de abajo cierren bien el texto
+       # --- ESTO ES EL FINAL DE TU PÁGINA 3 (Ajusta la línea 721) ---
         pdf.multi_cell(0, 5, """
         - PELIGRO: Terminales energizadas incluso sin presencia de red.
         - ADVERTENCIA: Sistema con doble fuente de alimentacion.
         - NOTA: La instalacion requiere rotulacion tecnica obligatoria.
         - El Diagrama Unifilar debe estar visible en el tablero principal.
         """)
+        # >>> ASEGÚRATE QUE LAS COMILLAS ARRIBA ESTÉN ASÍ EXACTAMENTE <<<
+
+        # 5. GENERAR DESCARGA (Esto debe ir justo debajo)
+        pdf_bytes = pdf.output(dest='S').encode('latin-1')
         # >>> FIN DEL BLOQUE NUEVO <<<
 
         # Aquí continúa tu código de generación de descarga (Línea 688 original)
