@@ -676,14 +676,13 @@ pdf.multi_cell(0, 6, info_final_pdf)
 try:
     # 5. Generamos el PDF con los 8 argumentos exactos
     pdf_bytes = generar_pdf(cliente, ciudad, info_sistema_txt, info_final_pdf, lat_atlas, lon_atlas, n_serie, tipo_sistema)
-
-st.download_button(
+    st.download_button(
         label="📥 DESCARGAR REPORTE TÉCNICO COMPLETO",
         data=pdf_bytes,
         file_name=f"Reporte_Solar_{cliente}.pdf",
         mime="application/pdf"
     )
-st.success(f"✅ ¡Reporte para {cliente} generado con éxito!")
+    st.success(f"✅ ¡Reporte para {cliente} generado con éxito!")
             
 except Exception as e:
     st.error(f"Error técnico al generar el reporte: {e}")
