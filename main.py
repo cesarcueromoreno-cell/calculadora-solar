@@ -719,9 +719,6 @@ with col_centro:
         - El Diagrama Unifilar debe estar visible en el tablero principal.
         """)
 
-        # --- LÍNEA 720 (CIERRE DE COMILLAS DEL RETIE) ---
-        """)
-
         # 5. GENERAR DESCARGA (Línea 722 - Deja solo este bloque único)
         pdf_bytes = pdf.output(dest='S').encode('latin-1')
         st.download_button(
