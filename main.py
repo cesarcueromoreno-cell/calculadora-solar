@@ -631,7 +631,7 @@ plt.title('Generación Mensual Estimada (kWh)', fontsize=10, fontweight='bold')
 plt.ylabel('Energía (kWh)', fontsize=9)
 plt.grid(axis='y', linestyle='--', alpha=0.3)
         
-Guardar la imagen para el reporte PDF
+# Guardar la imagen para el reporte PDF
 plt.tight_layout()
 plt.savefig("grafica_solar.png", dpi=150)
 plt.close()
