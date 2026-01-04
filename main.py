@@ -685,5 +685,5 @@ try:
     )
     st.success(f"✅ ¡Reporte para {cliente} generado con éxito!")
             
-        except Exception as e:
-            st.error(f"Error técnico al generar el reporte: {e}")
+    except Exception as e:
+        st.error(f"Error técnico al generar el reporte: {e}")
