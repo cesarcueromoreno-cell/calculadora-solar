@@ -707,8 +707,7 @@ with col_centro:
         pdf.cell(40, 10, f'{n_serie}', 1)
         pdf.cell(40, 10, 'Unidades', 1, 1)
         
-        pdf.ln(10)
-        pdf.set_font('Arial', 'B', 12)
+       pdf.set_font('Arial', 'B', 12)
         pdf.cell(0, 10, 'ADVERTENCIAS DE SEGURIDAD (RETIE)', 0, 1)
         pdf.set_font('Arial', '', 9)
 
@@ -717,7 +716,7 @@ with col_centro:
         - ADVERTENCIA: Sistema con doble fuente de alimentacion.
         - NOTA: La instalacion requiere rotulacion tecnica obligatoria.
         - El Diagrama Unifilar debe estar visible en el tablero principal.
-        """)
+        """) 
 
         # 5. GENERAR DESCARGA
         pdf_bytes = pdf.output(dest='S').encode('latin-1')
