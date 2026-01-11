@@ -355,7 +355,7 @@ with tab3:
             if os.path.exists("temp_roi.png"): 
                 pdf.image("temp_roi.png", x=10, y=120, w=190)
 
-            # --- PÁGINA 3: DIAGRAMA UNIFILAR (CAD - RESTAURADO) ---
+            # --- PÁGINA 3: DIAGRAMA UNIFILAR (CAD - RESTAURADO DETALLADO) ---
             pdf.add_page('L')
             # Marco
             pdf.set_line_width(0.5); pdf.rect(5, 5, 287, 200); pdf.rect(10, 10, 277, 190)
@@ -367,45 +367,93 @@ with tab3:
             pdf.set_xy(80, 177); pdf.set_font('Arial','B',8); pdf.cell(20,5,"UBICACION:"); pdf.set_xy(80,182); pdf.set_font('Arial','',8); pdf.cell(20,5,limpiar(ciudad))
             pdf.set_xy(220, 177); pdf.set_font('Arial','B',8); pdf.cell(20,5,"PLANO:"); pdf.set_xy(220,182); pdf.set_font('Arial','',8); pdf.cell(20,5,"EL-01")
 
-            # DIBUJO DETALLADO (EL QUE TE GUSTÓ)
-            yb = 80; xs = 30
-            # Paneles
-            pdf.set_draw_color(0); pdf.set_line_width(0.3)
+            # DIBUJO DETALLADO TIPO PLANO
+            y_base = 80
+            x_start = 30
+            
+            # 1. ARREGLO FV (Detallado con celdas)
+            pdf.set_draw_color(0, 0, 0)
+            pdf.set_line_width(0.3)
             for i in range(3):
-                pdf.rect(xs+i*15, yb, 12, 20); pdf.line(xs+i*15, yb+6, xs+i*15+12, yb+6); pdf.line(xs+i*15, yb+13, xs+i*15+12, yb+13)
-            pdf.set_font('Arial','B',8); pdf.text(xs, yb-5, "GENERADOR FV")
-            pdf.set_font('Arial','',7); pdf.text(xs, yb-2, f"{st.session_state.n_paneles_real} x {dato_panel['Potencia']}W")
-            # DC
-            pdf.set_draw_color(200,0,0); pdf.line(xs+36, yb+2, 90, yb+2); pdf.text(70, yb+1, "DC+")
-            pdf.set_draw_color(0); pdf.line(xs+36, yb+18, 90, yb+18); pdf.text(70, yb+17, "DC-")
-            pdf.set_draw_color(0,150,0); pdf.line(xs+6, yb+20, xs+6, yb+30); pdf.line(xs+6, yb+30, 250, yb+30); pdf.text(xs+7, yb+28, "T")
-            # Caja
-            pdf.set_draw_color(0); pdf.rect(90, yb-10, 40, 40); pdf.set_font('Arial','B',7); pdf.text(92, yb-7, "TABLERO DC")
-            pdf.rect(95, yb, 8, 4); pdf.rect(95, yb+16, 8, 4); pdf.text(96, yb-1, "Fus")
-            pdf.rect(110, yb+8, 6, 10); pdf.text(111, yb+7, "DPS"); pdf.line(113, yb+18, 113, yb+30)
-            pdf.set_draw_color(200,0,0); pdf.line(130, yb+2, 150, yb+2)
-            pdf.set_draw_color(0); pdf.line(130, yb+18, 150, yb+18)
-            # Inversor
-            pdf.rect(150, yb-5, 30, 30); pdf.set_font('Arial','B',8); pdf.text(152, yb, "INVERSOR"); pdf.set_font('Arial','',6); pdf.text(152, yb+5, f"{dato_inv['Potencia']}W")
-            pdf.set_draw_color(0,150,0); pdf.line(165, yb+25, 165, yb+30)
-            # AC
-            pdf.set_draw_color(0); pdf.line(180, yb+10, 200, yb+10); pdf.line(180, yb+15, 200, yb+15); pdf.text(185, yb+9, "L"); pdf.text(185, yb+14, "N")
-            # Tablero AC
-            pdf.rect(200, yb-5, 30, 30); pdf.set_font('Arial','B',7); pdf.text(202, yb-2, "TABLERO AC")
-            pdf.rect(205, yb+8, 5, 10); pdf.line(205, yb+13, 210, yb+8); pdf.text(205, yb+7, "Brk")
-            pdf.line(230, yb+10, 250, yb+10); pdf.line(230, yb+15, 250, yb+15)
-            # Medidor
-            pdf.rect(250, yb, 20, 20)
+                offset_x = i * 15
+                pdf.rect(x_start + offset_x, y_base, 12, 20)
+                pdf.line(x_start + offset_x, y_base+6, x_start + offset_x + 12, y_base+6)
+                pdf.line(x_start + offset_x, y_base+13, x_start + offset_x + 12, y_base+13)
+            
+            pdf.set_font('Arial', 'B', 8)
+            pdf.text(x_start, y_base - 5, "GENERADOR FV")
+            pdf.set_font('Arial', '', 7)
+            pdf.text(x_start, y_base - 2, f"{st.session_state.n_paneles_real} x {dato_panel['Potencia']}W")
+            
+            # Líneas DC y Tierra
+            pdf.set_draw_color(200, 0, 0) # Rojo
+            pdf.line(x_start + 36, y_base + 2, 90, y_base + 2) 
+            pdf.text(70, y_base + 1, "DC (+)")
+            
+            pdf.set_draw_color(0, 0, 0) # Negro
+            pdf.line(x_start + 36, y_base + 18, 90, y_base + 18)
+            pdf.text(70, y_base + 17, "DC (-)")
+            
+            pdf.set_draw_color(0, 150, 0) # Verde
+            pdf.line(x_start + 6, y_base + 20, x_start + 6, y_base + 30)
+            pdf.line(x_start + 6, y_base + 30, 250, y_base + 30) # Bus Tierra
+            pdf.text(x_start + 7, y_base + 28, "T")
+
+            # 2. CAJA DC (Detallada)
+            pdf.set_draw_color(0, 0, 0)
+            pdf.rect(90, y_base - 10, 40, 40)
+            pdf.set_font('Arial', 'B', 7)
+            pdf.text(92, y_base - 7, "TABLERO DC")
+            # Fusibles
+            pdf.rect(95, y_base, 8, 4); pdf.line(95, y_base+2, 103, y_base+2)
+            pdf.rect(95, y_base+16, 8, 4); pdf.line(95, y_base+18, 103, y_base+18)
+            pdf.text(96, y_base-1, "Fus 15A")
+            # DPS
+            pdf.rect(110, y_base+8, 6, 10)
+            pdf.text(111, y_base+7, "DPS")
+            pdf.line(113, y_base+18, 113, y_base+30)
+            # Salida
+            pdf.line(130, y_base+2, 150, y_base+2)
+            pdf.line(130, y_base+18, 150, y_base+18)
+
+            # 3. INVERSOR
+            pdf.rect(150, y_base - 5, 30, 30)
+            pdf.set_font('Arial', 'B', 8); pdf.text(152, y_base, "INVERSOR")
+            pdf.set_font('Arial', '', 6); pdf.text(152, y_base+5, f"{dato_inv['Potencia']}W")
+            pdf.set_draw_color(0, 150, 0); pdf.line(165, y_base+25, 165, y_base+30)
+            # Salida AC
+            pdf.set_draw_color(0, 0, 0)
+            pdf.line(180, y_base+10, 200, y_base+10)
+            pdf.line(180, y_base+15, 200, y_base+15)
+            pdf.text(185, y_base+9, "L"); pdf.text(185, y_base+14, "N")
+
+            # 4. TABLERO AC
+            pdf.rect(200, y_base - 5, 30, 30)
+            pdf.set_font('Arial', 'B', 7); pdf.text(202, y_base-2, "TABLERO AC")
+            pdf.rect(205, y_base+8, 5, 10); pdf.line(205, y_base+13, 210, y_base+8) # Breaker
+            pdf.text(205, y_base+7, "Brk")
+            pdf.line(230, y_base+10, 250, y_base+10)
+            pdf.line(230, y_base+15, 250, y_base+15)
+
+            # 5. MEDIDOR
+            pdf.rect(250, y_base, 20, 20)
             try:
                 if hasattr(pdf, 'ellipse'): pdf.ellipse(254, yb+5, 12, 12)
                 else: pdf.circle(260, yb+11, 6)
             except: 
                 pdf.set_font('Arial','B',14); pdf.text(257, yb+15, "(M)")
-            pdf.set_font('Arial', 'B', 10); pdf.text(256, yb+12, "kWh")
-            # Red
-            pdf.line(270, yb+10, 280, yb+10); pdf.line(270, yb+15, 280, yb+15); pdf.text(275, yb+8, "RED")
-            # Tierra Gen
-            pdf.set_draw_color(0,150,0); pdf.line(30, yb+30, 270, yb+30); dibujar_tierra(pdf, 150, yb+30); pdf.set_font('Arial','B',6); pdf.text(152, yb+34, "SPT")
+            pdf.set_font('Arial', 'B', 10); pdf.text(256, y_base+12, "kWh")
+            
+            # RED
+            pdf.line(270, y_base+10, 280, y_base+10)
+            pdf.line(270, y_base+15, 280, y_base+15)
+            pdf.text(275, y_base+8, "RED")
+            
+            # Tierra General
+            pdf.set_draw_color(0, 150, 0)
+            pdf.line(30, y_base+30, 270, y_base+30)
+            dibujar_tierra(pdf, 150, y_base+30)
+            pdf.set_font('Arial', 'B', 6); pdf.text(152, y_base+34, "SPT")
 
             # --- PÁGINA 4: BOM ---
             pdf.add_page('P')
