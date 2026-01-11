@@ -43,6 +43,7 @@ def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
     return generacion_diaria, eficiencia_global
 
 def dibujar_tierra(pdf, x, y):
+    # Dibuja el símbolo de tierra eléctrica
     pdf.line(x, y, x, y+2) 
     pdf.line(x-2, y+2, x+2, y+2) 
     pdf.line(x-1.2, y+2.8, x+1.2, y+2.8) 
@@ -152,8 +153,6 @@ with st.expander("☀️ Análisis de Trayectoria Solar e Irradiancia (Detallado
         ax_sun.set_xlabel("Azimut")
         ax_sun.set_ylabel("Elevación")
         ax_sun.grid(True, linestyle='--')
-        fig_sun.savefig("temp_sunpath.png", bbox_inches='tight')
-        plt.close(fig_sun)
         st.pyplot(fig_sun)
 
     with col_sol2:
@@ -165,8 +164,6 @@ with st.expander("☀️ Análisis de Trayectoria Solar e Irradiancia (Detallado
         ax_irr.fill_between(horas, irradiancia, color='#f1c40f', alpha=0.2)
         ax_irr.set_title("Curva de Generación Diaria")
         ax_irr.grid(True, alpha=0.3)
-        fig_irr.savefig("temp_curve.png", bbox_inches='tight')
-        plt.close(fig_irr)
         st.pyplot(fig_irr)
 
 st.header("⚙️ 2. Selección de Equipos")
@@ -289,7 +286,7 @@ with tab3:
             rects1 = ax_bar.bar(x - width/2, consumo_mensual, width, label='Consumo Red', color='#FF4B4B')
             rects2 = ax_bar.bar(x + width/2, gen_solar, width, label='Generación Solar', color='#00CC96')
             ax_bar.set_ylabel('Energía (kWh)')
-            ax_bar.set_title('Balance Energético Mensual: Generación vs Consumo')
+            ax_bar.set_title('Balance Energético Mensual')
             ax_bar.set_xticks(x)
             ax_bar.set_xticklabels(meses_nombres)
             ax_bar.legend()
@@ -439,17 +436,22 @@ with tab3:
             pdf.line(230, y_base+10, 250, y_base+10)
             pdf.line(230, y_base+15, 250, y_base+15)
 
-            # 5. MEDIDOR (CON CORRECCIÓN DE ERROR)
+            # 5. MEDIDOR (CON CORRECCIÓN DEFINITIVA DE ERROR)
             pdf.rect(250, y_base, 20, 20)
             try:
-                if hasattr(pdf, 'ellipse'): pdf.ellipse(254, y_base+5, 12, 12)
-                elif hasattr(pdf, 'circle'): pdf.circle(260, y_base+11, 6)
+                # Intenta dibujar el círculo del medidor
+                if hasattr(pdf, 'ellipse'): 
+                    pdf.ellipse(254, y_base+5, 12, 12)
+                elif hasattr(pdf, 'circle'): 
+                    pdf.circle(260, y_base+11, 6)
                 else: 
+                    # Si la librería no tiene función de círculo, dibuja una "M"
                     pdf.set_font('Arial', 'B', 14)
                     pdf.text(257, y_base+15, "(M)")
             except: 
-                # Fallback seguro si todo falla
-                pdf.set_font('Arial', 'B', 12); pdf.text(257, y_base+15, "M")
+                # Si algo falla, texto simple de respaldo
+                pdf.set_font('Arial', 'B', 12)
+                pdf.text(257, y_base+15, "M")
             
             pdf.set_font('Arial', 'B', 10); pdf.text(256, y_base+12, "kWh")
             
