@@ -148,13 +148,11 @@ with st.expander("☀️ Análisis de Trayectoria Solar e Irradiancia (Detallado
         ax_sun.plot(azimuth, elevation_summer, color='orange', label='Verano')
         ax_sun.plot(azimuth, elevation_winter, color='blue', label='Invierno')
         ax_sun.fill_between(azimuth, 0, 15, color='gray', alpha=0.3, label='Sombras')
-        ax_sun.set_title(f"Trayectoria Solar aprox.")
-        ax_sun.set_xlabel("Azimut (°)")
-        ax_sun.set_ylabel("Elevación (°)")
+        ax_sun.set_title("Trayectoria Solar")
+        ax_sun.set_xlabel("Azimut")
+        ax_sun.set_ylabel("Elevación")
         ax_sun.grid(True, linestyle='--')
-        ax_sun.legend(fontsize='small')
         st.pyplot(fig_sun)
-        # Se guarda dentro del botón para evitar problemas de refresco, pero definimos aquí para vista previa
 
     with col_sol2:
         st.subheader("Curva de Potencia Diaria")
@@ -163,10 +161,7 @@ with st.expander("☀️ Análisis de Trayectoria Solar e Irradiancia (Detallado
         fig_irr, ax_irr = plt.subplots(figsize=(5, 3))
         ax_irr.plot(horas, irradiancia, color='#f1c40f', linewidth=2)
         ax_irr.fill_between(horas, irradiancia, color='#f1c40f', alpha=0.2)
-        ax_irr.set_title("Curva de Generación Diaria (W/m²)")
-        ax_irr.set_xlabel("Hora")
-        ax_irr.set_ylabel("W/m²")
-        ax_irr.set_ylim(0, 1100)
+        ax_irr.set_title("Curva de Generación Diaria")
         ax_irr.grid(True, alpha=0.3)
         st.pyplot(fig_irr)
 
@@ -360,7 +355,7 @@ with tab3:
             if os.path.exists("temp_roi.png"): 
                 pdf.image("temp_roi.png", x=10, y=120, w=190)
 
-            # --- PÁGINA 3: DIAGRAMA UNIFILAR (CAD - DETALLADO) ---
+            # --- PÁGINA 3: DIAGRAMA UNIFILAR (CAD - RESTAURADO) ---
             pdf.add_page('L')
             # Marco
             pdf.set_line_width(0.5); pdf.rect(5, 5, 287, 200); pdf.rect(10, 10, 277, 190)
@@ -372,51 +367,45 @@ with tab3:
             pdf.set_xy(80, 177); pdf.set_font('Arial','B',8); pdf.cell(20,5,"UBICACION:"); pdf.set_xy(80,182); pdf.set_font('Arial','',8); pdf.cell(20,5,limpiar(ciudad))
             pdf.set_xy(220, 177); pdf.set_font('Arial','B',8); pdf.cell(20,5,"PLANO:"); pdf.set_xy(220,182); pdf.set_font('Arial','',8); pdf.cell(20,5,"EL-01")
 
-            # DIBUJO
+            # DIBUJO DETALLADO (EL QUE TE GUSTÓ)
             yb = 80; xs = 30
             # Paneles
             pdf.set_draw_color(0); pdf.set_line_width(0.3)
             for i in range(3):
                 pdf.rect(xs+i*15, yb, 12, 20); pdf.line(xs+i*15, yb+6, xs+i*15+12, yb+6); pdf.line(xs+i*15, yb+13, xs+i*15+12, yb+13)
-            pdf.text(xs, yb-5, "GENERADOR FV")
+            pdf.set_font('Arial','B',8); pdf.text(xs, yb-5, "GENERADOR FV")
+            pdf.set_font('Arial','',7); pdf.text(xs, yb-2, f"{st.session_state.n_paneles_real} x {dato_panel['Potencia']}W")
             # DC
             pdf.set_draw_color(200,0,0); pdf.line(xs+36, yb+2, 90, yb+2); pdf.text(70, yb+1, "DC+")
             pdf.set_draw_color(0); pdf.line(xs+36, yb+18, 90, yb+18); pdf.text(70, yb+17, "DC-")
             pdf.set_draw_color(0,150,0); pdf.line(xs+6, yb+20, xs+6, yb+30); pdf.line(xs+6, yb+30, 250, yb+30); pdf.text(xs+7, yb+28, "T")
             # Caja
-            pdf.set_draw_color(0); pdf.rect(90, yb-10, 40, 40); pdf.text(92, yb-7, "TABLERO DC")
+            pdf.set_draw_color(0); pdf.rect(90, yb-10, 40, 40); pdf.set_font('Arial','B',7); pdf.text(92, yb-7, "TABLERO DC")
             pdf.rect(95, yb, 8, 4); pdf.rect(95, yb+16, 8, 4); pdf.text(96, yb-1, "Fus")
             pdf.rect(110, yb+8, 6, 10); pdf.text(111, yb+7, "DPS"); pdf.line(113, yb+18, 113, yb+30)
             pdf.set_draw_color(200,0,0); pdf.line(130, yb+2, 150, yb+2)
             pdf.set_draw_color(0); pdf.line(130, yb+18, 150, yb+18)
             # Inversor
-            pdf.rect(150, yb-5, 30, 30); pdf.text(152, yb, "INVERSOR"); pdf.text(152, yb+5, f"{dato_inv['Potencia']}W")
+            pdf.rect(150, yb-5, 30, 30); pdf.set_font('Arial','B',8); pdf.text(152, yb, "INVERSOR"); pdf.set_font('Arial','',6); pdf.text(152, yb+5, f"{dato_inv['Potencia']}W")
             pdf.set_draw_color(0,150,0); pdf.line(165, yb+25, 165, yb+30)
             # AC
-            pdf.set_draw_color(0); pdf.line(180, yb+10, 200, yb+10); pdf.line(180, yb+15, 200, yb+15)
+            pdf.set_draw_color(0); pdf.line(180, yb+10, 200, yb+10); pdf.line(180, yb+15, 200, yb+15); pdf.text(185, yb+9, "L"); pdf.text(185, yb+14, "N")
             # Tablero AC
-            pdf.rect(200, yb-5, 30, 30); pdf.text(202, yb-2, "TABLERO AC")
+            pdf.rect(200, yb-5, 30, 30); pdf.set_font('Arial','B',7); pdf.text(202, yb-2, "TABLERO AC")
             pdf.rect(205, yb+8, 5, 10); pdf.line(205, yb+13, 210, yb+8); pdf.text(205, yb+7, "Brk")
             pdf.line(230, yb+10, 250, yb+10); pdf.line(230, yb+15, 250, yb+15)
             # Medidor
             pdf.rect(250, yb, 20, 20)
-            
-            # --- CORRECCIÓN DE CÍRCULO DEL MEDIDOR (TRY/EXCEPT) ---
             try:
                 if hasattr(pdf, 'ellipse'): pdf.ellipse(254, yb+5, 12, 12)
-                elif hasattr(pdf, 'circle'): pdf.circle(260, yb+11, 6)
-                else: 
-                    pdf.set_font('Arial', 'B', 14)
-                    pdf.text(257, yb+15, "(M)")
-            except: pass
-            
-            pdf.set_font('Arial', 'B', 10)
-            pdf.text(256, yb+12, "kWh")
-            
+                else: pdf.circle(260, yb+11, 6)
+            except: 
+                pdf.set_font('Arial','B',14); pdf.text(257, yb+15, "(M)")
+            pdf.set_font('Arial', 'B', 10); pdf.text(256, yb+12, "kWh")
             # Red
             pdf.line(270, yb+10, 280, yb+10); pdf.line(270, yb+15, 280, yb+15); pdf.text(275, yb+8, "RED")
             # Tierra Gen
-            pdf.set_draw_color(0,150,0); pdf.line(30, yb+30, 270, yb+30); dibujar_tierra(pdf, 150, yb+30); pdf.text(152, yb+34, "SPT")
+            pdf.set_draw_color(0,150,0); pdf.line(30, yb+30, 270, yb+30); dibujar_tierra(pdf, 150, yb+30); pdf.set_font('Arial','B',6); pdf.text(152, yb+34, "SPT")
 
             # --- PÁGINA 4: BOM ---
             pdf.add_page('P')
