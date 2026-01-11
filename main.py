@@ -152,7 +152,9 @@ with st.expander("☀️ Análisis de Trayectoria Solar e Irradiancia (Detallado
         ax_sun.set_xlabel("Azimut")
         ax_sun.set_ylabel("Elevación")
         ax_sun.grid(True, linestyle='--')
+        fig_sun.savefig("temp_sunpath.png", bbox_inches='tight')
         st.pyplot(fig_sun)
+        plt.close(fig_sun)
 
     with col_sol2:
         st.subheader("Curva de Potencia Diaria")
@@ -163,7 +165,9 @@ with st.expander("☀️ Análisis de Trayectoria Solar e Irradiancia (Detallado
         ax_irr.fill_between(horas, irradiancia, color='#f1c40f', alpha=0.2)
         ax_irr.set_title("Curva de Generación Diaria")
         ax_irr.grid(True, alpha=0.3)
+        fig_irr.savefig("temp_curve.png", bbox_inches='tight')
         st.pyplot(fig_irr)
+        plt.close(fig_irr)
 
 st.header("⚙️ 2. Selección de Equipos")
 ce1, ce2 = st.columns(2)
@@ -249,33 +253,7 @@ with tab3:
         try:
             # 1. GENERAR IMÁGENES TEMPORALES (TODAS)
             
-            # A. Trayectoria Solar
-            fig_sun, ax_sun = plt.subplots(figsize=(5, 3))
-            azimuth = np.linspace(-90, 90, 100)
-            elevation_winter = 45 * np.cos(np.radians(azimuth)) 
-            elevation_summer = 70 * np.cos(np.radians(azimuth)) 
-            ax_sun.plot(azimuth, elevation_summer, color='orange', label='Verano')
-            ax_sun.plot(azimuth, elevation_winter, color='blue', label='Invierno')
-            ax_sun.fill_between(azimuth, 0, 15, color='gray', alpha=0.3, label='Sombras')
-            ax_sun.set_title("Trayectoria Solar")
-            ax_sun.set_xlabel("Azimut")
-            ax_sun.set_ylabel("Elevación")
-            ax_sun.grid(True, linestyle='--')
-            fig_sun.savefig("temp_sunpath.png", bbox_inches='tight')
-            plt.close(fig_sun)
-
-            # B. Curva Diaria
-            horas = np.arange(6, 19)
-            irradiancia = np.sin(np.pi * (horas - 6) / 12) * 1000 
-            fig_irr, ax_irr = plt.subplots(figsize=(5, 3))
-            ax_irr.plot(horas, irradiancia, color='#f1c40f', linewidth=2)
-            ax_irr.fill_between(horas, irradiancia, color='#f1c40f', alpha=0.2)
-            ax_irr.set_title("Curva de Generación Diaria")
-            ax_irr.grid(True, alpha=0.3)
-            fig_irr.savefig("temp_curve.png", bbox_inches='tight')
-            plt.close(fig_irr)
-
-            # C. Gráfica de Barras Mensuales (Solar vs Red)
+            # C. Gráfica de Barras Mensuales (Solar vs Red) - LA QUE FALTABA
             meses_nombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
             consumo_mensual = [consumo] * 12
             gen_solar = [st.session_state.gen_total_mensual] * 12
@@ -336,7 +314,7 @@ with tab3:
                 pdf.line(10, pdf.get_y(), 200, pdf.get_y())
             
             pdf.ln(5)
-            # Imágenes Solares
+            # Imágenes Solares (Si existen las temporales)
             pdf.set_font('Arial', 'B', 12); pdf.cell(0, 10, "ANALISIS DE RECURSO SOLAR", 0, 1)
             y_i = pdf.get_y()
             if os.path.exists("temp_sunpath.png"): pdf.image("temp_sunpath.png", x=10, y=y_i, w=90)
@@ -347,7 +325,7 @@ with tab3:
             pdf.set_font('Arial', 'B', 14)
             pdf.cell(0, 10, 'ANALISIS DE GENERACION Y RETORNO', 0, 1)
             
-            # 1. Gráfica Barras
+            # 1. Gráfica Barras (NUEVA INCLUSIÓN)
             if os.path.exists("temp_bars.png"): 
                 pdf.image("temp_bars.png", x=10, y=30, w=190)
             
@@ -435,20 +413,20 @@ with tab3:
             pdf.line(230, y_base+10, 250, y_base+10)
             pdf.line(230, y_base+15, 250, y_base+15)
 
-            # 5. MEDIDOR (CON CORRECCIÓN DEFINITIVA DE ERROR)
+            # 5. MEDIDOR (CON CORRECCIÓN DE ERROR)
             pdf.rect(250, y_base, 20, 20)
             try:
-                # Intenta dibujar el círculo del medidor
+                # Intenta dibujar el círculo del medidor de forma segura
                 if hasattr(pdf, 'ellipse'): 
                     pdf.ellipse(254, y_base+5, 12, 12)
                 elif hasattr(pdf, 'circle'): 
                     pdf.circle(260, y_base+11, 6)
                 else: 
-                    # Si la librería no tiene función de círculo, dibuja una "M"
+                    # Si no hay función de círculo, usa texto
                     pdf.set_font('Arial', 'B', 14)
                     pdf.text(257, y_base+15, "(M)")
             except: 
-                # Si algo falla, texto simple de respaldo
+                # Fallback absoluto
                 pdf.set_font('Arial', 'B', 12)
                 pdf.text(257, y_base+15, "M")
             
