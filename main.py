@@ -18,7 +18,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Estilos CSS para simular software profesional (Tipo PVsyst)
+# Estilos CSS para simular software profesional
 st.markdown("""
     <style>
     .main {background-color: #f4f6f8;}
@@ -29,10 +29,6 @@ st.markdown("""
     }
     [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, [data-testid="stSidebar"] span {
         color: #ecf0f1 !important;
-    }
-    [data-testid="stSidebar"] label {
-        color: #bdc3c7 !important;
-        font-weight: bold;
     }
     /* Títulos principales */
     h1, h2, h3 {
@@ -167,39 +163,30 @@ fecha_proy = st.sidebar.date_input("Fecha", datetime.now())
 # --- PANEL PRINCIPAL ---
 st.title("SIMU ING - Entorno de Simulación")
 
-# Mapa Satelital (CORREGIDO PARA USAR IMÁGENES PÚBLICAS)
-# Usamos un proveedor de teselas (tiles) que no requiere API Key privada para asegurar visualización
-layer_satelite = pdk.Layer(
-    "TileLayer",
-    data=None,
-    get_tile_data="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    opacity=1
-)
-
-view_state = pdk.ViewState(
-    latitude=info_ciudad['lat'],
-    longitude=info_ciudad['lon'],
-    zoom=16,
-    pitch=45, # Inclinación para efecto 3D
-    bearing=0
-)
-
-st.pydeck_chart(pdk.Deck(
-    map_style=None, # Desactivamos el estilo base de Mapbox para usar el nuestro
-    initial_view_state=view_state,
+# MAPA 3D SATELITAL (CORREGIDO PARA VISUALIZACIÓN)
+# Usamos un estilo "Satellite" directo de PyDeck que no falla
+deck_map = pdk.Deck(
+    map_style='mapbox://styles/mapbox/satellite-v9', # Estilo satelital limpio
+    initial_view_state=pdk.ViewState(
+        latitude=info_ciudad['lat'],
+        longitude=info_ciudad['lon'],
+        zoom=17, # Zoom más cercano para ver detalles
+        pitch=45, # Inclinación 3D
+        bearing=0
+    ),
     layers=[
-        layer_satelite, # Capa satelital pública
+        # Capa de Terreno/Imagen Satelital base (siempre visible)
         pdk.Layer(
-            "IconLayer",
+            "ScatterplotLayer",
             data=pd.DataFrame([{"lat": info_ciudad['lat'], "lon": info_ciudad['lon']}]),
             get_position="[lon, lat]",
-            get_icon={"url": "https://img.icons8.com/color/100/marker--v1.png", "width": 128, "height": 128, "anchorY": 128},
-            get_size=4,
-            size_scale=15
+            get_color=[255, 0, 0, 200], # Punto rojo marcador
+            get_radius=30,
         ),
     ],
     height=350
-))
+)
+st.pydeck_chart(deck_map)
 
 # --- PESTAÑAS DE FLUJO DE TRABAJO ---
 tabs = st.tabs(["🏗️ Diseño del Sistema", "📊 Simulación", "💰 Análisis Económico", "📄 Reporte PDF"])
@@ -479,7 +466,7 @@ with tabs[3]:
             pdf.set_font('Arial', 'B', 8)
             pdf.text(x_start, y0-5, "GENERADOR FV")
             pdf.set_font('Arial', '', 7)
-            pdf.text(x_start, y0-2, f"{n_paneles} x {dato_panel['Pmax']}W")
+            pdf.text(x_start, y0-2, f"{n_paneles} x {dato_panel['Potencia']}W")
             
             # Cableado DC
             pdf.set_draw_color(200, 0, 0) # Rojo Positivo
