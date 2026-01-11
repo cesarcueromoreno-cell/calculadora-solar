@@ -251,7 +251,7 @@ with tab3:
             if os.path.exists("temp_roi.png"): pdf.image("temp_roi.png", x=10, w=190)
             
             # --- PÁGINA 3: DIAGRAMA UNIFILAR PROFESIONAL (TIPO PLANO CAD) ---
-            pdf.add_page('L') # Página Horizontal para mejor diagrama
+            pdf.add_page('L') # Página Horizontal
             
             # MARCO DEL PLANO (Borde)
             pdf.set_line_width(0.5)
@@ -262,7 +262,6 @@ with tab3:
             y_cajetin = 175
             pdf.line(10, y_cajetin, 287, y_cajetin)
             
-            # Datos del Cajetín
             pdf.set_font('Arial', 'B', 8)
             pdf.set_xy(15, y_cajetin + 2)
             pdf.cell(50, 5, "PROYECTO:", 0, 1)
@@ -297,26 +296,22 @@ with tab3:
             y_base = 80
             x_start = 30
             
-            # 1. ARREGLO FV (Simbolo de módulos)
+            # 1. ARREGLO FV
             pdf.set_draw_color(0, 0, 0)
             pdf.set_line_width(0.3)
             
-            # Dibujamos 3 módulos en serie simbólicos
             for i in range(3):
                 offset_x = i * 15
-                # Marco panel
                 pdf.rect(x_start + offset_x, y_base, 12, 20)
-                # Celdas internas
                 pdf.line(x_start + offset_x, y_base+6, x_start + offset_x + 12, y_base+6)
                 pdf.line(x_start + offset_x, y_base+13, x_start + offset_x + 12, y_base+13)
             
-            # Texto
             pdf.set_font('Arial', 'B', 8)
             pdf.text(x_start, y_base - 5, "GENERADOR FV")
             pdf.set_font('Arial', '', 7)
             pdf.text(x_start, y_base - 2, f"{st.session_state.n_paneles_real} x {dato_panel['Potencia']}W")
             
-            # Conexión DC (Líneas rojas y negras)
+            # Conexión DC
             pdf.set_draw_color(200, 0, 0) # Rojo Positivo
             pdf.line(x_start + 36, y_base + 2, 90, y_base + 2) 
             pdf.text(70, y_base + 1, "DC (+)")
@@ -325,10 +320,10 @@ with tab3:
             pdf.line(x_start + 36, y_base + 18, 90, y_base + 18)
             pdf.text(70, y_base + 17, "DC (-)")
 
-            # Tierra de los paneles
+            # Tierra Paneles
             pdf.set_draw_color(0, 150, 0) # Verde Tierra
             pdf.line(x_start + 6, y_base + 20, x_start + 6, y_base + 30)
-            pdf.line(x_start + 6, y_base + 30, 250, y_base + 30) # Bus de tierra general
+            pdf.line(x_start + 6, y_base + 30, 250, y_base + 30)
             pdf.text(x_start + 7, y_base + 28, "T")
 
             # 2. CAJA DE PROTECCIONES DC
@@ -337,21 +332,20 @@ with tab3:
             pdf.set_font('Arial', 'B', 7)
             pdf.text(92, y_base - 7, "TABLERO DC")
             
-            # Fusible (+)
+            # Fusibles
             pdf.rect(95, y_base, 8, 4)
             pdf.line(95, y_base+2, 103, y_base+2)
-            pdf.text(96, y_base-1, "Fus 15A")
+            pdf.text(96, y_base-1, "Fus")
             
-            # Fusible (-)
             pdf.rect(95, y_base+16, 8, 4)
             pdf.line(95, y_base+18, 103, y_base+18)
             
             # DPS
             pdf.rect(110, y_base+8, 6, 10)
             pdf.text(111, y_base+7, "DPS")
-            pdf.line(113, y_base+18, 113, y_base+30) # A tierra
+            pdf.line(113, y_base+18, 113, y_base+30)
             
-            # Salida DC hacia Inversor
+            # Salida DC
             pdf.set_draw_color(200, 0, 0)
             pdf.line(130, y_base + 2, 150, y_base + 2)
             pdf.set_draw_color(0, 0, 0)
@@ -363,16 +357,14 @@ with tab3:
             pdf.text(152, y_base, "INVERSOR")
             pdf.set_font('Arial', '', 6)
             pdf.text(152, y_base + 5, f"{dato_inv['Referencia'][:15]}")
-            pdf.text(155, y_base + 15, "= / ~")
             
-            # Tierra Inversor
-            pdf.set_draw_color(0, 150, 0)
+            pdf.set_draw_color(0, 150, 0) # Tierra
             pdf.line(165, y_base + 25, 165, y_base + 30)
             
             # Salida AC
             pdf.set_draw_color(0, 0, 0)
-            pdf.line(180, y_base + 10, 200, y_base + 10) # Fase
-            pdf.line(180, y_base + 15, 200, y_base + 15) # Neutro
+            pdf.line(180, y_base + 10, 200, y_base + 10)
+            pdf.line(180, y_base + 15, 200, y_base + 15)
             pdf.text(185, y_base + 9, "L")
             pdf.text(185, y_base + 14, "N")
 
@@ -381,19 +373,18 @@ with tab3:
             pdf.set_font('Arial', 'B', 7)
             pdf.text(202, y_base - 2, "TABLERO AC")
             
-            # Breaker
-            pdf.rect(205, y_base + 8, 5, 10)
-            pdf.line(205, y_base+13, 210, y_base+8) # Palanca
+            pdf.rect(205, y_base + 8, 5, 10) # Breaker
+            pdf.line(205, y_base+13, 210, y_base+8)
             pdf.text(205, y_base + 7, "Brk")
             
-            # Salida a Medidor
             pdf.line(230, y_base + 10, 250, y_base + 10)
             pdf.line(230, y_base + 15, 250, y_base + 15)
 
-            # 5. MEDIDOR Y RED
-            # Medidor
+            # 5. MEDIDOR (SIN CIRCLE, USANDO ELLIPSE PARA COMPATIBILIDAD)
             pdf.rect(250, y_base, 20, 20)
-            pdf.circle(260, y_base + 10, 8)
+            # Solución Universal para círculos en FPDF
+            pdf.ellipse(254, y_base + 5, 12, 12)
+            
             pdf.set_font('Arial', 'B', 10)
             pdf.text(256, y_base + 12, "kWh")
             
@@ -402,21 +393,21 @@ with tab3:
             pdf.line(270, y_base + 15, 280, y_base + 15)
             pdf.text(275, y_base + 8, "RED")
             
-            # BUS DE TIERRA GENERAL
+            # TIERRA GENERAL
             pdf.set_draw_color(0, 150, 0)
             pdf.set_line_width(0.5)
-            pdf.line(30, y_base + 30, 270, y_base + 30) # Bus horizontal
-            dibujar_tierra(pdf, 150, y_base + 30) # Símbolo tierra central
+            pdf.line(30, y_base + 30, 270, y_base + 30)
+            dibujar_tierra(pdf, 150, y_base + 30)
             pdf.set_font('Arial', 'B', 6)
-            pdf.text(152, y_base + 34, "SPT (Puesta a Tierra)")
+            pdf.text(152, y_base + 34, "SPT")
 
-            # Generar Output
+            # Output
             pdf_content = pdf.output(dest='S')
             if isinstance(pdf_content, str): pdf_bytes = pdf_content.encode('latin-1')
             else: pdf_bytes = pdf_content
 
-            st.download_button("📥 DESCARGAR INFORME TÉCNICO COMPLETO", pdf_bytes, f"Plano_{limpiar(cliente)}.pdf", "application/pdf")
-            st.success("✅ Informe PDF con Plano Unifilar Generado.")
+            st.download_button("📥 DESCARGAR INFORME TÉCNICO", pdf_bytes, f"Plano_{limpiar(cliente)}.pdf", "application/pdf")
+            st.success("✅ Informe Generado Correctamente.")
 
         except Exception as e:
             st.error(f"Error: {e}")
