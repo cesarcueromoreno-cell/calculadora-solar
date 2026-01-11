@@ -18,7 +18,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Estilos CSS para simular software profesional (Tipo PVsyst)
+# Estilos CSS para simular software profesional
 st.markdown("""
     <style>
     .main {background-color: #f4f6f8;}
@@ -70,14 +70,9 @@ def limpiar(texto):
 
 def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
     """Motor simplificado de simulación energética"""
-    # Pérdidas térmicas: ~0.4% por grado arriba de 25°C
     perdida_temp = 0.004 * max(0, temp_amb_grados - 25)
-    # Pérdidas del sistema (cableado, suciedad, inversor): ~14%
     perdidas_sistema = 0.14
-    
     eficiencia_global = 1 - (perdidas_sistema + perdida_temp)
-    
-    # Generación diaria promedio
     generacion_diaria = potencia_dc_kw * hsp_sitio * eficiencia_global
     return generacion_diaria, eficiencia_global
 
@@ -92,7 +87,6 @@ def dibujar_tierra_pdf(pdf, x, y):
 # 3. BASE DE DATOS TÉCNICA
 # ==============================================================================
 def cargar_biblioteca():
-    # Base de datos de ciudades Colombia
     data_ciudades = {
         "San José del Guaviare": {"lat": 2.5729, "lon": -72.6378, "hsp": 4.6, "depto": "Guaviare"},
         "Bogotá D.C.": {"lat": 4.7110, "lon": -74.0721, "hsp": 4.2, "depto": "Cundinamarca"},
@@ -103,7 +97,6 @@ def cargar_biblioteca():
         "Villavicencio": {"lat": 4.1420, "lon": -73.6266, "hsp": 4.7, "depto": "Meta"}
     }
     
-    # Base de datos de Paneles
     data_paneles = {
         "Referencia": ["Panel 450W Monocristalino", "Panel 550W Bifacial", "Panel 600W Industrial"],
         "Potencia": [450, 550, 600],
@@ -111,7 +104,6 @@ def cargar_biblioteca():
         "Precio": [550000, 720000, 850000] 
     }
     
-    # Base de datos de Inversores
     data_inversores = {
         "Referencia": ["Microinversor 1.2kW", "Inversor 3kW", "Inversor 5kW Híbrido", "Inversor 10kW Trifásico"],
         "Potencia": [1200, 3000, 5000, 10000],
@@ -146,7 +138,6 @@ st.sidebar.subheader("🌍 1. Sitio y Meteo")
 ciudad_sel = st.sidebar.selectbox("Ubicación del Proyecto", list(db_ciudades.keys()))
 info_ciudad = db_ciudades[ciudad_sel]
 
-# Mostrar datos meteo en sidebar
 col_m1, col_m2 = st.sidebar.columns(2)
 col_m1.metric("Latitud", f"{info_ciudad['lat']}°")
 col_m2.metric("HSP", f"{info_ciudad['hsp']}")
@@ -393,7 +384,8 @@ with tabs[3]:
             pdf.set_draw_color(0,150,0); pdf.line(xs+6, y_base+20, xs+6, y_base+35); pdf.line(xs+6, y_base+35, 250, y_base+35); pdf.text(xs+7, y_base+30, "T")
             # Caja DC
             pdf.set_draw_color(0); pdf.rect(90, y_base-10, 40, 40); pdf.set_font('Arial','B',7); pdf.text(92, y_base-7, "TABLERO DC")
-            pdf.rect(95, y_base+4, 5, 2); pdf.rect(95, y_base+14, 5, 2)
+            pdf.rect(95, y_base+4, 5, 2); pdf.rect(95, y_base+14, 5, 2) # Fusibles
+            pdf.rect(110, y_base+8, 6, 10); pdf.text(111, y_base+7, "DPS"); pdf.line(113, y_base+18, 113, y_base+35)
             # Inversor
             pdf.rect(150, y_base-5, 30, 30); pdf.set_font('Arial','B',8); pdf.text(152, y_base, "INVERSOR")
             pdf.set_font('Arial','',6); pdf.text(152, y_base+5, f"{dato_inv['Potencia']}W")
@@ -404,7 +396,7 @@ with tabs[3]:
             pdf.rect(200, y_base-5, 30, 30); pdf.text(202, y_base-2, "TAB AC")
             pdf.rect(205, y_base+8, 5, 10); pdf.line(205, y_base+13, 210, y_base+8); pdf.text(205, y_base+7, "Brk")
             pdf.line(230, y_base+10, 250, y_base+10); pdf.line(230, y_base+15, 250, y_base+15)
-            # Medidor (Versión Segura)
+            # Medidor
             pdf.rect(250, y_base, 20, 20)
             try:
                 if hasattr(pdf, 'ellipse'): pdf.ellipse(254, y_base+5, 12, 12)
