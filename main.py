@@ -399,7 +399,20 @@ with tab3:
             pdf.rect(205, yb+8, 5, 10); pdf.line(205, yb+13, 210, yb+8); pdf.text(205, yb+7, "Brk")
             pdf.line(230, yb+10, 250, yb+10); pdf.line(230, yb+15, 250, yb+15)
             # Medidor
-            pdf.rect(250, yb, 20, 20); pdf.ellipse(254, yb+5, 12, 12); pdf.text(256, yb+12, "kWh")
+            pdf.rect(250, yb, 20, 20)
+            
+            # --- CORRECCIÓN DE CÍRCULO DEL MEDIDOR (TRY/EXCEPT) ---
+            try:
+                if hasattr(pdf, 'ellipse'): pdf.ellipse(254, yb+5, 12, 12)
+                elif hasattr(pdf, 'circle'): pdf.circle(260, yb+11, 6)
+                else: 
+                    pdf.set_font('Arial', 'B', 14)
+                    pdf.text(257, yb+15, "(M)")
+            except: pass
+            
+            pdf.set_font('Arial', 'B', 10)
+            pdf.text(256, yb+12, "kWh")
+            
             # Red
             pdf.line(270, yb+10, 280, yb+10); pdf.line(270, yb+15, 280, yb+15); pdf.text(275, yb+8, "RED")
             # Tierra Gen
