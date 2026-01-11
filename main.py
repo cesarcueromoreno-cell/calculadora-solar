@@ -18,7 +18,6 @@ st.set_page_config(
 
 # -----------------------------------------------------------------------------
 # 2. INICIALIZACIÓN DE VARIABLES DE ESTADO (SESSION STATE)
-# Esto evita el error "NameError" cuando cambias de pestaña y se borran los datos
 # -----------------------------------------------------------------------------
 if 'n_paneles_real' not in st.session_state:
     st.session_state.n_paneles_real = 10
@@ -28,90 +27,54 @@ if 'potencia_sistema_kw' not in st.session_state:
     st.session_state.potencia_sistema_kw = 0.0
 
 # -----------------------------------------------------------------------------
-# 3. FUNCIONES AUXILIARES (LÓGICA DEL PROGRAMA)
+# 3. FUNCIONES AUXILIARES
 # -----------------------------------------------------------------------------
-
 def limpiar(texto):
-    """
-    Limpia el texto de caracteres especiales para que FPDF no falle.
-    Convierte todo a compatible con Latin-1.
-    """
     if texto is None: return ""
     return str(texto).encode('latin-1', 'replace').decode('latin-1')
 
 def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
-    """
-    Simula la producción de energía considerando pérdidas por calor y sistema.
-    Fórmula basada en estándares de PVSyst simplificado.
-    """
-    # Pérdidas por Temperatura (aprox 0.4% por cada grado arriba de 25°C)
     perdida_temp = 0.004 * (temp_amb_grados - 25)
     if perdida_temp < 0: perdida_temp = 0
-
-    # Pérdidas del Sistema (Cables 2%, Suciedad 3%, Inversor 3%, Desajuste 3%, Otros 3%) = ~14%
     perdidas_sistema = 0.14
-
-    # Eficiencia Total (Performance Ratio - PR)
     eficiencia_global = 1 - (perdidas_sistema + perdida_temp)
-
-    # Cálculo de Energía Diaria: Potencia (kW) * Horas Sol (h) * Eficiencia
     generacion_diaria = potencia_dc_kw * hsp_sitio * eficiencia_global
-    
     return generacion_diaria, eficiencia_global
 
+# Función auxiliar para dibujar símbolo de tierra en el PDF
+def dibujar_tierra(pdf, x, y):
+    pdf.line(x, y, x, y+2) # Bajante
+    pdf.line(x-2, y+2, x+2, y+2) # Línea larga
+    pdf.line(x-1.2, y+2.8, x+1.2, y+2.8) # Línea media
+    pdf.line(x-0.5, y+3.6, x+0.5, y+3.6) # Línea corta
+
 # -----------------------------------------------------------------------------
-# 4. BASE DE DATOS (CIUDADES Y EQUIPOS)
-# Se define aquí para asegurar que siempre esté cargada
+# 4. BASE DE DATOS
 # -----------------------------------------------------------------------------
 def cargar_biblioteca():
-    # DATOS DE CIUDADES COLOMBIA
     data_ciudades = {
-        "Departamento": [
-            "Amazonas", "Antioquia", "Antioquia", "Arauca", "Atlántico", "Bolívar", "Boyacá", "Caldas", 
-            "Caquetá", "Casanare", "Cauca", "Cesar", "Chocó", "Córdoba", "Cundinamarca", "Bogotá D.C.", 
-            "Guainía", "Guaviare", "Huila", "La Guajira", "Magdalena", "Meta", "Nariño", 
-            "Norte de Santander", "Putumayo", "Quindío", "Risaralda", "San Andrés", "Santander", 
-            "Sucre", "Tolima", "Valle del Cauca", "Vaupés", "Vichada"
-        ],
-        "Ciudad": [
-            "Leticia", "Medellín", "Rionegro", "Arauca", "Barranquilla", "Cartagena", "Tunja", "Manizales", 
-            "Florencia", "Yopal", "Popayán", "Valledupar", "Quibdó", "Montería", "Girardot", "Bogotá", 
-            "Inírida", "San José del Guaviare", "Neiva", "Riohacha", "Santa Marta", "Villavicencio", "Pasto", 
-            "Cúcuta", "Mocoa", "Armenia", "Pereira", "San Andrés", "Bucaramanga", 
-            "Sincelejo", "Ibagué", "Cali", "Mitú", "Puerto Carreño"
-        ],
-        "HSP": [
-            4.5, 4.8, 4.7, 5.2, 5.5, 5.3, 4.6, 4.2, 
-            4.0, 4.9, 4.5, 5.6, 3.8, 5.1, 4.8, 4.2, 
-            4.6, 4.5, 5.2, 6.0, 5.5, 4.7, 4.3, 
-            5.0, 3.9, 4.4, 4.5, 5.2, 5.0, 
-            5.2, 4.9, 4.8, 4.4, 5.1
-        ]
+        "Departamento": ["Amazonas", "Antioquia", "Antioquia", "Arauca", "Atlántico", "Bolívar", "Boyacá", "Caldas", "Caquetá", "Casanare", "Cauca", "Cesar", "Chocó", "Córdoba", "Cundinamarca", "Bogotá D.C.", "Guainía", "Guaviare", "Huila", "La Guajira", "Magdalena", "Meta", "Nariño", "Norte de Santander", "Putumayo", "Quindío", "Risaralda", "San Andrés", "Santander", "Sucre", "Tolima", "Valle del Cauca", "Vaupés", "Vichada"],
+        "Ciudad": ["Leticia", "Medellín", "Rionegro", "Arauca", "Barranquilla", "Cartagena", "Tunja", "Manizales", "Florencia", "Yopal", "Popayán", "Valledupar", "Quibdó", "Montería", "Girardot", "Bogotá", "Inírida", "San José del Guaviare", "Neiva", "Riohacha", "Santa Marta", "Villavicencio", "Pasto", "Cúcuta", "Mocoa", "Armenia", "Pereira", "San Andrés", "Bucaramanga", "Sincelejo", "Ibagué", "Cali", "Mitú", "Puerto Carreño"],
+        "HSP": [4.5, 4.8, 4.7, 5.2, 5.5, 5.3, 4.6, 4.2, 4.0, 4.9, 4.5, 5.6, 3.8, 5.1, 4.8, 4.2, 4.6, 4.5, 5.2, 6.0, 5.5, 4.7, 4.3, 5.0, 3.9, 4.4, 4.5, 5.2, 5.0, 5.2, 4.9, 4.8, 4.4, 5.1]
     }
-    
-    # DATOS DE PANELES SOLARES
     data_paneles = {
         "Referencia": ["Panel 450W Monocristalino", "Panel 550W Bifacial", "Panel 600W Industrial"],
         "Potencia": [450, 550, 600],
-        "Voc": [41.5, 49.6, 41.7], # Voltaje Circuito Abierto
-        "Isc": [13.4, 13.9, 18.1], # Corriente Cortocircuito
+        "Voc": [41.5, 49.6, 41.7],
+        "Isc": [13.4, 13.9, 18.1],
         "Precio": [550000, 720000, 850000] 
     }
-    
-    # DATOS DE INVERSORES
     data_inversores = {
         "Referencia": ["Microinversor 1.2kW", "Inversor 3kW", "Inversor 5kW Híbrido", "Inversor 10kW Trifásico"],
         "Potencia": [1200, 3000, 5000, 10000],
-        "Vmin": [20, 80, 120, 180],   # Voltaje Mínimo de Arranque (MPPT)
-        "Vmax": [60, 600, 600, 1000], # Voltaje Máximo Permitido
+        "Vmin": [20, 80, 120, 180],
+        "Vmax": [60, 600, 600, 1000],
         "Precio": [1200000, 2500000, 4500000, 7000000] 
     }
     return pd.DataFrame(data_ciudades), pd.DataFrame(data_paneles), pd.DataFrame(data_inversores)
 
-# Ejecutamos la carga
 df_ciudades, df_modulos, df_inversores = cargar_biblioteca()
 
-# Coordenadas exactas para el mapa (Diccionario Hardcoded para velocidad)
 coordenadas_ciudades = {
     "Bucaramanga": [7.1193, -73.1227], "Bogotá": [4.7110, -74.0721], "Medellín": [6.2442, -75.5812], 
     "Cali": [3.4516, -76.5320], "Barranquilla": [10.9685, -74.7813], "San José del Guaviare": [2.5729, -72.6378], 
@@ -119,38 +82,26 @@ coordenadas_ciudades = {
 }
 
 # -----------------------------------------------------------------------------
-# 5. BARRA LATERAL (SIDEBAR) - SEGURIDAD Y CONFIGURACIÓN
+# 5. SIDEBAR
 # -----------------------------------------------------------------------------
 st.sidebar.image("https://img.icons8.com/color/96/solar-panel.png", width=80)
 st.sidebar.title("Configuración")
 
-# Sistema de Contraseña
 password = st.sidebar.text_input("🔑 Contraseña de Acceso", type="password")
 if password != "SOLAR2025":
     st.sidebar.error("⚠️ Acceso Bloqueado")
-    st.title("Sistema Bloqueado")
-    st.info("Por favor ingrese la contraseña correcta en el menú lateral.")
-    st.stop() # Detiene la ejecución si la contraseña es incorrecta
+    st.stop()
 
 st.sidebar.success("✅ Sistema Activo")
 st.sidebar.markdown("---")
 
-# Selectores Globales
-tipo_sistema = st.sidebar.selectbox(
-    "Tipo de Sistema",
-    ["On-Grid (Conectado a Red)", "Off-Grid (Autónomo)", "Bombeo Solar"]
-)
+tipo_sistema = st.sidebar.selectbox("Tipo de Sistema", ["On-Grid (Conectado a Red)", "Off-Grid (Autónomo)", "Bombeo Solar"])
 
-# Configuración del Mapa
 st.sidebar.subheader("🌍 Configuración de Mapa")
 ciudad_ref = st.sidebar.selectbox("Centrar Mapa en:", list(coordenadas_ciudades.keys()))
 lat_atlas = st.sidebar.number_input("Latitud Manual", value=coordenadas_ciudades.get(ciudad_ref, [4.5, -74])[0], format="%.4f")
 lon_atlas = st.sidebar.number_input("Longitud Manual", value=coordenadas_ciudades.get(ciudad_ref, [4.5, -74])[1], format="%.4f")
-
-tipo_mapa = st.sidebar.radio(
-    "Estilo de Mapa:",
-    ["Satélite Híbrido", "Satélite Puro", "Relieve / Topográfico", "Calles / Tráfico"]
-)
+tipo_mapa = st.sidebar.radio("Estilo de Mapa:", ["Satélite Híbrido", "Satélite Puro", "Relieve / Topográfico", "Calles / Tráfico"])
 
 # -----------------------------------------------------------------------------
 # 6. INTERFAZ PRINCIPAL
@@ -158,375 +109,314 @@ tipo_mapa = st.sidebar.radio(
 st.title("CESAR CM INGENIERÍA - SUITE SOLAR v3.0")
 st.markdown("---")
 
-# Datos del Cliente
 col_cli1, col_cli2 = st.columns([2, 1])
-with col_cli1:
-    cliente = st.text_input("Nombre del Cliente / Proyecto", "Cliente General")
-with col_cli2:
-    fecha_proy = st.date_input("Fecha del Proyecto", datetime.now())
+with col_cli1: cliente = st.text_input("Nombre del Cliente / Proyecto", "Cliente General")
+with col_cli2: fecha_proy = st.date_input("Fecha del Proyecto", datetime.now())
 
-# Selección de Ubicación
 st.header("📍 1. Ubicación y Recurso Solar")
 c1, c2, c3 = st.columns(3)
-with c1: 
-    depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
+with c1: depto = st.selectbox("Departamento", df_ciudades["Departamento"].unique())
 with c2: 
     ciudades_filtradas = df_ciudades[df_ciudades["Departamento"] == depto]
     ciudad = st.selectbox("Ciudad", ciudades_filtradas["Ciudad"])
 with c3:
-    # Obtener HSP Automático
-    try:
-        hsp = ciudades_filtradas[ciudades_filtradas["Ciudad"] == ciudad].iloc[0]["HSP"]
-    except:
-        hsp = 4.5
+    try: hsp = ciudades_filtradas[ciudades_filtradas["Ciudad"] == ciudad].iloc[0]["HSP"]
+    except: hsp = 4.5
     st.metric("HSP (Horas Sol Pico)", f"{hsp} kWh/m²")
 
-# VISUALIZACIÓN DE MAPA (PYDECK)
 coords_mapa = coordenadas_ciudades.get(ciudad, [lat_atlas, lon_atlas])
 lat_map, lon_map = coords_mapa[0], coords_mapa[1]
-
-# Definimos el estilo del mapa para Google Maps
-estilos_google = {
-    "Satélite Híbrido": "y",
-    "Satélite Puro": "s",
-    "Relieve / Topográfico": "p",
-    "Calles / Tráfico": "m"
-}
-
-# Capa de Mapa
-layer_mapa = pdk.Layer(
-    "TileLayer",
-    data=None,
-    get_tile_data=f"https://mt1.google.com/vt/lyrs={estilos_google[tipo_mapa]}&x={{x}}&y={{y}}&z={{z}}",
-    opacity=1
-)
-
-# Capa de Marcador (Gota Roja)
-icon_data = {
-    "url": "https://img.icons8.com/color/100/marker--v1.png",
-    "width": 128, "height": 128, "anchorY": 128
-}
-layer_icono = pdk.Layer(
-    "IconLayer",
-    pd.DataFrame([{"lat": lat_map, "lon": lon_map, "icon": icon_data}]),
-    get_icon="icon",
-    get_size=4,
-    size_scale=15,
-    get_position="[lon, lat]",
-    pickable=True
-)
+estilos_google = {"Satélite Híbrido": "y", "Satélite Puro": "s", "Relieve / Topográfico": "p", "Calles / Tráfico": "m"}
 
 st.pydeck_chart(pdk.Deck(
     map_style=None,
     initial_view_state=pdk.ViewState(latitude=lat_map, longitude=lon_map, zoom=16, pitch=45),
-    layers=[layer_mapa, layer_icono],
-    tooltip={"text": f"{ciudad}"}
+    layers=[
+        pdk.Layer("TileLayer", data=None, get_tile_data=f"https://mt1.google.com/vt/lyrs={estilos_google[tipo_mapa]}&x={{x}}&y={{y}}&z={{z}}", opacity=1),
+        pdk.Layer("IconLayer", pd.DataFrame([{"lat": lat_map, "lon": lon_map, "icon": {"url": "https://img.icons8.com/color/100/marker--v1.png", "width": 128, "height": 128, "anchorY": 128}}]), get_icon="icon", get_size=4, size_scale=15, get_position="[lon, lat]")
+    ]
 ))
 
-# Selección de Equipos
 st.header("⚙️ 2. Selección de Equipos")
 ce1, ce2 = st.columns(2)
 with ce1: 
     ref_panel = st.selectbox("Panel Solar", df_modulos["Referencia"])
     dato_panel = df_modulos[df_modulos["Referencia"] == ref_panel].iloc[0]
-    st.caption(f"Potencia: {dato_panel['Potencia']}W | Voc: {dato_panel['Voc']}V")
 with ce2: 
     ref_inv = st.selectbox("Inversor", df_inversores["Referencia"])
     dato_inv = df_inversores[df_inversores["Referencia"] == ref_inv].iloc[0]
-    st.caption(f"Potencia: {dato_inv['Potencia']}W | Rango MPPT: {dato_inv['Vmin']}-{dato_inv['Vmax']}V")
 
 # -----------------------------------------------------------------------------
-# 7. PESTAÑAS DE CÁLCULO (CORE DEL PROGRAMA)
+# 7. CÁLCULOS
 # -----------------------------------------------------------------------------
 st.markdown("---")
 tab1, tab2, tab3 = st.tabs(["📐 Dimensionamiento Energético", "⚡ Diseño Eléctrico (RETIE)", "💰 Financiero & Reporte PDF"])
 
-# --- PESTAÑA 1: DIMENSIONAMIENTO ---
 with tab1:
     st.subheader("Cálculo de Demanda y Generación")
-    col_dim1, col_dim2 = st.columns(2)
-    
-    with col_dim1:
-        consumo = st.number_input("Consumo Promedio Mensual (kWh)", value=500, step=10)
-    with col_dim2:
-        temp = st.number_input("Temperatura Ambiente Promedio (°C)", value=28.0)
+    cd1, cd2 = st.columns(2)
+    consumo = cd1.number_input("Consumo Promedio Mensual (kWh)", value=500, step=10)
+    temp = cd2.number_input("Temperatura Ambiente Promedio (°C)", value=28.0)
 
     if consumo > 0:
-        # 1. Estimación Inicial
-        gen_panel_simple = (dato_panel["Potencia"] / 1000) * hsp * 30 * 0.80 # 80% eficiencia global estimada
+        gen_panel_simple = (dato_panel["Potencia"] / 1000) * hsp * 30 * 0.80
         n_paneles_sugerido = int(consumo / gen_panel_simple) + 1
+        st.info(f"💡 Paneles sugeridos: **{n_paneles_sugerido}**")
         
-        st.info(f"💡 Según tu consumo de {consumo} kWh, necesitas aproximadamente **{n_paneles_sugerido} paneles**.")
-        
-        # 2. Ajuste Fino (Usuario decide)
-        val_slider = st.slider("Ajustar Cantidad Real de Paneles a Instalar", 1, 100, n_paneles_sugerido)
-        
-        # GUARDAMOS EN SESSION STATE PARA USAR EN OTRAS PESTAÑAS
+        val_slider = st.slider("Ajustar Cantidad Real de Paneles", 1, 100, n_paneles_sugerido)
         st.session_state.n_paneles_real = val_slider
         
-        # 3. Cálculo Profesional (PVSyst)
         potencia_sistema_kw = (st.session_state.n_paneles_real * dato_panel["Potencia"]) / 1000
         st.session_state.potencia_sistema_kw = potencia_sistema_kw
         
-        gen_dia_real, eficiencia_real = simulacion_pvsyst(potencia_sistema_kw, hsp, temp)
-        gen_mes_real = gen_dia_real * 30
-        st.session_state.gen_total_mensual = gen_mes_real
+        gen_dia, ef = simulacion_pvsyst(potencia_sistema_kw, hsp, temp)
+        st.session_state.gen_total_mensual = gen_dia * 30
         
-        # 4. Resultados
-        res1, res2, res3 = st.columns(3)
-        res1.metric("Potencia Instalada (Wp)", f"{potencia_sistema_kw*1000:.0f} Wp")
-        res2.metric("Generación Real Estimada", f"{gen_mes_real:.0f} kWh/mes", delta=f"{gen_mes_real-consumo:.0f} vs Consumo")
-        res3.metric("Performance Ratio (PR)", f"{eficiencia_real*100:.1f}%")
+        r1, r2, r3 = st.columns(3)
+        r1.metric("Potencia DC", f"{potencia_sistema_kw*1000:.0f} Wp")
+        r2.metric("Generación", f"{st.session_state.gen_total_mensual:.0f} kWh/mes")
+        r3.metric("PR Global", f"{ef*100:.1f}%")
         
-        # 5. Gráfica Comparativa
-        st.subheader("📊 Balance Energético")
-        datos_grafica = pd.DataFrame({
-            "Mes": ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
-            "Consumo Red": [consumo] * 12,
-            "Generación Solar": [gen_mes_real] * 12
-        })
-        st.bar_chart(datos_grafica.set_index("Mes"), color=["#FF4B4B", "#00CC96"])
+        df_graf = pd.DataFrame({"Mes": range(1,13), "Consumo": [consumo]*12, "Generación": [st.session_state.gen_total_mensual]*12})
+        st.bar_chart(df_graf.set_index("Mes"), color=["#FF4B4B", "#00CC96"])
 
-# --- PESTAÑA 2: ELÉCTRICO ---
 with tab2:
-    st.subheader("Validación de Series (Strings) y Protecciones")
-    
-    # Recuperamos el número de paneles de la pestaña 1
-    n_paneles_totales = st.session_state.n_paneles_real
-    
-    if n_paneles_totales > 0:
-        # Configuración de Series
-        n_serie = st.slider("Paneles por Serie (String)", 1, 20, min(n_paneles_totales, 15))
-        n_paralelo = n_paneles_totales / n_serie
+    st.subheader("Validación de Series")
+    n_paneles = st.session_state.n_paneles_real
+    if n_paneles > 0:
+        n_serie = st.slider("Paneles por Serie", 1, 20, min(n_paneles, 15))
+        voc = dato_panel["Voc"] * n_serie
         
-        # Cálculos de Voltaje
-        voc_string = dato_panel["Voc"] * n_serie
-        vmp_string = (dato_panel["Voc"] * 0.85) * n_serie # Estimado Vmp
-        
-        col_elec1, col_elec2 = st.columns(2)
-        
-        with col_elec1:
-            st.metric("Voltaje Voc del String (Circuito Abierto)", f"{voc_string:.1f} V")
-            st.metric("Límite Máximo del Inversor", f"{dato_inv['Vmax']} V")
-        
-        with col_elec2:
-            # Validación de Seguridad
-            if voc_string > dato_inv["Vmax"]:
-                st.error(f"🛑 PELIGRO: El voltaje {voc_string:.1f}V quema el inversor (> {dato_inv['Vmax']}V)")
-            elif voc_string < dato_inv["Vmin"]:
-                st.warning(f"⚠️ VOLTAJE BAJO: {voc_string:.1f}V no alcanza a encender el inversor (Min: {dato_inv['Vmin']}V)")
-            else:
-                st.success(f"✅ CONFIGURACIÓN CORRECTA: El voltaje está dentro del rango operativo.")
-                st.progress(voc_string / dato_inv["Vmax"])
-        
-        st.divider()
-        st.subheader("🛠️ Materiales y Protecciones AC (RETIE)")
-        
-        # Cálculo de Protecciones
-        corriente_salida_inv = dato_inv["Potencia"] / 220 # Asumiendo 220V Bifásico/Trifásico
-        breaker_sugerido = corriente_salida_inv * 1.25 # Factor de seguridad del 25%
-        
-        # Redondeo a comerciales comunes (20, 32, 40, 63)
-        if breaker_sugerido <= 20: breaker_com = 20
-        elif breaker_sugerido <= 32: breaker_com = 32
-        elif breaker_sugerido <= 40: breaker_com = 40
-        else: breaker_com = 63
-        
-        c_mat1, c_mat2 = st.columns(2)
-        with c_mat1:
-            st.info(f"**Breaker AC Recomendado:** {breaker_com} A")
-            st.info(f"**Cableado AC Sugerido:** Calibre 10 AWG (THHN/THWN-2)")
-        with c_mat2:
-            st.info(f"**Protección DC:** Fusibles 15A 1000V + DPS DC 1000V")
-            st.info(f"**Puesta a Tierra:** Cable desnudo 8 AWG mínimo")
+        c_e1, c_e2 = st.columns(2)
+        c_e1.metric("Voc String", f"{voc:.1f} V")
+        if voc > dato_inv["Vmax"]: c_e2.error(f"🛑 PELIGRO: > {dato_inv['Vmax']}V")
+        elif voc < dato_inv["Vmin"]: c_e2.warning("⚠️ Voltaje Bajo")
+        else: 
+            c_e2.success("✅ Configuración Segura")
+            st.progress(voc / dato_inv["Vmax"])
+            
+        corriente_ac = dato_inv["Potencia"] / 220
+        breaker = 20 if corriente_ac*1.25 < 20 else 40
+        st.info(f"Breaker AC Recomendado: {breaker}A | Cable 10 AWG")
 
-# --- PESTAÑA 3: FINANCIERO Y PDF ---
 with tab3:
-    st.subheader("Análisis de Rentabilidad")
+    col_f1, col_f2 = st.columns(2)
+    tarifa = col_f1.number_input("Tarifa ($/kWh)", value=850)
+    costo_proy = col_f1.number_input("Costo Proyecto", value=int((st.session_state.n_paneles_real*dato_panel["Precio"])+dato_inv["Precio"]+3000000))
     
-    col_fin1, col_fin2 = st.columns(2)
-    with col_fin1:
-        tarifa = st.number_input("Tarifa Energía ($/kWh)", value=850)
-        # Costo estimado automático si el usuario no pone nada
-        costo_auto = (st.session_state.n_paneles_real * dato_panel["Precio"]) + dato_inv["Precio"] + 3000000 # 3M en accesorios/MO
-        costo_proyecto = st.number_input("Costo Total del Proyecto ($)", value=int(costo_auto))
-    
-    with col_fin2:
-        ahorro_mensual = st.session_state.gen_total_mensual * tarifa
-        if ahorro_mensual > 0:
-            retorno_anios = costo_proyecto / (ahorro_mensual * 12)
-            st.metric("Retorno de Inversión (ROI)", f"{retorno_anios:.1f} Años")
-            st.metric("Ahorro Mensual en Factura", f"${ahorro_mensual:,.0f} COP")
-        else:
-            retorno_anios = 0
-            st.warning("Calcula primero la generación en la Pestaña 1.")
-
-    # Gráfica de Retorno de Inversión
-    flujo_caja = []
-    saldo = -costo_proyecto
-    for i in range(26): # 25 años
-        flujo_caja.append(saldo)
-        saldo += (ahorro_mensual * 12 * 1.05) # 5% incremento tarifa anual
-    
-    st.line_chart(pd.DataFrame({"Año": range(26), "Saldo Acumulado": flujo_caja}).set_index("Año"))
+    ahorro = st.session_state.gen_total_mensual * tarifa
+    if ahorro > 0:
+        roi = costo_proy / (ahorro * 12)
+        col_f2.metric("ROI", f"{roi:.1f} Años")
+        col_f2.metric("Ahorro Mes", f"${ahorro:,.0f}")
+        
+    flujo = [-costo_proy]
+    for _ in range(25): flujo.append(flujo[-1] + (ahorro*12*1.05))
+    st.line_chart(flujo)
 
     st.markdown("---")
-    st.subheader("📄 Generación de Entregables")
-    
     if st.button("Generar Informe Técnico PDF", use_container_width=True):
         try:
-            # 1. Generar imágenes temporales para el PDF
-            # Gráfica ROI
-            fig1, ax1 = plt.subplots(figsize=(10, 4))
-            ax1.plot(flujo_caja, color='green', linewidth=2)
-            ax1.set_title("Proyección de Retorno de Inversión (25 Años)")
-            ax1.set_xlabel("Años")
-            ax1.set_ylabel("Flujo de Caja ($)")
-            ax1.grid(True, linestyle='--', alpha=0.5)
-            fig1.savefig("temp_roi.png", bbox_inches='tight')
-            plt.close(fig1)
+            # Gráfica temporal
+            fig, ax = plt.subplots(figsize=(10, 4))
+            ax.plot(flujo, color='green')
+            ax.set_title("Flujo de Caja (25 Años)")
+            ax.grid(True, linestyle='--', alpha=0.5)
+            fig.savefig("temp_roi.png", bbox_inches='tight')
+            plt.close(fig)
 
-            # 2. Inicializar PDF
+            # PDF INIT
             pdf = FPDF()
             pdf.set_auto_page_break(auto=True, margin=15)
             
-            # --- PÁGINA 1: PORTADA Y RESUMEN ---
+            # --- PÁGINAS 1 y 2 (RESUMEN Y FINANCIERO) ---
             pdf.add_page()
-            
-            # Intentar cargar logo si existe
-            if os.path.exists("logo.png"):
+            if os.path.exists("logo.png"): 
                 try: pdf.image("logo.png", x=10, y=10, w=40)
                 except: pass
             
             pdf.ln(20)
             pdf.set_font('Arial', 'B', 16)
             pdf.cell(0, 10, 'MEMORIA DE CALCULO - SISTEMA SOLAR FV', 0, 1, 'C')
-            pdf.ln(10)
-            
+            pdf.ln(5)
             pdf.set_font('Arial', '', 12)
-            pdf.cell(0, 8, f'Cliente: {limpiar(cliente)}', 0, 1)
-            pdf.cell(0, 8, f'Ubicacion: {limpiar(ciudad)} (Lat: {lat_map}, Lon: {lon_map})', 0, 1)
-            pdf.cell(0, 8, f'Fecha: {fecha_proy}', 0, 1)
+            pdf.cell(0, 8, f'Cliente: {limpiar(cliente)} | Ubicacion: {limpiar(ciudad)}', 0, 1, 'C')
             pdf.ln(10)
             
-            # Tabla Resumen Técnico
-            pdf.set_fill_color(240, 240, 240)
-            pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 10, '1. RESUMEN TECNICO DEL SISTEMA', 0, 1, 'L', True)
-            pdf.ln(5)
-            
             pdf.set_font('Arial', '', 11)
-            texto_tecnico = f"""
-            - Tipo de Sistema: {limpiar(tipo_sistema)}
-            - Potencia Instalada (DC): {st.session_state.potencia_sistema_kw:.2f} kWp
-            - Generacion Promedio Estimada: {st.session_state.gen_total_mensual:.0f} kWh/mes
-            - Modulos Fotovoltaicos: {st.session_state.n_paneles_real} unidades x {dato_panel['Potencia']}W ({limpiar(ref_panel)})
-            - Inversor: 1 unidad x {dato_inv['Potencia']}W ({limpiar(ref_inv)})
-            """
-            pdf.multi_cell(0, 7, texto_tecnico)
+            pdf.multi_cell(0, 7, f"Generador: {st.session_state.n_paneles_real} x {dato_panel['Referencia']}\nInversor: {dato_inv['Referencia']}\nGeneracion Estimada: {st.session_state.gen_total_mensual:.0f} kWh/mes")
             
-            # --- PÁGINA 2: ANÁLISIS FINANCIERO ---
             pdf.add_page()
-            pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 10, '2. ANALISIS FINANCIERO', 0, 1, 'L', True)
-            pdf.ln(5)
+            pdf.cell(0, 10, 'ANALISIS FINANCIERO', 0, 1, 'L')
+            if os.path.exists("temp_roi.png"): pdf.image("temp_roi.png", x=10, w=190)
             
-            pdf.set_font('Arial', '', 11)
-            texto_fin = f"""
-            - Inversion Total Estimada: ${costo_proyecto:,.0f} COP
-            - Ahorro Mensual Estimado: ${ahorro_mensual:,.0f} COP
-            - Periodo de Retorno (ROI): {retorno_anios:.1f} Años
-            - Ahorro Acumulado (25 anios): ${flujo_caja[-1]:,.0f} COP
-            """
-            pdf.multi_cell(0, 7, texto_fin)
+            # --- PÁGINA 3: DIAGRAMA UNIFILAR PROFESIONAL (TIPO PLANO CAD) ---
+            pdf.add_page('L') # Página Horizontal para mejor diagrama
             
-            # Insertar Gráfica
-            if os.path.exists("temp_roi.png"):
-                pdf.image("temp_roi.png", x=10, w=190)
+            # MARCO DEL PLANO (Borde)
+            pdf.set_line_width(0.5)
+            pdf.rect(5, 5, 287, 200) # Borde Exterior
+            pdf.rect(10, 10, 277, 190) # Borde Interior
             
-            # --- PÁGINA 3: DIAGRAMA UNIFILAR (DIBUJADO) ---
-            pdf.add_page()
-            pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 10, '3. DIAGRAMA UNIFILAR PRELIMINAR', 0, 1, 'L', True)
-            pdf.ln(10)
+            # CAJETÍN (RÓTULO) INFERIOR
+            y_cajetin = 175
+            pdf.line(10, y_cajetin, 287, y_cajetin)
             
-            # Coordenadas base
-            y = 60
+            # Datos del Cajetín
+            pdf.set_font('Arial', 'B', 8)
+            pdf.set_xy(15, y_cajetin + 2)
+            pdf.cell(50, 5, "PROYECTO:", 0, 1)
+            pdf.set_font('Arial', '', 8)
+            pdf.set_xy(15, y_cajetin + 7)
+            pdf.cell(50, 5, limpiar(cliente), 0, 0)
             
-            # 1. Paneles
-            pdf.rect(20, y, 40, 30)
-            pdf.set_font('Arial', 'B', 9)
-            pdf.text(25, y+15, "GENERADOR FV")
-            pdf.text(25, y+20, f"{st.session_state.n_paneles_real}x Paneles")
-            
-            # Cable DC
-            pdf.line(60, y+15, 90, y+15)
-            pdf.text(65, y+12, "Cable DC Solar")
-            
-            # 2. Inversor
-            pdf.rect(90, y+5, 40, 20)
-            pdf.text(95, y+18, "INVERSOR")
-            
-            # Cable AC
-            pdf.line(130, y+15, 160, y+15)
-            pdf.text(135, y+12, "Cable AC")
-            
-            # 3. Tablero
-            pdf.rect(160, y, 30, 30)
-            pdf.text(165, y+15, "RED")
-            pdf.text(165, y+20, "PUBLICA")
-            
-            pdf.ln(50)
-            pdf.set_font('Arial', 'I', 8)
-            pdf.multi_cell(0, 5, "Nota: Este diagrama es ilustrativo. Para construccion refierase a los planos detallados de ingenieria aprobados por RETIE.")
+            pdf.set_xy(80, y_cajetin + 2)
+            pdf.set_font('Arial', 'B', 8)
+            pdf.cell(50, 5, "UBICACION:", 0, 1)
+            pdf.set_xy(80, y_cajetin + 7)
+            pdf.set_font('Arial', '', 8)
+            pdf.cell(50, 5, f"{limpiar(ciudad)}", 0, 0)
 
-            # --- PÁGINA 4: LISTA DE MATERIALES (BOM) ---
-            pdf.add_page()
-            pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 10, '4. LISTA DE MATERIALES (BOM)', 0, 1, 'L', True)
-            pdf.ln(5)
+            pdf.set_xy(150, y_cajetin + 2)
+            pdf.set_font('Arial', 'B', 8)
+            pdf.cell(50, 5, "DISENO:", 0, 1)
+            pdf.set_xy(150, y_cajetin + 7)
+            pdf.set_font('Arial', '', 8)
+            pdf.cell(50, 5, "CESAR CM INGENIERIA", 0, 0)
+
+            pdf.set_xy(220, y_cajetin + 2)
+            pdf.set_font('Arial', 'B', 8)
+            pdf.cell(30, 5, "FECHA:", 0, 0)
+            pdf.cell(30, 5, "PLANO:", 0, 1)
+            pdf.set_xy(220, y_cajetin + 7)
+            pdf.set_font('Arial', '', 8)
+            pdf.cell(30, 5, str(datetime.now().date()), 0, 0)
+            pdf.cell(30, 5, "EL-01", 0, 0)
+
+            # --- DIBUJO DEL DIAGRAMA ---
+            y_base = 80
+            x_start = 30
             
-            # Encabezados Tabla
+            # 1. ARREGLO FV (Simbolo de módulos)
+            pdf.set_draw_color(0, 0, 0)
+            pdf.set_line_width(0.3)
+            
+            # Dibujamos 3 módulos en serie simbólicos
+            for i in range(3):
+                offset_x = i * 15
+                # Marco panel
+                pdf.rect(x_start + offset_x, y_base, 12, 20)
+                # Celdas internas
+                pdf.line(x_start + offset_x, y_base+6, x_start + offset_x + 12, y_base+6)
+                pdf.line(x_start + offset_x, y_base+13, x_start + offset_x + 12, y_base+13)
+            
+            # Texto
+            pdf.set_font('Arial', 'B', 8)
+            pdf.text(x_start, y_base - 5, "GENERADOR FV")
+            pdf.set_font('Arial', '', 7)
+            pdf.text(x_start, y_base - 2, f"{st.session_state.n_paneles_real} x {dato_panel['Potencia']}W")
+            
+            # Conexión DC (Líneas rojas y negras)
+            pdf.set_draw_color(200, 0, 0) # Rojo Positivo
+            pdf.line(x_start + 36, y_base + 2, 90, y_base + 2) 
+            pdf.text(70, y_base + 1, "DC (+)")
+            
+            pdf.set_draw_color(0, 0, 0) # Negro Negativo
+            pdf.line(x_start + 36, y_base + 18, 90, y_base + 18)
+            pdf.text(70, y_base + 17, "DC (-)")
+
+            # Tierra de los paneles
+            pdf.set_draw_color(0, 150, 0) # Verde Tierra
+            pdf.line(x_start + 6, y_base + 20, x_start + 6, y_base + 30)
+            pdf.line(x_start + 6, y_base + 30, 250, y_base + 30) # Bus de tierra general
+            pdf.text(x_start + 7, y_base + 28, "T")
+
+            # 2. CAJA DE PROTECCIONES DC
+            pdf.set_draw_color(0, 0, 0)
+            pdf.rect(90, y_base - 10, 40, 40)
+            pdf.set_font('Arial', 'B', 7)
+            pdf.text(92, y_base - 7, "TABLERO DC")
+            
+            # Fusible (+)
+            pdf.rect(95, y_base, 8, 4)
+            pdf.line(95, y_base+2, 103, y_base+2)
+            pdf.text(96, y_base-1, "Fus 15A")
+            
+            # Fusible (-)
+            pdf.rect(95, y_base+16, 8, 4)
+            pdf.line(95, y_base+18, 103, y_base+18)
+            
+            # DPS
+            pdf.rect(110, y_base+8, 6, 10)
+            pdf.text(111, y_base+7, "DPS")
+            pdf.line(113, y_base+18, 113, y_base+30) # A tierra
+            
+            # Salida DC hacia Inversor
+            pdf.set_draw_color(200, 0, 0)
+            pdf.line(130, y_base + 2, 150, y_base + 2)
+            pdf.set_draw_color(0, 0, 0)
+            pdf.line(130, y_base + 18, 150, y_base + 18)
+
+            # 3. INVERSOR
+            pdf.rect(150, y_base - 5, 30, 30)
+            pdf.set_font('Arial', 'B', 8)
+            pdf.text(152, y_base, "INVERSOR")
+            pdf.set_font('Arial', '', 6)
+            pdf.text(152, y_base + 5, f"{dato_inv['Referencia'][:15]}")
+            pdf.text(155, y_base + 15, "= / ~")
+            
+            # Tierra Inversor
+            pdf.set_draw_color(0, 150, 0)
+            pdf.line(165, y_base + 25, 165, y_base + 30)
+            
+            # Salida AC
+            pdf.set_draw_color(0, 0, 0)
+            pdf.line(180, y_base + 10, 200, y_base + 10) # Fase
+            pdf.line(180, y_base + 15, 200, y_base + 15) # Neutro
+            pdf.text(185, y_base + 9, "L")
+            pdf.text(185, y_base + 14, "N")
+
+            # 4. TABLERO AC
+            pdf.rect(200, y_base - 5, 30, 30)
+            pdf.set_font('Arial', 'B', 7)
+            pdf.text(202, y_base - 2, "TABLERO AC")
+            
+            # Breaker
+            pdf.rect(205, y_base + 8, 5, 10)
+            pdf.line(205, y_base+13, 210, y_base+8) # Palanca
+            pdf.text(205, y_base + 7, "Brk")
+            
+            # Salida a Medidor
+            pdf.line(230, y_base + 10, 250, y_base + 10)
+            pdf.line(230, y_base + 15, 250, y_base + 15)
+
+            # 5. MEDIDOR Y RED
+            # Medidor
+            pdf.rect(250, y_base, 20, 20)
+            pdf.circle(260, y_base + 10, 8)
             pdf.set_font('Arial', 'B', 10)
-            pdf.cell(100, 10, 'Descripcion del Item', 1)
-            pdf.cell(30, 10, 'Cantidad', 1, 0, 'C')
-            pdf.cell(30, 10, 'Unidad', 1, 1, 'C')
+            pdf.text(256, y_base + 12, "kWh")
             
-            # Filas
-            pdf.set_font('Arial', '', 10)
+            # Red
+            pdf.line(270, y_base + 10, 280, y_base + 10)
+            pdf.line(270, y_base + 15, 280, y_base + 15)
+            pdf.text(275, y_base + 8, "RED")
             
-            items = [
-                (f"Panel Solar {dato_panel['Potencia']}W Monocristalino", str(st.session_state.n_paneles_real), "Unid"),
-                (f"Inversor {dato_inv['Potencia']}W {limpiar(tipo_sistema)}", "1", "Unid"),
-                ("Estructura de Montaje Aluminio Anodizado", "1", "Kit"),
-                ("Cable Solar Fotovoltaico 4mm/6mm", "100", "mts"),
-                ("Conectores MC4 (Parejas)", str(st.session_state.n_paneles_real + 2), "Juego"),
-                ("Protecciones DC (DPS + Fusibles)", "1", "Tablero"),
-                ("Protecciones AC (Breaker + DPS)", "1", "Tablero"),
-                ("Sistema de Puesta a Tierra", "1", "Kit")
-            ]
-            
-            for desc, cant, unid in items:
-                pdf.cell(100, 10, limpiar(desc), 1)
-                pdf.cell(30, 10, cant, 1, 0, 'C')
-                pdf.cell(30, 10, unid, 1, 1, 'C')
+            # BUS DE TIERRA GENERAL
+            pdf.set_draw_color(0, 150, 0)
+            pdf.set_line_width(0.5)
+            pdf.line(30, y_base + 30, 270, y_base + 30) # Bus horizontal
+            dibujar_tierra(pdf, 150, y_base + 30) # Símbolo tierra central
+            pdf.set_font('Arial', 'B', 6)
+            pdf.text(152, y_base + 34, "SPT (Puesta a Tierra)")
 
-            # Generar Output Compatible
+            # Generar Output
             pdf_content = pdf.output(dest='S')
-            
-            # Manejo de compatibilidad bytes/str para diferentes versiones de FPDF
-            if isinstance(pdf_content, str):
-                pdf_bytes = pdf_content.encode('latin-1')
-            else:
-                pdf_bytes = pdf_content
+            if isinstance(pdf_content, str): pdf_bytes = pdf_content.encode('latin-1')
+            else: pdf_bytes = pdf_content
 
-            st.download_button(
-                label="📥 DESCARGAR INFORME COMPLETO (PDF)",
-                data=pdf_bytes,
-                file_name=f"Informe_Solar_{limpiar(cliente)}.pdf",
-                mime="application/pdf"
-            )
-            st.success("✅ Informe PDF generado exitosamente. Haga clic arriba para descargar.")
+            st.download_button("📥 DESCARGAR INFORME TÉCNICO COMPLETO", pdf_bytes, f"Plano_{limpiar(cliente)}.pdf", "application/pdf")
+            st.success("✅ Informe PDF con Plano Unifilar Generado.")
 
         except Exception as e:
-            st.error(f"Error al generar el PDF: {e}")
+            st.error(f"Error: {e}")
