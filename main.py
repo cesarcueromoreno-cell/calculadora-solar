@@ -42,7 +42,6 @@ def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
     generacion_diaria = potencia_dc_kw * hsp_sitio * eficiencia_global
     return generacion_diaria, eficiencia_global
 
-# Función para dibujar tierra en PDF (RESTAURADA)
 def dibujar_tierra(pdf, x, y):
     pdf.line(x, y, x, y+2) 
     pdf.line(x-2, y+2, x+2, y+2) 
@@ -142,7 +141,6 @@ with st.expander("☀️ Análisis de Trayectoria Solar e Irradiancia (Detallado
     
     with col_sol1:
         st.subheader("Trayectoria Solar (Carta Solar)")
-        # Simulada
         fig_sun, ax_sun = plt.subplots(figsize=(5, 3))
         azimuth = np.linspace(-90, 90, 100)
         elevation_winter = 45 * np.cos(np.radians(azimuth)) 
@@ -156,15 +154,13 @@ with st.expander("☀️ Análisis de Trayectoria Solar e Irradiancia (Detallado
         ax_sun.grid(True, linestyle='--')
         ax_sun.legend(fontsize='small')
         st.pyplot(fig_sun)
-        # Guardar para PDF
         fig_sun.savefig("temp_sunpath.png", bbox_inches='tight')
         plt.close(fig_sun)
 
     with col_sol2:
         st.subheader("Curva de Potencia Diaria")
-        horas = np.arange(6, 19) # 6am a 6pm
+        horas = np.arange(6, 19)
         irradiancia = np.sin(np.pi * (horas - 6) / 12) * 1000 
-        
         fig_irr, ax_irr = plt.subplots(figsize=(5, 3))
         ax_irr.plot(horas, irradiancia, color='#f1c40f', linewidth=2)
         ax_irr.fill_between(horas, irradiancia, color='#f1c40f', alpha=0.2)
@@ -174,7 +170,6 @@ with st.expander("☀️ Análisis de Trayectoria Solar e Irradiancia (Detallado
         ax_irr.set_ylim(0, 1100)
         ax_irr.grid(True, alpha=0.3)
         st.pyplot(fig_irr)
-        # Guardar para PDF (AQUÍ ESTÁ LO QUE PEDISTE)
         fig_irr.savefig("temp_curve.png", bbox_inches='tight')
         plt.close(fig_irr)
 
@@ -259,22 +254,43 @@ with tab3:
     
     if st.button("Generar PDF Profesional", use_container_width=True):
         try:
-            # Gráfica ROI
-            fig, ax = plt.subplots(figsize=(10, 4))
-            ax.plot(flujo, color='green')
-            ax.set_title("Flujo de Caja")
-            ax.grid(True, linestyle='--')
-            fig.savefig("temp_roi.png", bbox_inches='tight')
-            plt.close(fig)
+            # 1. GRÁFICA ROI (FLUJO DE CAJA)
+            fig_roi, ax_roi = plt.subplots(figsize=(10, 4))
+            ax_roi.plot(flujo, color='green', linewidth=2)
+            ax_roi.set_title("Flujo de Caja Acumulado (25 Años)")
+            ax_roi.set_ylabel("Rentabilidad ($)")
+            ax_roi.grid(True, linestyle='--', alpha=0.5)
+            fig_roi.savefig("temp_roi.png", bbox_inches='tight')
+            plt.close(fig_roi)
+
+            # 2. GRÁFICA BARRAS COMPARATIVAS (NUEVO: SOLAR VS CONSUMO)
+            meses_nombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+            consumo_mensual = [consumo] * 12
+            gen_solar = [st.session_state.gen_total_mensual] * 12
+            
+            x = np.arange(len(meses_nombres))
+            width = 0.35
+            
+            fig_bar, ax_bar = plt.subplots(figsize=(10, 4))
+            rects1 = ax_bar.bar(x - width/2, consumo_mensual, width, label='Consumo Red', color='#FF4B4B')
+            rects2 = ax_bar.bar(x + width/2, gen_solar, width, label='Generación Solar', color='#00CC96')
+            
+            ax_bar.set_ylabel('Energía (kWh)')
+            ax_bar.set_title('Balance Energético Mensual: Generación vs Consumo')
+            ax_bar.set_xticks(x)
+            ax_bar.set_xticklabels(meses_nombres)
+            ax_bar.legend()
+            ax_bar.grid(axis='y', linestyle='--', alpha=0.3)
+            
+            fig_bar.savefig("temp_bars.png", bbox_inches='tight')
+            plt.close(fig_bar)
 
             # --- INICIO PDF ---
             pdf = FPDF()
             pdf.set_auto_page_break(auto=True, margin=15)
             
-            # --- PÁGINA 1: PORTADA MEJORADA + CURVAS SOLARES ---
+            # --- PÁGINA 1: PORTADA ---
             pdf.add_page()
-            
-            # Franja Azul
             pdf.set_fill_color(10, 40, 90)
             pdf.rect(0, 0, 210, 40, 'F')
             if os.path.exists("logo.png"): 
@@ -283,207 +299,108 @@ with tab3:
             
             pdf.set_text_color(255, 255, 255)
             pdf.set_font('Arial', 'B', 24)
-            pdf.set_xy(70, 15)
-            pdf.cell(0, 10, 'PROPUESTA TECNICA', 0, 1)
+            pdf.set_xy(70, 15); pdf.cell(0, 10, 'PROPUESTA TECNICA', 0, 1)
             pdf.set_font('Arial', '', 12)
-            pdf.set_xy(70, 25)
-            pdf.cell(0, 10, 'SISTEMA FOTOVOLTAICO', 0, 1)
-            
+            pdf.set_xy(70, 25); pdf.cell(0, 10, 'SISTEMA FOTOVOLTAICO', 0, 1)
             pdf.set_text_color(0, 0, 0)
             pdf.ln(30)
             
-            # Tabla Resumen
+            # Resumen
             pdf.set_font('Arial', 'B', 12)
             pdf.set_fill_color(230, 230, 230)
             pdf.cell(0, 10, "  DATOS DEL PROYECTO", 0, 1, 'L', True)
             pdf.ln(2)
-            
             pdf.set_font('Arial', '', 11)
-            datos_portada = [
-                ("Cliente:", limpiar(cliente)),
-                ("Ubicacion:", f"{limpiar(ciudad)} ({lat_map}, {lon_map})"),
-                ("Fecha:", str(fecha_proy)),
-                ("Potencia DC:", f"{st.session_state.potencia_sistema_kw:.2f} kWp"),
-                ("Generacion Mensual:", f"{st.session_state.gen_total_mensual:.0f} kWh/mes")
-            ]
-            for tit, val in datos_portada:
-                pdf.set_font('Arial', 'B', 11)
-                pdf.cell(50, 8, tit, 0, 0)
-                pdf.set_font('Arial', '', 11)
-                pdf.cell(0, 8, val, 0, 1)
+            datos = [("Cliente:", limpiar(cliente)), ("Ubicacion:", limpiar(ciudad)), ("Potencia:", f"{st.session_state.potencia_sistema_kw:.2f} kWp")]
+            for t, v in datos:
+                pdf.set_font('Arial','B',11); pdf.cell(40,8,t,0,0)
+                pdf.set_font('Arial','',11); pdf.cell(0,8,v,0,1)
                 pdf.line(10, pdf.get_y(), 200, pdf.get_y())
             
             pdf.ln(5)
+            # Imágenes Solares (Página 1)
+            pdf.set_font('Arial', 'B', 12); pdf.cell(0, 10, "ANALISIS SOLAR", 0, 1)
+            y_i = pdf.get_y()
+            if os.path.exists("temp_sunpath.png"): pdf.image("temp_sunpath.png", x=10, y=y_i, w=90)
+            if os.path.exists("temp_curve.png"): pdf.image("temp_curve.png", x=105, y=y_i, w=90)
             
-            # IMÁGENES SOLARES (NUEVO REQUERIMIENTO: INCLUIR CURVA DIARIA)
-            pdf.set_font('Arial', 'B', 12)
-            pdf.cell(0, 10, "ANALISIS DE RECURSO SOLAR", 0, 1)
-            
-            y_imgs = pdf.get_y()
-            if os.path.exists("temp_sunpath.png"):
-                pdf.image("temp_sunpath.png", x=10, y=y_imgs, w=90)
-            if os.path.exists("temp_curve.png"):
-                pdf.image("temp_curve.png", x=105, y=y_imgs, w=90)
-            
-            pdf.ln(65)
-
-            # --- PÁGINA 2: FINANCIERO ---
+            # --- PÁGINA 2: GENERACIÓN Y FINANZAS ---
             pdf.add_page()
             pdf.set_font('Arial', 'B', 14)
-            pdf.cell(0, 10, 'ANALISIS FINANCIERO', 0, 1)
-            if os.path.exists("temp_roi.png"): pdf.image("temp_roi.png", x=10, w=190)
-            pdf.ln(5)
-            pdf.set_font('Arial', '', 11)
-            pdf.multi_cell(0, 7, f"Inversion: ${costo_total:,.0f} | Retorno: {roi:.1f} Anios")
+            pdf.cell(0, 10, 'ANALISIS DE GENERACION Y RETORNO', 0, 1)
+            
+            # 1. Gráfica de Barras Comparativa (LA QUE FALTABA)
+            if os.path.exists("temp_bars.png"): 
+                pdf.image("temp_bars.png", x=10, y=30, w=190)
+            
+            # 2. Gráfica ROI
+            if os.path.exists("temp_roi.png"): 
+                pdf.image("temp_roi.png", x=10, y=120, w=190)
 
-            # --- PÁGINA 3: DIAGRAMA UNIFILAR (RESTAURADO EL BUENO) ---
-            pdf.add_page('L') # Hoja Horizontal
+            # --- PÁGINA 3: DIAGRAMA UNIFILAR (CAD) ---
+            pdf.add_page('L')
+            # Marco
+            pdf.set_line_width(0.5); pdf.rect(5, 5, 287, 200); pdf.rect(10, 10, 277, 190)
+            pdf.line(10, 175, 287, 175) # Cajetín
             
-            # MARCO Y CAJETIN (Restaurado del diseño "Excelente")
-            pdf.set_line_width(0.5)
-            pdf.rect(5, 5, 287, 200) 
-            pdf.rect(10, 10, 277, 190)
-            
-            y_cajetin = 175
-            pdf.line(10, y_cajetin, 287, y_cajetin)
-            
-            # Textos Cajetin
-            pdf.set_font('Arial', 'B', 8)
-            pdf.set_xy(15, y_cajetin+2); pdf.cell(50,5,"PROYECTO:",0,1)
-            pdf.set_font('Arial', '', 8)
-            pdf.set_xy(15, y_cajetin+7); pdf.cell(50,5,limpiar(cliente),0,0)
-            
-            pdf.set_xy(80, y_cajetin+2); pdf.set_font('Arial', 'B', 8); pdf.cell(50,5,"UBICACION:",0,1)
-            pdf.set_xy(80, y_cajetin+7); pdf.set_font('Arial', '', 8); pdf.cell(50,5,limpiar(ciudad),0,0)
-            
-            pdf.set_xy(220, y_cajetin+2); pdf.set_font('Arial', 'B', 8); pdf.cell(30,5,"PLANO:",0,1)
-            pdf.set_xy(220, y_cajetin+7); pdf.set_font('Arial', '', 8); pdf.cell(30,5,"EL-01",0,0)
+            # Datos Cajetín
+            pdf.set_font('Arial','B',8)
+            pdf.set_xy(15, 177); pdf.cell(20,5,"PROYECTO:"); pdf.set_xy(15,182); pdf.set_font('Arial','',8); pdf.cell(20,5,limpiar(cliente))
+            pdf.set_xy(80, 177); pdf.set_font('Arial','B',8); pdf.cell(20,5,"UBICACION:"); pdf.set_xy(80,182); pdf.set_font('Arial','',8); pdf.cell(20,5,limpiar(ciudad))
+            pdf.set_xy(220, 177); pdf.set_font('Arial','B',8); pdf.cell(20,5,"PLANO:"); pdf.set_xy(220,182); pdf.set_font('Arial','',8); pdf.cell(20,5,"EL-01")
 
-            # --- DIBUJO DETALLADO (RESTAURADO) ---
-            y_base = 80
-            x_start = 30
-            
-            # 1. ARREGLO FV (Detallado con celdas)
-            pdf.set_draw_color(0, 0, 0)
-            pdf.set_line_width(0.3)
+            # DIBUJO (Restaurado)
+            yb = 80; xs = 30
+            # Paneles
+            pdf.set_draw_color(0); pdf.set_line_width(0.3)
             for i in range(3):
-                offset_x = i * 15
-                pdf.rect(x_start + offset_x, y_base, 12, 20)
-                pdf.line(x_start + offset_x, y_base+6, x_start + offset_x + 12, y_base+6)
-                pdf.line(x_start + offset_x, y_base+13, x_start + offset_x + 12, y_base+13)
-            
-            pdf.set_font('Arial', 'B', 8)
-            pdf.text(x_start, y_base - 5, "GENERADOR FV")
-            pdf.set_font('Arial', '', 7)
-            pdf.text(x_start, y_base - 2, f"{st.session_state.n_paneles_real} x {dato_panel['Potencia']}W")
-            
-            # Líneas DC y Tierra
-            pdf.set_draw_color(200, 0, 0) # Rojo
-            pdf.line(x_start + 36, y_base + 2, 90, y_base + 2) 
-            pdf.text(70, y_base + 1, "DC (+)")
-            
-            pdf.set_draw_color(0, 0, 0) # Negro
-            pdf.line(x_start + 36, y_base + 18, 90, y_base + 18)
-            pdf.text(70, y_base + 17, "DC (-)")
-            
-            pdf.set_draw_color(0, 150, 0) # Verde
-            pdf.line(x_start + 6, y_base + 20, x_start + 6, y_base + 30)
-            pdf.line(x_start + 6, y_base + 30, 250, y_base + 30) # Bus Tierra
-            pdf.text(x_start + 7, y_base + 28, "T")
+                pdf.rect(xs+i*15, yb, 12, 20); pdf.line(xs+i*15, yb+6, xs+i*15+12, yb+6); pdf.line(xs+i*15, yb+13, xs+i*15+12, yb+13)
+            pdf.text(xs, yb-5, "GENERADOR FV")
+            # DC
+            pdf.set_draw_color(200,0,0); pdf.line(xs+36, yb+2, 90, yb+2); pdf.text(70, yb+1, "DC+")
+            pdf.set_draw_color(0); pdf.line(xs+36, yb+18, 90, yb+18); pdf.text(70, yb+17, "DC-")
+            pdf.set_draw_color(0,150,0); pdf.line(xs+6, yb+20, xs+6, yb+30); pdf.line(xs+6, yb+30, 250, yb+30); pdf.text(xs+7, yb+28, "T")
+            # Caja
+            pdf.set_draw_color(0); pdf.rect(90, yb-10, 40, 40); pdf.text(92, yb-7, "TABLERO DC")
+            pdf.rect(95, yb, 8, 4); pdf.rect(95, yb+16, 8, 4); pdf.text(96, yb-1, "Fus")
+            pdf.rect(110, yb+8, 6, 10); pdf.text(111, yb+7, "DPS"); pdf.line(113, yb+18, 113, yb+30)
+            pdf.set_draw_color(200,0,0); pdf.line(130, yb+2, 150, yb+2)
+            pdf.set_draw_color(0); pdf.line(130, yb+18, 150, yb+18)
+            # Inversor
+            pdf.rect(150, yb-5, 30, 30); pdf.text(152, yb, "INVERSOR"); pdf.text(152, yb+5, f"{dato_inv['Potencia']}W")
+            pdf.set_draw_color(0,150,0); pdf.line(165, yb+25, 165, yb+30)
+            # AC
+            pdf.set_draw_color(0); pdf.line(180, yb+10, 200, yb+10); pdf.line(180, yb+15, 200, yb+15)
+            # Tablero AC
+            pdf.rect(200, yb-5, 30, 30); pdf.text(202, yb-2, "TABLERO AC")
+            pdf.rect(205, yb+8, 5, 10); pdf.line(205, yb+13, 210, yb+8); pdf.text(205, yb+7, "Brk")
+            pdf.line(230, yb+10, 250, yb+10); pdf.line(230, yb+15, 250, yb+15)
+            # Medidor
+            pdf.rect(250, yb, 20, 20); pdf.ellipse(254, yb+5, 12, 12); pdf.text(256, yb+12, "kWh")
+            # Red
+            pdf.line(270, yb+10, 280, yb+10); pdf.line(270, yb+15, 280, yb+15); pdf.text(275, yb+8, "RED")
+            # Tierra Gen
+            pdf.set_draw_color(0,150,0); pdf.line(30, yb+30, 270, yb+30); dibujar_tierra(pdf, 150, yb+30); pdf.text(152, yb+34, "SPT")
 
-            # 2. CAJA DC (Detallada)
-            pdf.set_draw_color(0, 0, 0)
-            pdf.rect(90, y_base - 10, 40, 40)
-            pdf.set_font('Arial', 'B', 7)
-            pdf.text(92, y_base - 7, "TABLERO DC")
-            # Fusibles
-            pdf.rect(95, y_base, 8, 4); pdf.line(95, y_base+2, 103, y_base+2)
-            pdf.rect(95, y_base+16, 8, 4); pdf.line(95, y_base+18, 103, y_base+18)
-            pdf.text(96, y_base-1, "Fus 15A")
-            # DPS
-            pdf.rect(110, y_base+8, 6, 10)
-            pdf.text(111, y_base+7, "DPS")
-            pdf.line(113, y_base+18, 113, y_base+30)
-            # Salida
-            pdf.line(130, y_base+2, 150, y_base+2)
-            pdf.line(130, y_base+18, 150, y_base+18)
-
-            # 3. INVERSOR
-            pdf.rect(150, y_base - 5, 30, 30)
-            pdf.set_font('Arial', 'B', 8); pdf.text(152, y_base, "INVERSOR")
-            pdf.set_font('Arial', '', 6); pdf.text(152, y_base+5, f"{dato_inv['Potencia']}W")
-            pdf.set_draw_color(0, 150, 0); pdf.line(165, y_base+25, 165, y_base+30)
-            # Salida AC
-            pdf.set_draw_color(0, 0, 0)
-            pdf.line(180, y_base+10, 200, y_base+10)
-            pdf.line(180, y_base+15, 200, y_base+15)
-            pdf.text(185, y_base+9, "L"); pdf.text(185, y_base+14, "N")
-
-            # 4. TABLERO AC
-            pdf.rect(200, y_base - 5, 30, 30)
-            pdf.set_font('Arial', 'B', 7); pdf.text(202, y_base-2, "TABLERO AC")
-            pdf.rect(205, y_base+8, 5, 10); pdf.line(205, y_base+13, 210, y_base+8) # Breaker
-            pdf.text(205, y_base+7, "Brk")
-            pdf.line(230, y_base+10, 250, y_base+10)
-            pdf.line(230, y_base+15, 250, y_base+15)
-
-            # 5. MEDIDOR (Ellipse)
-            pdf.rect(250, y_base, 20, 20)
-            pdf.ellipse(254, y_base+5, 12, 12)
-            pdf.set_font('Arial', 'B', 10); pdf.text(256, y_base+12, "kWh")
-            
-            # RED
-            pdf.line(270, y_base+10, 280, y_base+10)
-            pdf.line(270, y_base+15, 280, y_base+15)
-            pdf.text(275, y_base+8, "RED")
-            
-            # Tierra General
-            pdf.set_draw_color(0, 150, 0)
-            pdf.line(30, y_base+30, 270, y_base+30)
-            dibujar_tierra(pdf, 150, y_base+30)
-            pdf.set_font('Arial', 'B', 6); pdf.text(152, y_base+34, "SPT")
-
-            # --- PÁGINA 4: BOM CON PRECIOS (Que te gustó) ---
+            # --- PÁGINA 4: BOM ---
             pdf.add_page('P')
-            pdf.set_font('Arial', 'B', 16)
-            pdf.cell(0, 10, 'PRESUPUESTO DETALLADO', 0, 1, 'C')
-            pdf.ln(10)
-            
-            # Encabezados
+            pdf.set_font('Arial', 'B', 16); pdf.cell(0, 10, 'PRESUPUESTO', 0, 1, 'C'); pdf.ln(10)
             pdf.set_fill_color(200, 220, 255); pdf.set_font('Arial', 'B', 10)
-            pdf.cell(100, 10, 'Descripcion', 1, 0, 'C', True)
-            pdf.cell(20, 10, 'Cant.', 1, 0, 'C', True)
-            pdf.cell(35, 10, 'Unitario', 1, 0, 'C', True)
-            pdf.cell(35, 10, 'Total', 1, 1, 'C', True)
-            
+            pdf.cell(100, 10, 'Item', 1, 0, 'C', True); pdf.cell(20, 10, 'Cant', 1, 0, 'C', True); pdf.cell(35, 10, 'Unit', 1, 0, 'C', True); pdf.cell(35, 10, 'Total', 1, 1, 'C', True)
             pdf.set_font('Arial', '', 10)
-            items_bom = [
-                (f"Panel Solar {dato_panel['Referencia']}", st.session_state.n_paneles_real, dato_panel['Precio']),
-                (f"Inversor {dato_inv['Referencia']}", 1, dato_inv['Precio']),
-                ("Estructura de Montaje", st.session_state.n_paneles_real, 150000),
-                ("Kit Electrico (Cable, DPS)", 1, 800000),
-                ("Mano de Obra e Ing.", 1, costo_mo)
-            ]
-            total_presupuesto = 0
+            total_pres = 0
             for desc, cant, unit in items_bom:
-                total_linea = cant * unit
-                total_presupuesto += total_linea
-                pdf.cell(100, 10, limpiar(desc[:50]), 1)
-                pdf.cell(20, 10, str(int(cant)), 1, 0, 'C')
-                pdf.cell(35, 10, f"${unit:,.0f}", 1, 0, 'R')
-                pdf.cell(35, 10, f"${total_linea:,.0f}", 1, 1, 'R')
-            
-            pdf.set_font('Arial', 'B', 12)
-            pdf.cell(155, 10, "GRAN TOTAL", 1, 0, 'R')
-            pdf.cell(35, 10, f"${total_presupuesto:,.0f}", 1, 1, 'R')
+                tot = cant * unit
+                total_pres += tot
+                pdf.cell(100, 10, limpiar(desc[:50]), 1); pdf.cell(20, 10, str(int(cant)), 1, 0, 'C'); pdf.cell(35, 10, f"${unit:,.0f}", 1, 0, 'R'); pdf.cell(35, 10, f"${tot:,.0f}", 1, 1, 'R')
+            pdf.set_font('Arial', 'B', 12); pdf.cell(155, 10, "TOTAL", 1, 0, 'R'); pdf.cell(35, 10, f"${total_pres:,.0f}", 1, 1, 'R')
 
-            # OUTPUT
+            # DOWNLOAD
             pdf_content = pdf.output(dest='S')
             if isinstance(pdf_content, str): pdf_bytes = pdf_content.encode('latin-1')
             else: pdf_bytes = pdf_content
-
-            st.download_button("📥 DESCARGAR INFORME + PLANOS", pdf_bytes, f"Informe_{limpiar(cliente)}.pdf", "application/pdf")
-            st.success("✅ Informe Generado Correctamente.")
+            st.download_button("📥 DESCARGAR REPORTE FINAL", pdf_bytes, f"Reporte_{limpiar(cliente)}.pdf", "application/pdf")
+            st.success("✅ Reporte Completo Generado")
 
         except Exception as e:
             st.error(f"Error PDF: {e}")
