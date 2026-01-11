@@ -43,7 +43,6 @@ def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
     return generacion_diaria, eficiencia_global
 
 def dibujar_tierra(pdf, x, y):
-    # Dibuja el símbolo de tierra eléctrica
     pdf.line(x, y, x, y+2) 
     pdf.line(x-2, y+2, x+2, y+2) 
     pdf.line(x-1.2, y+2.8, x+1.2, y+2.8) 
@@ -286,7 +285,7 @@ with tab3:
             rects1 = ax_bar.bar(x - width/2, consumo_mensual, width, label='Consumo Red', color='#FF4B4B')
             rects2 = ax_bar.bar(x + width/2, gen_solar, width, label='Generación Solar', color='#00CC96')
             ax_bar.set_ylabel('Energía (kWh)')
-            ax_bar.set_title('Balance Energético Mensual')
+            ax_bar.set_title('Balance Energético Mensual: Generación vs Consumo')
             ax_bar.set_xticks(x)
             ax_bar.set_xticklabels(meses_nombres)
             ax_bar.legend()
