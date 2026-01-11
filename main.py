@@ -154,8 +154,7 @@ with st.expander("☀️ Análisis de Trayectoria Solar e Irradiancia (Detallado
         ax_sun.grid(True, linestyle='--')
         ax_sun.legend(fontsize='small')
         st.pyplot(fig_sun)
-        fig_sun.savefig("temp_sunpath.png", bbox_inches='tight')
-        plt.close(fig_sun)
+        # Se guarda dentro del botón para evitar problemas de refresco, pero definimos aquí para vista previa
 
     with col_sol2:
         st.subheader("Curva de Potencia Diaria")
@@ -170,8 +169,6 @@ with st.expander("☀️ Análisis de Trayectoria Solar e Irradiancia (Detallado
         ax_irr.set_ylim(0, 1100)
         ax_irr.grid(True, alpha=0.3)
         st.pyplot(fig_irr)
-        fig_irr.savefig("temp_curve.png", bbox_inches='tight')
-        plt.close(fig_irr)
 
 st.header("⚙️ 2. Selección de Equipos")
 ce1, ce2 = st.columns(2)
@@ -209,6 +206,7 @@ with tab1:
         c1.metric("Potencia DC", f"{st.session_state.potencia_sistema_kw*1000:.0f} Wp")
         c2.metric("Generación", f"{st.session_state.gen_total_mensual:.0f} kWh/mes")
         
+        # Gráfica en Interfaz
         df_graf = pd.DataFrame({"Mes": range(1,13), "Consumo": [consumo]*12, "Solar": [st.session_state.gen_total_mensual]*12})
         st.bar_chart(df_graf.set_index("Mes"), color=["#FF4B4B", "#00CC96"])
 
@@ -254,7 +252,53 @@ with tab3:
     
     if st.button("Generar PDF Profesional", use_container_width=True):
         try:
-            # 1. GRÁFICA ROI (FLUJO DE CAJA)
+            # 1. GENERAR IMÁGENES TEMPORALES (TODAS)
+            
+            # A. Trayectoria Solar
+            fig_sun, ax_sun = plt.subplots(figsize=(5, 3))
+            azimuth = np.linspace(-90, 90, 100)
+            elevation_winter = 45 * np.cos(np.radians(azimuth)) 
+            elevation_summer = 70 * np.cos(np.radians(azimuth)) 
+            ax_sun.plot(azimuth, elevation_summer, color='orange', label='Verano')
+            ax_sun.plot(azimuth, elevation_winter, color='blue', label='Invierno')
+            ax_sun.fill_between(azimuth, 0, 15, color='gray', alpha=0.3, label='Sombras')
+            ax_sun.set_title("Trayectoria Solar")
+            ax_sun.set_xlabel("Azimut")
+            ax_sun.set_ylabel("Elevación")
+            ax_sun.grid(True, linestyle='--')
+            fig_sun.savefig("temp_sunpath.png", bbox_inches='tight')
+            plt.close(fig_sun)
+
+            # B. Curva Diaria
+            horas = np.arange(6, 19)
+            irradiancia = np.sin(np.pi * (horas - 6) / 12) * 1000 
+            fig_irr, ax_irr = plt.subplots(figsize=(5, 3))
+            ax_irr.plot(horas, irradiancia, color='#f1c40f', linewidth=2)
+            ax_irr.fill_between(horas, irradiancia, color='#f1c40f', alpha=0.2)
+            ax_irr.set_title("Curva de Generación Diaria")
+            ax_irr.grid(True, alpha=0.3)
+            fig_irr.savefig("temp_curve.png", bbox_inches='tight')
+            plt.close(fig_irr)
+
+            # C. Gráfica de Barras Mensuales (Solar vs Red)
+            meses_nombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+            consumo_mensual = [consumo] * 12
+            gen_solar = [st.session_state.gen_total_mensual] * 12
+            x = np.arange(len(meses_nombres))
+            width = 0.35
+            fig_bar, ax_bar = plt.subplots(figsize=(10, 4))
+            rects1 = ax_bar.bar(x - width/2, consumo_mensual, width, label='Consumo Red', color='#FF4B4B')
+            rects2 = ax_bar.bar(x + width/2, gen_solar, width, label='Generación Solar', color='#00CC96')
+            ax_bar.set_ylabel('Energía (kWh)')
+            ax_bar.set_title('Balance Energético Mensual: Generación vs Consumo')
+            ax_bar.set_xticks(x)
+            ax_bar.set_xticklabels(meses_nombres)
+            ax_bar.legend()
+            ax_bar.grid(axis='y', linestyle='--', alpha=0.3)
+            fig_bar.savefig("temp_bars.png", bbox_inches='tight')
+            plt.close(fig_bar)
+
+            # D. Gráfica ROI
             fig_roi, ax_roi = plt.subplots(figsize=(10, 4))
             ax_roi.plot(flujo, color='green', linewidth=2)
             ax_roi.set_title("Flujo de Caja Acumulado (25 Años)")
@@ -263,34 +307,13 @@ with tab3:
             fig_roi.savefig("temp_roi.png", bbox_inches='tight')
             plt.close(fig_roi)
 
-            # 2. GRÁFICA BARRAS COMPARATIVAS (NUEVO: SOLAR VS CONSUMO)
-            meses_nombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-            consumo_mensual = [consumo] * 12
-            gen_solar = [st.session_state.gen_total_mensual] * 12
-            
-            x = np.arange(len(meses_nombres))
-            width = 0.35
-            
-            fig_bar, ax_bar = plt.subplots(figsize=(10, 4))
-            rects1 = ax_bar.bar(x - width/2, consumo_mensual, width, label='Consumo Red', color='#FF4B4B')
-            rects2 = ax_bar.bar(x + width/2, gen_solar, width, label='Generación Solar', color='#00CC96')
-            
-            ax_bar.set_ylabel('Energía (kWh)')
-            ax_bar.set_title('Balance Energético Mensual: Generación vs Consumo')
-            ax_bar.set_xticks(x)
-            ax_bar.set_xticklabels(meses_nombres)
-            ax_bar.legend()
-            ax_bar.grid(axis='y', linestyle='--', alpha=0.3)
-            
-            fig_bar.savefig("temp_bars.png", bbox_inches='tight')
-            plt.close(fig_bar)
-
             # --- INICIO PDF ---
             pdf = FPDF()
             pdf.set_auto_page_break(auto=True, margin=15)
             
             # --- PÁGINA 1: PORTADA ---
             pdf.add_page()
+            # Franja Azul
             pdf.set_fill_color(10, 40, 90)
             pdf.rect(0, 0, 210, 40, 'F')
             if os.path.exists("logo.png"): 
@@ -318,8 +341,8 @@ with tab3:
                 pdf.line(10, pdf.get_y(), 200, pdf.get_y())
             
             pdf.ln(5)
-            # Imágenes Solares (Página 1)
-            pdf.set_font('Arial', 'B', 12); pdf.cell(0, 10, "ANALISIS SOLAR", 0, 1)
+            # Imágenes Solares
+            pdf.set_font('Arial', 'B', 12); pdf.cell(0, 10, "ANALISIS DE RECURSO SOLAR", 0, 1)
             y_i = pdf.get_y()
             if os.path.exists("temp_sunpath.png"): pdf.image("temp_sunpath.png", x=10, y=y_i, w=90)
             if os.path.exists("temp_curve.png"): pdf.image("temp_curve.png", x=105, y=y_i, w=90)
@@ -329,7 +352,7 @@ with tab3:
             pdf.set_font('Arial', 'B', 14)
             pdf.cell(0, 10, 'ANALISIS DE GENERACION Y RETORNO', 0, 1)
             
-            # 1. Gráfica de Barras Comparativa (LA QUE FALTABA)
+            # 1. Gráfica Barras
             if os.path.exists("temp_bars.png"): 
                 pdf.image("temp_bars.png", x=10, y=30, w=190)
             
@@ -337,7 +360,7 @@ with tab3:
             if os.path.exists("temp_roi.png"): 
                 pdf.image("temp_roi.png", x=10, y=120, w=190)
 
-            # --- PÁGINA 3: DIAGRAMA UNIFILAR (CAD) ---
+            # --- PÁGINA 3: DIAGRAMA UNIFILAR (CAD - DETALLADO) ---
             pdf.add_page('L')
             # Marco
             pdf.set_line_width(0.5); pdf.rect(5, 5, 287, 200); pdf.rect(10, 10, 277, 190)
@@ -349,7 +372,7 @@ with tab3:
             pdf.set_xy(80, 177); pdf.set_font('Arial','B',8); pdf.cell(20,5,"UBICACION:"); pdf.set_xy(80,182); pdf.set_font('Arial','',8); pdf.cell(20,5,limpiar(ciudad))
             pdf.set_xy(220, 177); pdf.set_font('Arial','B',8); pdf.cell(20,5,"PLANO:"); pdf.set_xy(220,182); pdf.set_font('Arial','',8); pdf.cell(20,5,"EL-01")
 
-            # DIBUJO (Restaurado)
+            # DIBUJO
             yb = 80; xs = 30
             # Paneles
             pdf.set_draw_color(0); pdf.set_line_width(0.3)
