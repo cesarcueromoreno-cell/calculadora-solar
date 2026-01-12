@@ -7,6 +7,7 @@ import requests
 import pydeck as pdk
 import matplotlib.pyplot as plt
 import numpy as np
+import streamlit.components.v1 as components # Importante para el mapa externo
 
 # ==============================================================================
 # 1. CONFIGURACIÓN DEL ENTORNO
@@ -18,7 +19,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Estilos CSS para simular software profesional
+# Estilos CSS para simular software profesional (Tipo PVsyst)
 st.markdown("""
     <style>
     .main {background-color: #f4f6f8;}
@@ -29,6 +30,10 @@ st.markdown("""
     }
     [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, [data-testid="stSidebar"] span {
         color: #ecf0f1 !important;
+    }
+    [data-testid="stSidebar"] label {
+        color: #bdc3c7 !important;
+        font-weight: bold;
     }
     /* Títulos principales */
     h1, h2, h3 {
@@ -163,30 +168,14 @@ fecha_proy = st.sidebar.date_input("Fecha", datetime.now())
 # --- PANEL PRINCIPAL ---
 st.title("SIMU ING - Entorno de Simulación")
 
-# MAPA 3D SATELITAL (CORREGIDO PARA VISUALIZACIÓN)
-# Usamos un estilo "Satellite" directo de PyDeck que no falla
-deck_map = pdk.Deck(
-    map_style='mapbox://styles/mapbox/satellite-v9', # Estilo satelital limpio
-    initial_view_state=pdk.ViewState(
-        latitude=info_ciudad['lat'],
-        longitude=info_ciudad['lon'],
-        zoom=17, # Zoom más cercano para ver detalles
-        pitch=45, # Inclinación 3D
-        bearing=0
-    ),
-    layers=[
-        # Capa de Terreno/Imagen Satelital base (siempre visible)
-        pdk.Layer(
-            "ScatterplotLayer",
-            data=pd.DataFrame([{"lat": info_ciudad['lat'], "lon": info_ciudad['lon']}]),
-            get_position="[lon, lat]",
-            get_color=[255, 0, 0, 200], # Punto rojo marcador
-            get_radius=30,
-        ),
-    ],
-    height=350
-)
-st.pydeck_chart(deck_map)
+# ----------------------------------------------------------------------
+# INTEGRACIÓN GLOBAL SOLAR ATLAS (IFRAME)
+# Reemplaza el mapa estático por la herramienta interactiva completa
+# ----------------------------------------------------------------------
+st.markdown("### 🌐 Global Solar Atlas (Exploración de Sitio)")
+components.iframe("https://globalsolaratlas.info/map", height=600, scrolling=True)
+st.caption("Herramienta interactiva proporcionada por el Banco Mundial y Solargis.")
+# ----------------------------------------------------------------------
 
 # --- PESTAÑAS DE FLUJO DE TRABAJO ---
 tabs = st.tabs(["🏗️ Diseño del Sistema", "📊 Simulación", "💰 Análisis Económico", "📄 Reporte PDF"])
@@ -466,7 +455,7 @@ with tabs[3]:
             pdf.set_font('Arial', 'B', 8)
             pdf.text(x_start, y0-5, "GENERADOR FV")
             pdf.set_font('Arial', '', 7)
-            pdf.text(x_start, y0-2, f"{n_paneles} x {dato_panel['Potencia']}W")
+            pdf.text(x_start, y0-2, f"{n_paneles} x {dato_panel['Pmax']}W")
             
             # Cableado DC
             pdf.set_draw_color(200, 0, 0) # Rojo Positivo
@@ -578,8 +567,8 @@ with tabs[3]:
             pdf.set_font('Arial', '', 10)
             
             items_presupuesto = [
-                (f"Panel Solar {dato_panel['Referencia']}", n_paneles, dato_panel['Precio']),
-                (f"Inversor {dato_inv['Referencia']}", 1, dato_inv['Precio']),
+                (f"Panel Solar {data_panel['Referencia']}", n_paneles, data_panel['Precio']),
+                (f"Inversor {dato_inv['Referencia']}", 1, data_inv['Precio']),
                 ("Estructura de Montaje (Aluminio Anodizado)", n_paneles, 150000),
                 ("Materiales Electricos (Cable, DPS, Tableros)", 1, costo_bos),
                 ("Ingenieria, Mano de Obra y Tramites", 1, costo_ing)
