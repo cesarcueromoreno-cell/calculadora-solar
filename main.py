@@ -7,7 +7,7 @@ import requests
 import pydeck as pdk
 import matplotlib.pyplot as plt
 import numpy as np
-import streamlit.components.v1 as components # Importante para el mapa externo
+import streamlit.components.v1 as components
 
 # ==============================================================================
 # 1. CONFIGURACIÓN DEL ENTORNO
@@ -168,14 +168,47 @@ fecha_proy = st.sidebar.date_input("Fecha", datetime.now())
 # --- PANEL PRINCIPAL ---
 st.title("SIMU ING - Entorno de Simulación")
 
-# ----------------------------------------------------------------------
-# INTEGRACIÓN GLOBAL SOLAR ATLAS (IFRAME)
-# Reemplaza el mapa estático por la herramienta interactiva completa
-# ----------------------------------------------------------------------
-st.markdown("### 🌐 Global Solar Atlas (Exploración de Sitio)")
-components.iframe("https://globalsolaratlas.info/map", height=600, scrolling=True)
-st.caption("Herramienta interactiva proporcionada por el Banco Mundial y Solargis.")
-# ----------------------------------------------------------------------
+# --- VISUALIZACIÓN DE MAPAS (SATELITAL + ATLAS) ---
+col_map_type = st.radio("Seleccionar Vista de Sitio:", ["🛰️ Mapa Satelital 3D (Ubicación Exacta)", "🌐 Global Solar Atlas (Recurso)"], horizontal=True)
+
+if col_map_type == "🛰️ Mapa Satelital 3D (Ubicación Exacta)":
+    # MAPA PYDECK CON TESELAS PÚBLICAS (Funciona siempre)
+    layer_satelite = pdk.Layer(
+        "TileLayer",
+        data=None,
+        # Usamos Esri World Imagery para garantizar que se vea el mapa satelital sin API Key privada
+        get_tile_data="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        opacity=1
+    )
+    
+    view_state = pdk.ViewState(
+        latitude=info_ciudad['lat'],
+        longitude=info_ciudad['lon'],
+        zoom=17,
+        pitch=45,
+        bearing=0
+    )
+    
+    st.pydeck_chart(pdk.Deck(
+        map_style=None,
+        initial_view_state=view_state,
+        layers=[
+            layer_satelite,
+            pdk.Layer(
+                "IconLayer",
+                data=pd.DataFrame([{"lat": info_ciudad['lat'], "lon": info_ciudad['lon']}]),
+                get_position="[lon, lat]",
+                get_icon={"url": "https://img.icons8.com/color/100/marker--v1.png", "width": 128, "height": 128, "anchorY": 128},
+                get_size=4,
+                size_scale=15
+            ),
+        ],
+        height=400
+    ))
+else:
+    # INTEGRACIÓN GLOBAL SOLAR ATLAS
+    components.iframe("https://globalsolaratlas.info/map", height=600, scrolling=True)
+
 
 # --- PESTAÑAS DE FLUJO DE TRABAJO ---
 tabs = st.tabs(["🏗️ Diseño del Sistema", "📊 Simulación", "💰 Análisis Económico", "📄 Reporte PDF"])
@@ -439,7 +472,7 @@ with tabs[3]:
             pdf.set_xy(230, y_cajetin+7); pdf.set_font('Arial', '', 8); pdf.cell(30, 4, "EL-01 UNIFILAR", 0, 0)
 
             # --- DIBUJO DEL DIAGRAMA (Coordenadas calibradas) ---
-            y0 = 80
+            y_draw = 80
             x_start = 30
             
             # 1. ARREGLO FOTOVOLTAICO
@@ -448,105 +481,105 @@ with tabs[3]:
             # Dibujo de 3 módulos simbólicos
             for i in range(3):
                 px = x_start + i*15
-                pdf.rect(px, y0, 12, 20) # Marco
-                pdf.line(px, y0+6, px+12, y0+6) # Celda 1
-                pdf.line(px, y0+13, px+12, y0+13) # Celda 2
+                pdf.rect(px, y_draw, 12, 20) # Marco
+                pdf.line(px, y_draw+6, px+12, y_draw+6) # Celda 1
+                pdf.line(px, y_draw+13, px+12, y_draw+13) # Celda 2
             
             pdf.set_font('Arial', 'B', 8)
-            pdf.text(x_start, y0-5, "GENERADOR FV")
+            pdf.text(x_start, y_draw-5, "GENERADOR FV")
             pdf.set_font('Arial', '', 7)
-            pdf.text(x_start, y0-2, f"{n_paneles} x {dato_panel['Pmax']}W")
+            pdf.text(x_start, y_draw-2, f"{n_paneles} x {dato_panel['Pmax']}W")
             
             # Cableado DC
             pdf.set_draw_color(200, 0, 0) # Rojo Positivo
-            pdf.line(x_start+36, y0+2, 90, y0+2)
-            pdf.text(70, y0+1, "DC (+)")
+            pdf.line(x_start+36, y_draw+2, 90, y_draw+2)
+            pdf.text(70, y_draw+1, "DC (+)")
             
             pdf.set_draw_color(0, 0, 0) # Negro Negativo
-            pdf.line(x_start+36, y0+18, 90, y0+18)
-            pdf.text(70, y0+17, "DC (-)")
+            pdf.line(x_start+36, y_draw+18, 90, y_draw+18)
+            pdf.text(70, y_draw+17, "DC (-)")
             
             # Tierra Paneles
             pdf.set_draw_color(0, 150, 0) # Verde Tierra
-            pdf.line(x_start+6, y0+20, x_start+6, y0+35) # Bajante
-            pdf.line(x_start+6, y0+35, 250, y0+35) # Bus de tierra horizontal
-            pdf.text(x_start+7, y0+30, "T")
+            pdf.line(x_start+6, y_draw+20, x_start+6, y_draw+35) # Bajante
+            pdf.line(x_start+6, y_draw+35, 250, y_draw+35) # Bus de tierra horizontal
+            pdf.text(x_start+7, y_draw+30, "T")
             
             # 2. CAJA DC (Tablero de Protecciones)
             pdf.set_draw_color(0, 0, 0)
-            pdf.rect(90, y0-10, 40, 40)
+            pdf.rect(90, y_draw-10, 40, 40)
             pdf.set_font('Arial', 'B', 7)
-            pdf.text(92, y0-7, "TABLERO DC")
+            pdf.text(92, y_draw-7, "TABLERO DC")
             
             # Fusibles
-            pdf.rect(95, y0, 8, 4); pdf.line(95, y0+2, 103, y0+2) # Fus +
-            pdf.rect(95, y0+16, 8, 4); pdf.line(95, y0+18, 103, y0+18) # Fus -
-            pdf.text(96, y0-1, "Fus 15A")
+            pdf.rect(95, y_draw, 8, 4); pdf.line(95, y_draw+2, 103, y_draw+2) # Fus +
+            pdf.rect(95, y_draw+16, 8, 4); pdf.line(95, y_draw+18, 103, y_draw+18) # Fus -
+            pdf.text(96, y_draw-1, "Fus 15A")
             
             # DPS DC
-            pdf.rect(110, y0+8, 6, 10)
-            pdf.text(111, y0+7, "DPS")
-            pdf.line(113, y0+18, 113, y0+35) # Conexión a bus tierra
+            pdf.rect(110, y_draw+8, 6, 10)
+            pdf.text(111, y_draw+7, "DPS")
+            pdf.line(113, y_draw+18, 113, y_draw+35) # Conexión a bus tierra
             
             # Salida DC a Inversor
-            pdf.set_draw_color(200, 0, 0); pdf.line(130, y0+2, 150, y0+2)
-            pdf.set_draw_color(0, 0, 0); pdf.line(130, y0+18, 150, y0+18)
+            pdf.set_draw_color(200, 0, 0); pdf.line(130, y_draw+2, 150, y_draw+2)
+            pdf.set_draw_color(0, 0, 0); pdf.line(130, y_draw+18, 150, y_draw+18)
             
             # 3. INVERSOR
-            pdf.rect(150, y0-5, 30, 30)
-            pdf.set_font('Arial', 'B', 8); pdf.text(152, y0, "INVERSOR")
-            pdf.set_font('Arial', '', 6); pdf.text(152, y0+5, f"{dato_inv['Pnom']/1000} kW")
+            pdf.rect(150, y_draw-5, 30, 30)
+            pdf.set_font('Arial', 'B', 8); pdf.text(152, y_draw, "INVERSOR")
+            pdf.set_font('Arial', '', 6); pdf.text(152, y_draw+5, f"{dato_inv['Pnom']/1000} kW")
             
             # Tierra Inversor
             pdf.set_draw_color(0, 150, 0)
-            pdf.line(165, y0+25, 165, y0+35)
+            pdf.line(165, y_draw+25, 165, y_draw+35)
             
             # Salida AC
             pdf.set_draw_color(0, 0, 0)
-            pdf.line(180, y0+10, 200, y0+10) # Fase
-            pdf.line(180, y0+15, 200, y0+15) # Neutro
-            pdf.text(185, y0+9, "L"); pdf.text(185, y0+14, "N")
+            pdf.line(180, y_draw+10, 200, y_draw+10) # Fase
+            pdf.line(180, y_draw+15, 200, y_draw+15) # Neutro
+            pdf.text(185, y_draw+9, "L"); pdf.text(185, y_draw+14, "N")
             
             # 4. TABLERO AC
-            pdf.rect(200, y0-5, 30, 30)
-            pdf.set_font('Arial', 'B', 7); pdf.text(202, y0-2, "TABLERO AC")
+            pdf.rect(200, y_draw-5, 30, 30)
+            pdf.set_font('Arial', 'B', 7); pdf.text(202, y_draw-2, "TABLERO AC")
             
             # Breaker AC
-            pdf.rect(205, y0+8, 5, 10)
-            pdf.line(205, y0+13, 210, y0+8) # Palanca
-            pdf.text(205, y0+7, "Brk")
+            pdf.rect(205, y_draw+8, 5, 10)
+            pdf.line(205, y_draw+13, 210, y_draw+8) # Palanca
+            pdf.text(205, y_draw+7, "Brk")
             
             # Salida a Medidor
-            pdf.line(230, y0+10, 250, y0+10)
-            pdf.line(230, y0+15, 250, y0+15)
+            pdf.line(230, y_draw+10, 250, y_draw+10)
+            pdf.line(230, y_draw+15, 250, y_draw+15)
             
             # 5. MEDIDOR (Versión Segura sin crash)
-            pdf.rect(250, y0, 20, 20)
+            pdf.rect(250, y_draw, 20, 20)
             try:
                 # Intenta usar ellipse (FPDF moderno)
-                if hasattr(pdf, 'ellipse'): pdf.ellipse(254, y0+5, 12, 12)
+                if hasattr(pdf, 'ellipse'): pdf.ellipse(254, y_draw+5, 12, 12)
                 # Intenta usar circle (FPDF antiguo)
-                elif hasattr(pdf, 'circle'): pdf.circle(260, y0+11, 6)
+                elif hasattr(pdf, 'circle'): pdf.circle(260, y_draw+11, 6)
                 # Fallback texto
                 else: 
                     pdf.set_font('Arial', 'B', 14)
-                    pdf.text(257, y0+15, "M")
+                    pdf.text(257, y_draw+15, "M")
             except:
                 pdf.set_font('Arial', 'B', 14)
-                pdf.text(257, y0+15, "M")
+                pdf.text(257, y_draw+15, "M")
                 
-            pdf.set_font('Arial', 'B', 10); pdf.text(256, y0+12, "kWh")
+            pdf.set_font('Arial', 'B', 10); pdf.text(256, y_draw+12, "kWh")
             
             # Red Eléctrica
-            pdf.line(270, y0+10, 280, y0+10)
-            pdf.line(270, y0+15, 280, y0+15)
-            pdf.text(275, y0+8, "RED")
+            pdf.line(270, y_draw+10, 280, y_draw+10)
+            pdf.line(270, y_draw+15, 280, y_draw+15)
+            pdf.text(275, y_draw+8, "RED")
             
             # Tierra General Símbolo
             pdf.set_draw_color(0, 150, 0)
-            pdf.line(30, y0+35, 270, y0+35) # Bus equipotencial extendido
-            dibujar_tierra_pdf(pdf, 150, y0+35)
-            pdf.set_font('Arial', 'B', 6); pdf.text(152, y0+40, "SPT")
+            pdf.line(30, y_draw+35, 270, y_draw+35) # Bus equipotencial extendido
+            dibujar_tierra_pdf(pdf, 150, y_draw+35)
+            pdf.set_font('Arial', 'B', 6); pdf.text(152, y_draw+40, "SPT")
 
             # ==================================================================
             # PÁGINA 4: PRESUPUESTO DETALLADO
@@ -567,8 +600,8 @@ with tabs[3]:
             pdf.set_font('Arial', '', 10)
             
             items_presupuesto = [
-                (f"Panel Solar {data_panel['Referencia']}", n_paneles, data_panel['Precio']),
-                (f"Inversor {dato_inv['Referencia']}", 1, data_inv['Precio']),
+                (f"Panel Solar {dato_panel['Referencia']}", n_paneles, dato_panel['Precio']),
+                (f"Inversor {dato_inv['Referencia']}", 1, dato_inv['Precio']),
                 ("Estructura de Montaje (Aluminio Anodizado)", n_paneles, 150000),
                 ("Materiales Electricos (Cable, DPS, Tableros)", 1, costo_bos),
                 ("Ingenieria, Mano de Obra y Tramites", 1, costo_ing)
