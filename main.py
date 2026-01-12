@@ -3,9 +3,11 @@ import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
 import os
+import requests
 import pydeck as pdk
 import matplotlib.pyplot as plt
 import numpy as np
+import streamlit.components.v1 as components
 
 # ==============================================================================
 # 1. CONFIGURACIÓN DEL ENTORNO
@@ -17,12 +19,12 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Estilos CSS Profesionales
+# Estilos CSS Profesionales (Tipo PVsyst)
 st.markdown("""
     <style>
     .main {background-color: #f4f6f8;}
     [data-testid="stSidebar"] {background-color: #2c3e50; color: white;}
-    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {color: #ecf0f1 !important;}
+    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, [data-testid="stSidebar"] span {color: #ecf0f1 !important;}
     [data-testid="stSidebar"] label {color: #bdc3c7 !important; font-weight: bold;}
     h1, h2, h3 {color: #2980b9; font-family: 'Segoe UI', sans-serif;}
     div.css-1r6slb0 {border: 1px solid #dcdcdc; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 15px; border-radius: 5px; background-color: white;}
@@ -54,12 +56,12 @@ def simulacion_pvsyst(potencia_dc_kw, hsp_sitio, temp_amb_grados):
     return generacion_diaria, eficiencia_global
 
 def dibujar_tierra_pdf(pdf, x, y):
-    pdf.set_draw_color(0, 150, 0)
+    pdf.set_draw_color(0, 150, 0) # Verde Tierra
     pdf.line(x, y, x, y+2) 
     pdf.line(x-2, y+2, x+2, y+2) 
     pdf.line(x-1.2, y+2.8, x+1.2, y+2.8) 
     pdf.line(x-0.5, y+3.6, x+0.5, y+3.6) 
-    pdf.set_draw_color(0)
+    pdf.set_draw_color(0) # Reset a negro
 
 # ==============================================================================
 # 3. BASE DE DATOS
@@ -99,37 +101,46 @@ cliente = st.sidebar.text_input("Nombre", "Cliente General")
 st.title("SIMU ING - Entorno de Simulación")
 
 # --- MAPA 3D SATELITAL ROBUSTO (NO FALLA) ---
-st.markdown("### 🛰️ Visualización de Sitio (3D)")
-# Usamos un TileLayer de Esri que es público y de alta resolución
-layer_sat = pdk.Layer(
-    "TileLayer",
-    data=None,
-    get_tile_data="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    opacity=1
-)
-view_state = pdk.ViewState(
-    latitude=info_ciudad['lat'], 
-    longitude=info_ciudad['lon'], 
-    zoom=16, 
-    pitch=50 # Inclinación para efecto 3D
-)
+st.markdown("### 🛰️ Visualización de Sitio (3D) & Recurso Solar")
 
-st.pydeck_chart(pdk.Deck(
-    map_style=None,
-    initial_view_state=view_state,
-    layers=[
-        layer_sat,
-        pdk.Layer(
-            "IconLayer",
-            data=pd.DataFrame([{"lat": info_ciudad['lat'], "lon": info_ciudad['lon']}]),
-            get_position="[lon, lat]",
-            get_icon={"url": "https://img.icons8.com/color/100/marker--v1.png", "width": 128, "height": 128, "anchorY": 128},
-            get_size=4,
-            size_scale=15
-        )
-    ],
-    height=450
-))
+# Selector de visualización
+tipo_visualizacion = st.radio("Seleccionar Vista:", ["Mapa 3D (Ubicación)", "Atlas Solar Global (Recurso)"], horizontal=True)
+
+if tipo_visualizacion == "Mapa 3D (Ubicación)":
+    # Usamos un TileLayer de Esri que es público y de alta resolución
+    layer_sat = pdk.Layer(
+        "TileLayer",
+        data=None,
+        get_tile_data="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        opacity=1
+    )
+    view_state = pdk.ViewState(
+        latitude=info_ciudad['lat'], 
+        longitude=info_ciudad['lon'], 
+        zoom=17, 
+        pitch=50 # Inclinación para efecto 3D
+    )
+
+    st.pydeck_chart(pdk.Deck(
+        map_style=None,
+        initial_view_state=view_state,
+        layers=[
+            layer_sat,
+            pdk.Layer(
+                "IconLayer",
+                data=pd.DataFrame([{"lat": info_ciudad['lat'], "lon": info_ciudad['lon']}]),
+                get_position="[lon, lat]",
+                get_icon={"url": "https://img.icons8.com/color/100/marker--v1.png", "width": 128, "height": 128, "anchorY": 128},
+                get_size=4,
+                size_scale=15
+            )
+        ],
+        height=450
+    ))
+else:
+    # Integración Atlas Solar Global
+    components.iframe("https://globalsolaratlas.info/map", height=600, scrolling=True)
+
 
 # TABS
 tabs = st.tabs(["🏗️ Diseño", "📊 Simulación", "💰 Económico", "📄 Reporte PDF"])
@@ -161,19 +172,30 @@ with tabs[1]:
     # Gráficas PDF (Generación Oculta)
     fig_sun, ax = plt.subplots(figsize=(5,3))
     az = np.linspace(-90,90,100)
-    ax.plot(az, 70*np.cos(np.radians(az)), color='orange'); ax.set_title("Trayectoria Solar")
+    ax.plot(az, 70*np.cos(np.radians(az)), color='orange', label='Verano')
+    ax.plot(az, 45*np.cos(np.radians(az)), color='blue', label='Invierno')
+    ax.fill_between(az, 0, 15, color='gray', alpha=0.3, label='Sombras')
+    ax.set_title("Trayectoria Solar")
+    ax.grid(True, linestyle='--')
     fig_sun.savefig("temp_sunpath.png", bbox_inches='tight'); plt.close(fig_sun)
 
     fig_day, ax = plt.subplots(figsize=(5,3))
-    h = np.arange(6,19); ax.plot(h, np.sin(np.pi*(h-6)/12)*1000, color='orange'); ax.set_title("Curva Diaria")
+    h = np.arange(6,19); ax.plot(h, np.sin(np.pi*(h-6)/12)*1000, color='orange'); ax.set_title("Curva Diaria (W/m2)")
+    ax.grid(True, alpha=0.3)
     fig_day.savefig("temp_curve.png", bbox_inches='tight'); plt.close(fig_day)
     
-    # Gráfica Visible
+    # Gráfica Visible (Barras)
     meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+    consumo_list = [consumo] * 12
+    gen_list = [st.session_state.gen_total_mensual] * 12
+    
     fig_bar, ax = plt.subplots(figsize=(10,4))
-    ax.bar(np.arange(12)-0.17, [consumo]*12, 0.35, label='Consumo', color='#e74c3c')
-    ax.bar(np.arange(12)+0.17, [st.session_state.gen_total_mensual]*12, 0.35, label='Solar', color='#2ecc71')
-    ax.legend(); ax.set_title("Balance Energético")
+    x = np.arange(len(meses))
+    width = 0.35
+    ax.bar(x - width/2, consumo_list, width, label='Consumo', color='#e74c3c')
+    ax.bar(x + width/2, gen_list, width, label='Generación Solar', color='#2ecc71')
+    ax.set_xticks(x); ax.set_xticklabels(meses)
+    ax.legend(); ax.set_title("Balance Energético Mensual")
     st.pyplot(fig_bar)
     fig_bar.savefig("temp_bars.png", bbox_inches='tight'); plt.close(fig_bar)
 
@@ -184,7 +206,10 @@ with tabs[2]:
     ahorro = st.session_state.gen_total_mensual * tarifa
     flujo = [-costo_tot]; 
     for _ in range(25): flujo.append(flujo[-1] + (ahorro*12*1.05))
+    roi_anos = costo_tot / (ahorro * 12) if ahorro > 0 else 0
+    
     fig_roi, ax = plt.subplots(figsize=(10,4)); ax.plot(flujo, color='green'); ax.set_title("Flujo de Caja")
+    ax.grid(True, linestyle='--', alpha=0.5)
     st.pyplot(fig_roi)
     fig_roi.savefig("temp_roi.png", bbox_inches='tight'); plt.close(fig_roi)
 
@@ -193,7 +218,7 @@ with tabs[3]:
         try:
             pdf = FPDF(); pdf.set_auto_page_break(auto=True, margin=15)
             
-            # P1: PORTADA
+            # === PÁGINA 1: PORTADA Y SOLAR ===
             pdf.add_page(); pdf.set_fill_color(10,40,90); pdf.rect(0,0,210,35,'F')
             pdf.set_text_color(255); pdf.set_font('Arial','B',22); pdf.set_xy(10,10); pdf.cell(0,10,'PROPUESTA TECNICA',0,1)
             pdf.set_font('Arial','',12); pdf.set_xy(10,20); pdf.cell(0,5,'SISTEMA FOTOVOLTAICO',0,1)
@@ -201,29 +226,36 @@ with tabs[3]:
             
             pdf.set_font('Arial','B',12); pdf.cell(0,8,"DATOS DEL PROYECTO",0,1,'L')
             pdf.set_font('Arial','',10)
-            datos = [("Cliente", limpiar(cliente)), ("Ubicacion", limpiar(ciudad_sel)), ("Potencia", f"{st.session_state.potencia_sistema_kw:.2f} kWp")]
+            datos = [("Cliente", limpiar(cliente)), ("Ubicacion", limpiar(ciudad_sel)), ("Potencia", f"{st.session_state.potencia_sistema_kw:.2f} kWp"), ("Generacion Mensual", f"{st.session_state.gen_total_mensual:.0f} kWh/mes")]
             for k,v in datos: pdf.cell(40,7,k,0); pdf.cell(0,7,v,0,1); pdf.line(10,pdf.get_y(),200,pdf.get_y())
             
-            pdf.ln(10); pdf.set_font('Arial','B',12); pdf.cell(0,10,"ANALISIS SOLAR",0,1)
+            pdf.ln(10); pdf.set_font('Arial','B',12); pdf.cell(0,10,"ANALISIS DE RECURSO SOLAR",0,1)
             y = pdf.get_y()
             if os.path.exists("temp_sunpath.png"): pdf.image("temp_sunpath.png",x=10,y=y,w=90)
             if os.path.exists("temp_curve.png"): pdf.image("temp_curve.png",x=105,y=y,w=90)
 
-            # P2: FINANCIERO
+            # === PÁGINA 2: FINANCIERO ===
             pdf.add_page(); pdf.set_font('Arial','B',14); pdf.cell(0,10,"ANALISIS FINANCIERO",0,1)
+            
+            # Gráfica de Barras (Generación vs Consumo)
             if os.path.exists("temp_bars.png"): pdf.image("temp_bars.png",x=10,y=30,w=190)
+            
+            # Gráfica ROI (Flujo de Caja)
             if os.path.exists("temp_roi.png"): pdf.image("temp_roi.png",x=10,y=120,w=190)
+            
+            pdf.set_y(230)
+            pdf.set_font('Arial','',11)
+            pdf.cell(0, 10, f"Inversion Total: ${costo_tot:,.0f} | Retorno: {roi_anos:.1f} Anios | Ahorro Acumulado: ${flujo[-1]:,.0f}", 0, 1, 'C')
 
-            # P3: UNIFILAR CAD (DETALLADO Y CORREGIDO)
+            # === PÁGINA 3: UNIFILAR CAD (DETALLADO) ===
             pdf.add_page('L'); pdf.rect(5,5,287,200); pdf.rect(10,10,277,190); pdf.line(10,175,287,175)
             pdf.set_font('Arial','B',8); pdf.set_xy(15,177); pdf.cell(20,5,"PROYECTO: "+limpiar(cliente))
-            pdf.set_xy(150, 177); pdf.cell(20, 5, "PLANO: EL-01 UNIFILAR")
             
-            # Dibujo
+            # DIBUJO TÉCNICO
             y0=80; xs=30; pdf.set_draw_color(0)
             # Paneles
             for i in range(3):
-                pdf.rect(xs+i*15,y0,12,20); pdf.line(xs+i*15,y0+6,xs+i*15+12,y0+6)
+                pdf.rect(xs+i*15,y0,12,20); pdf.line(xs+i*15,y0+6,xs+i*15+12,y0+6); pdf.line(xs+i*15,y0+13,xs+i*15+12,y0+13)
             pdf.text(xs,y0-5,"GENERADOR FV")
             # DC
             pdf.set_draw_color(200,0,0); pdf.line(xs+36,y0+2,90,y0+2); pdf.text(70,y0+1,"DC+")
@@ -252,8 +284,8 @@ with tabs[3]:
             # Tierra
             pdf.set_draw_color(0,150,0); pdf.line(30,y0+35,270,y0+35); dibujar_tierra_pdf(pdf,150,y0+35); pdf.text(152,y0+40,"SPT")
 
-            # P4: BOM
-            pdf.add_page('P'); pdf.set_font('Arial','B',16); pdf.cell(0,10,'PRESUPUESTO',0,1,'C'); pdf.ln(10)
+            # === PÁGINA 4: PRESUPUESTO ===
+            pdf.add_page('P'); pdf.set_font('Arial','B',16); pdf.cell(0,10,'PRESUPUESTO DETALLADO',0,1,'C'); pdf.ln(10)
             pdf.set_fill_color(200,220,255); pdf.set_font('Arial','B',10)
             pdf.cell(100,10,'Item',1,0,'C',True); pdf.cell(30,10,'Total',1,1,'C',True)
             pdf.set_font('Arial','',10)
